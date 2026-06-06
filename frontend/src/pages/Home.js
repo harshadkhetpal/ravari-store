@@ -180,9 +180,9 @@ function Home() {
                   muted
                   autoPlay
                   loop
-                  preload="auto"
+                  preload="metadata"
                   playsInline
-                  poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 16'%3E%3Crect fill='%23222' width='9' height='16'/%3E%3Ctext x='4.5' y='8' dominant-baseline='middle' text-anchor='middle' font-size='2' fill='%23666'%3E▶%3C/text%3E%3C/svg%3E"
+                  poster={`/images/p${idx + 1}-a.png`}
                   onMouseEnter={(e) => {
                     e.target.volume = 1;
                   }}
