@@ -286,7 +286,10 @@ setupDatabase().catch(err => {
 try {
   app.use('/api/products', require('./routes/products'));
   app.use('/api/reviews', require('./routes/reviews'));
-  app.use('/api/auth', require('./routes/auth'));
+  app.use('/api/users', require('./routes/users'));
+  app.use('/api/orders', require('./routes/orders'));
+  app.use('/api/wishlist', require('./routes/wishlist'));
+  app.use('/api/admin', require('./routes/admin'));
   console.log('✅ API routes registered');
 } catch (err) {
   console.error('❌ Error loading routes:', err.message);
