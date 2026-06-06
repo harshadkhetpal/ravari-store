@@ -27,6 +27,13 @@ console.log(`📂 Root: ${__dirname}`);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve public directory (static files)
+const publicDir = path.join(__dirname, '../public');
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+  console.log('✅ Public directory served');
+}
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
