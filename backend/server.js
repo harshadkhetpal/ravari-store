@@ -88,26 +88,32 @@ function withTimeout(promise, ms, label) {
   ]);
 }
 
-// Raw mysql2 diagnostic — captures the exact syscall/path behind EEXIST
+// Driver diagnostic — which MySQL driver can even be loaded in this sandbox?
 async function rawDiag() {
   const results = [];
-  let mysql;
-  try { mysql = require('mysql2/promise'); }
-  catch (e) { return [{ step: 'require mysql2', code: e.code, msg: e.message }]; }
-
-  const cfgs = [
-    { name: 'env-host', opts: { host: process.env.DB_HOST || 'localhost', user: process.env.DB_USER || 'u800235524_ravari_user', password: process.env.DB_PASSWORD || 'Ravari@2026Secure123!', database: process.env.DB_NAME || 'u800235524_ravari_store', connectTimeout: 5000 } },
-    { name: 'tcp-127', opts: { host: '127.0.0.1', port: 3306, user: process.env.DB_USER || 'u800235524_ravari_user', password: process.env.DB_PASSWORD || 'Ravari@2026Secure123!', database: process.env.DB_NAME || 'u800235524_ravari_store', connectTimeout: 5000 } }
-  ];
-  for (const c of cfgs) {
+  for (const mod of ['mysql2/promise', 'mariadb', 'mysql']) {
     try {
-      const conn = await mysql.createConnection(c.opts);
-      await conn.query('SELECT 1');
-      await conn.end();
-      results.push({ name: c.name, ok: true });
+      require(mod);
+      results.push({ require: mod, ok: true });
     } catch (e) {
-      results.push({ name: c.name, ok: false, code: e.code, errno: e.errno, syscall: e.syscall, path: e.path, msg: e.message });
+      results.push({ require: mod, ok: false, code: e.code, syscall: e.syscall, path: e.path, msg: e.message });
     }
+  }
+  // If mariadb loaded, try an actual connection
+  try {
+    const mariadb = require('mariadb');
+    const conn = await mariadb.createConnection({
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'u800235524_ravari_user',
+      password: process.env.DB_PASSWORD || 'Ravari@2026Secure123!',
+      database: process.env.DB_NAME || 'u800235524_ravari_store',
+      connectTimeout: 5000
+    });
+    await conn.query('SELECT 1');
+    await conn.end();
+    results.push({ mariadbConnect: 'env-host', ok: true });
+  } catch (e) {
+    results.push({ mariadbConnect: 'env-host', ok: false, code: e.code, msg: e.message });
   }
   return results;
 }
