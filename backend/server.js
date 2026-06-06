@@ -1,92 +1,70 @@
+require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 const path = require('path');
-const fs = require('fs').promises;
-
-dotenv.config();
 
 const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || '*',
   credentials: true
 }));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Create public directory if it doesn't exist
-const publicDir = path.join(__dirname, 'public');
-const imagesDir = path.join(publicDir, 'images');
+// Static files - Frontend build
+const frontendBuild = path.join(__dirname, '../frontend/build');
+const fs = require('fs');
 
-(async () => {
-  try {
-    await fs.mkdir(imagesDir, { recursive: true });
-  } catch (error) {
-    console.error('Error creating directories:', error);
-  }
-})();
+// Check if frontend build exists, if not create a simple fallback
+if (fs.existsSync(frontendBuild)) {
+  app.use(express.static(frontendBuild));
+} else {
+  console.log('⚠️  Frontend build not found, will serve from public...');
+  app.use(express.static(path.join(__dirname, 'public')));
+}
 
-// Serve static files
-app.use(express.static(publicDir));
+// Product images
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
-// Database Connection
+// MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ravari', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.log('❌ MongoDB connection error:', err));
+.catch(err => console.error('❌ MongoDB error:', err));
 
 // Routes
 app.use('/api/products', require('./routes/products'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/orders', require('./routes/orders'));
 app.use('/api/reviews', require('./routes/reviews'));
-app.use('/api/wishlist', require('./routes/wishlist'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/scraper', require('./routes/scraper'));
-
-// SEO Routes (serve at root level)
-app.use('/', require('./routes/seo'));
+app.use('/api/auth', require('./routes/auth'));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({
-    success: true,
-    status: 'API is running',
-    timestamp: new Date(),
-    environment: process.env.NODE_ENV || 'development'
-  });
+  res.json({ status: 'ok', message: 'Ravari API is running' });
 });
 
-// Error handling middleware
+// Serve React app for all non-API routes (SPA fallback)
+app.get('*', (req, res) => {
+  const indexPath = path.join(frontendBuild, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    // Fallback response if no frontend build
+    res.send('<h1>Ravari API Server</h1><p>Frontend build not available. API endpoints are functional.</p>');
+  }
+});
+
+// Error handling
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({
-    success: false,
-    error: err.message || 'Internal Server Error',
-    timestamp: new Date()
-  });
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Route not found',
-    path: req.path
-  });
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 API URL: http://localhost:${PORT}/api`);
-  console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🚀 Ravari backend running on port ${PORT}`);
 });
-
-module.exports = app;

@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /account/
+Disallow: /search/
+Disallow: /filter/
+
+# Allow specific search parameters
+Allow: /?sort=
+Allow: /?page=
+
+# Crawl delay
+Crawl-delay: 1
+
+# Sitemap locations
+Sitemap: https://ravari.in/sitemap.xml
+Sitemap: https://ravari.in/sitemap-products.xml
+Sitemap: https://ravari.in/sitemap-blog.xml

@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiMail, FiPhone, FiMapPin, FiClock } from 'react-icons/fi';
+import SEO from '../components/SEO';
+import { SEO_CONFIG } from '../utils/seoConstants';
+import { trackPageView, trackFormSubmission } from '../utils/ga4Tracking';
 
 function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    trackPageView('/contact', 'Contact - RAVARI');
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -11,6 +18,7 @@ function Contact() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    trackFormSubmission('contact');
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
     setFormData({ name: '', email: '', phone: '', message: '' });
@@ -21,6 +29,12 @@ function Contact() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title={SEO_CONFIG.pages.contact.title}
+        description={SEO_CONFIG.pages.contact.description}
+        keywords={SEO_CONFIG.pages.contact.keywords}
+        canonical={`${SEO_CONFIG.site.url}/contact`}
+      />
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-b-4 border-amber-200 py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4">

@@ -1,0 +1,25 @@
+{
+  "name": "ravari-store",
+  "version": "1.0.0",
+  "description": "Ravari Store - Luxury Lifestyle E-commerce Platform",
+  "main": "backend/server.js",
+  "engines": {
+    "node": "18.x"
+  },
+  "scripts": {
+    "start": "node backend/server.js",
+    "build": "cd frontend && npm install --production=false && npm run build && cd ../backend && npm install --production",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "mongoose": "^7.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
