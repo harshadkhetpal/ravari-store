@@ -30,130 +30,90 @@ const PRODUCTS = [
 // ---------------------------------------------------------------------------
 // Database (best-effort: never blocks or crashes the server)
 // ---------------------------------------------------------------------------
-let Product = null;
 let dbReady = false;
 let dbError = null;
 let dbHostUsed = null;
-let dbDiag = null;
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-async function tryConnect(target) {
-  const { Sequelize, DataTypes } = require('sequelize');
-  // target can be { host, port } for TCP or { socketPath } for unix socket
-  const conn = target.socketPath
-    ? { dialectOptions: { socketPath: target.socketPath } }
-    : { host: target.host, port: target.port || 3306, dialectOptions: { connectTimeout: 15000 } };
+// Pure-JS `mysql` driver loads in Hostinger's sandbox (mysql2 does not).
+let pool = null;
 
-  const sequelize = new Sequelize(
-    process.env.DB_NAME || 'u800235524_ravari_store',
-    process.env.DB_USER || 'u800235524_ravari_user',
-    process.env.DB_PASSWORD || 'Ravari@2026Secure123!',
-    {
-      dialect: 'mysql',
-      logging: false,
-      pool: { max: 5, min: 0, acquire: 15000, idle: 10000 },
-      ...conn
-    }
-  );
-
-  const model = sequelize.define('Product', {
-    id:          { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    name:        { type: DataTypes.STRING, allowNull: false },
-    description: { type: DataTypes.TEXT },
-    price:       { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    salePrice:   { type: DataTypes.DECIMAL(10, 2) },
-    stock:       { type: DataTypes.INTEGER, defaultValue: 0 },
-    category:    { type: DataTypes.STRING },
-    thumbnail:   { type: DataTypes.STRING }
-  }, { tableName: 'products', timestamps: true });
-
-  await sequelize.authenticate();
-  await sequelize.sync();
-  const count = await model.count();
-  if (count === 0) {
-    await model.bulkCreate(PRODUCTS);
-    console.log('[RAVARI] ✅ Seeded 11 products');
-  } else {
-    console.log(`[RAVARI] ✅ ${count} products already in database`);
-  }
-  return model;
+function makePool(host) {
+  const mysql = require('mysql');
+  return mysql.createPool({
+    connectionLimit: 5,
+    host,
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER || 'u800235524_ravari_user',
+    password: process.env.DB_PASSWORD || 'Ravari@2026Secure123!',
+    database: process.env.DB_NAME || 'u800235524_ravari_store',
+    connectTimeout: 8000
+  });
 }
 
-// Bound any single attempt so a filtered TCP port can never hang the loop
-function withTimeout(promise, ms, label) {
-  return Promise.race([
-    promise,
-    new Promise((_, rej) => setTimeout(() => rej(new Error(`timeout(${label})`)), ms))
-  ]);
-}
-
-// Driver diagnostic — which MySQL driver can even be loaded in this sandbox?
-async function rawDiag() {
-  const results = [];
-  for (const mod of ['mysql2/promise', 'mariadb', 'mysql']) {
-    try {
-      require(mod);
-      results.push({ require: mod, ok: true });
-    } catch (e) {
-      results.push({ require: mod, ok: false, code: e.code, syscall: e.syscall, path: e.path, msg: e.message });
-    }
-  }
-  // If mariadb loaded, try an actual connection
-  try {
-    const mariadb = require('mariadb');
-    const conn = await mariadb.createConnection({
-      host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER || 'u800235524_ravari_user',
-      password: process.env.DB_PASSWORD || 'Ravari@2026Secure123!',
-      database: process.env.DB_NAME || 'u800235524_ravari_store',
-      connectTimeout: 5000
+function query(sql, params) {
+  return new Promise((resolve, reject) => {
+    pool.query(sql, params || [], (err, results) => {
+      if (err) reject(err); else resolve(results);
     });
-    await conn.query('SELECT 1');
-    await conn.end();
-    results.push({ mariadbConnect: 'env-host', ok: true });
-  } catch (e) {
-    results.push({ mariadbConnect: 'env-host', ok: false, code: e.code, msg: e.message });
+  });
+}
+
+const CREATE_TABLE_SQL = `
+  CREATE TABLE IF NOT EXISTS products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    salePrice DECIMAL(10,2) NULL,
+    stock INT DEFAULT 0,
+    category VARCHAR(100),
+    thumbnail VARCHAR(255),
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
+
+async function setupSchemaAndSeed() {
+  await query(CREATE_TABLE_SQL);
+  const rows = await query('SELECT COUNT(*) AS c FROM products');
+  const count = rows[0].c;
+  if (count === 0) {
+    for (const p of PRODUCTS) {
+      await query(
+        'INSERT INTO products (id, name, description, price, salePrice, stock, category, thumbnail) VALUES (?,?,?,?,?,?,?,?)',
+        [p.id, p.name, p.description, p.price, p.salePrice, p.stock, p.category, p.thumbnail]
+      );
+    }
+    console.log('[RAVARI] ✅ Seeded 11 products into MySQL');
+  } else {
+    console.log(`[RAVARI] ✅ ${count} products already in MySQL`);
   }
-  return results;
 }
 
 async function initDatabase() {
-  try {
-    dbDiag = await rawDiag();
-    console.log('[RAVARI] rawDiag:', JSON.stringify(dbDiag));
-  } catch (e) {
-    dbDiag = [{ step: 'rawDiag threw', msg: e.message }];
-  }
-
-  const targets = [
-    process.env.DB_HOST ? { host: process.env.DB_HOST, label: `env:${process.env.DB_HOST}` } : null,
-    { socketPath: '/var/run/mysqld/mysqld.sock', label: 'sock:/var/run/mysqld/mysqld.sock' },
-    { socketPath: '/run/mysqld/mysqld.sock', label: 'sock:/run/mysqld/mysqld.sock' },
-    { socketPath: '/tmp/mysql.sock', label: 'sock:/tmp/mysql.sock' },
-    { socketPath: '/var/lib/mysql/mysql.sock', label: 'sock:/var/lib/mysql/mysql.sock' },
-    { host: '127.0.0.1', label: 'tcp:127.0.0.1' },
-    { host: 'localhost', label: 'tcp:localhost' }
-  ].filter(Boolean);
-
+  const hosts = [process.env.DB_HOST, 'localhost', '127.0.0.1'].filter(Boolean);
   const errors = [];
   for (let attempt = 1; attempt <= 3; attempt++) {
-    for (const t of targets) {
+    for (const host of hosts) {
       try {
-        console.log(`[RAVARI] DB attempt ${attempt} via ${t.label}...`);
-        Product = await withTimeout(tryConnect(t), 6000, t.label);
+        console.log(`[RAVARI] DB attempt ${attempt} via ${host} (mysql driver)...`);
+        pool = makePool(host);
+        await query('SELECT 1');         // verify connection
+        await setupSchemaAndSeed();      // create table + seed
         dbReady = true;
         dbError = null;
-        dbHostUsed = t.label;
-        console.log(`[RAVARI] ✅ Database connected via ${t.label}`);
+        dbHostUsed = host;
+        console.log(`[RAVARI] ✅ Database connected via ${host}`);
         return;
       } catch (err) {
-        const msg = `${t.label}:${err.code || ''} ${err.message}`;
-        errors.push(msg);
-        console.error(`[RAVARI] ⚠️  DB failed ${msg}`);
+        errors.push(`${host}:${err.code || ''} ${err.message}`);
+        console.error(`[RAVARI] ⚠️  DB failed ${host}: ${err.message}`);
+        try { if (pool) pool.end(() => {}); } catch (_) {}
+        pool = null;
       }
     }
-    dbError = errors.slice(-7).join(' | '); // update after each round
+    dbError = errors.slice(-3).join(' | ');
     await sleep(2000);
   }
   console.error('[RAVARI] ⚠️  All DB attempts failed, using fallback data');
@@ -179,14 +139,13 @@ fastify.get('/api/health', async () => ({
   database: dbReady ? 'connected' : 'fallback',
   dbHost: dbHostUsed,
   dbError: dbError,
-  dbDiag: dbDiag,
   time: new Date().toISOString()
 }));
 
 fastify.get('/api/products', async () => {
-  if (dbReady && Product) {
+  if (dbReady && pool) {
     try {
-      const rows = await Product.findAll({ order: [['id', 'ASC']] });
+      const rows = await query('SELECT id, name, description, price, salePrice, stock, category, thumbnail FROM products ORDER BY id ASC');
       if (rows && rows.length) return rows;
     } catch (err) {
       console.error('[RAVARI] products query failed:', err.message);
@@ -197,10 +156,10 @@ fastify.get('/api/products', async () => {
 
 fastify.get('/api/products/:id', async (request, reply) => {
   const id = parseInt(request.params.id, 10);
-  if (dbReady && Product) {
+  if (dbReady && pool) {
     try {
-      const row = await Product.findByPk(id);
-      if (row) return row;
+      const rows = await query('SELECT id, name, description, price, salePrice, stock, category, thumbnail FROM products WHERE id = ?', [id]);
+      if (rows && rows.length) return rows[0];
     } catch (err) {
       console.error('[RAVARI] product query failed:', err.message);
     }
