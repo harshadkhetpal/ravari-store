@@ -32,52 +32,71 @@ const PRODUCTS = [
 // ---------------------------------------------------------------------------
 let Product = null;
 let dbReady = false;
+let dbError = null;
+let dbHostUsed = null;
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function tryConnect(host) {
+  const { Sequelize, DataTypes } = require('sequelize');
+  const sequelize = new Sequelize(
+    process.env.DB_NAME || 'u800235524_ravari_store',
+    process.env.DB_USER || 'u800235524_ravari_user',
+    process.env.DB_PASSWORD || 'Ravari@2026Secure123!',
+    {
+      host,
+      port: process.env.DB_PORT || 3306,
+      dialect: 'mysql',
+      logging: false,
+      pool: { max: 5, min: 0, acquire: 15000, idle: 10000 },
+      dialectOptions: { connectTimeout: 15000 }
+    }
+  );
+
+  const model = sequelize.define('Product', {
+    id:          { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    name:        { type: DataTypes.STRING, allowNull: false },
+    description: { type: DataTypes.TEXT },
+    price:       { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    salePrice:   { type: DataTypes.DECIMAL(10, 2) },
+    stock:       { type: DataTypes.INTEGER, defaultValue: 0 },
+    category:    { type: DataTypes.STRING },
+    thumbnail:   { type: DataTypes.STRING }
+  }, { tableName: 'products', timestamps: true });
+
+  await sequelize.authenticate();
+  await sequelize.sync();
+  const count = await model.count();
+  if (count === 0) {
+    await model.bulkCreate(PRODUCTS);
+    console.log('[RAVARI] ✅ Seeded 11 products');
+  } else {
+    console.log(`[RAVARI] ✅ ${count} products already in database`);
+  }
+  return model;
+}
 
 async function initDatabase() {
-  try {
-    const { Sequelize, DataTypes } = require('sequelize');
-    const sequelize = new Sequelize(
-      process.env.DB_NAME || 'u800235524_ravari_store',
-      process.env.DB_USER || 'u800235524_ravari_user',
-      process.env.DB_PASSWORD || 'Ravari@2026Secure123!',
-      {
-        host: process.env.DB_HOST || 'localhost',
-        port: process.env.DB_PORT || 3306,
-        dialect: 'mysql',
-        logging: false,
-        pool: { max: 5, min: 0, acquire: 10000, idle: 10000 }
+  // Try several host strategies; 127.0.0.1 forces TCP (avoids missing unix socket)
+  const hosts = [process.env.DB_HOST, '127.0.0.1', 'localhost'].filter(Boolean);
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    for (const host of hosts) {
+      try {
+        console.log(`[RAVARI] DB attempt ${attempt} via ${host}...`);
+        Product = await tryConnect(host);
+        dbReady = true;
+        dbError = null;
+        dbHostUsed = host;
+        console.log(`[RAVARI] ✅ Database connected via ${host}`);
+        return;
+      } catch (err) {
+        dbError = `${host}: ${err.message}`;
+        console.error(`[RAVARI] ⚠️  DB connect failed (${host}): ${err.message}`);
       }
-    );
-
-    Product = sequelize.define('Product', {
-      id:          { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      name:        { type: DataTypes.STRING, allowNull: false },
-      description: { type: DataTypes.TEXT },
-      price:       { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-      salePrice:   { type: DataTypes.DECIMAL(10, 2) },
-      stock:       { type: DataTypes.INTEGER, defaultValue: 0 },
-      category:    { type: DataTypes.STRING },
-      thumbnail:   { type: DataTypes.STRING }
-    }, { tableName: 'products', timestamps: true });
-
-    await sequelize.authenticate();
-    console.log('[RAVARI] ✅ Database connected');
-
-    await sequelize.sync();
-    console.log('[RAVARI] ✅ Tables synced');
-
-    const count = await Product.count();
-    if (count === 0) {
-      await Product.bulkCreate(PRODUCTS);
-      console.log('[RAVARI] ✅ Seeded 11 products');
-    } else {
-      console.log(`[RAVARI] ✅ ${count} products already in database`);
     }
-    dbReady = true;
-  } catch (err) {
-    console.error('[RAVARI] ⚠️  Database unavailable, using fallback data:', err.message);
-    dbReady = false;
+    await sleep(3000);
   }
+  console.error('[RAVARI] ⚠️  All DB attempts failed, using fallback data');
 }
 
 // ---------------------------------------------------------------------------
@@ -98,6 +117,8 @@ fastify.get('/api/health', async () => ({
   status: 'ok',
   app: 'Ravari Store',
   database: dbReady ? 'connected' : 'fallback',
+  dbHost: dbHostUsed,
+  dbError: dbError,
   time: new Date().toISOString()
 }));
 
