@@ -15,12 +15,9 @@ function Header() {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center hover:opacity-75 transition">
-            <img
-              src="http://localhost:3001/images/Ravari%20Logo%20Banner.jpeg"
-              alt="RAVARI Logo"
-              className="h-12"
-              style={{ maxWidth: '140px' }}
-            />
+            <span className="text-3xl font-black tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-amber-700 to-orange-600">
+              RAVARI
+            </span>
           </Link>
 
           {/* Right icons */}

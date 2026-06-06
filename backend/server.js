@@ -14,17 +14,66 @@ console.log(`[RAVARI] Starting server on ${HOST}:${PORT}`);
 // Product catalogue (source of truth used to seed DB + as live fallback)
 // ---------------------------------------------------------------------------
 const PRODUCTS = [
-  { id: 1,  name: 'RAVARI Premium Brown Leather Sling Bag', price: 2499, salePrice: 1999, category: 'Bags', thumbnail: '/images/1 (3).png', description: 'Elegant brown leather sling bag for everyday luxury.', stock: 15 },
-  { id: 2,  name: 'RAVARI Boho-Chic Leather-Trim Tote Bag', price: 3499, salePrice: 2799, category: 'Bags', thumbnail: '/images/2 (3).png', description: 'Spacious boho-chic tote with premium leather trim.', stock: 12 },
-  { id: 3,  name: 'RAVARI Premium Textured Leather Handbag', price: 4999, salePrice: null, category: 'Bags', thumbnail: '/images/3.png', description: 'Statement textured-leather handbag.', stock: 8 },
-  { id: 4,  name: 'RAVARI Vintage Brown Leather Crossbody', price: 2299, salePrice: 1699, category: 'Bags', thumbnail: '/images/4 (3).png', description: 'Vintage-inspired crossbody in rich brown leather.', stock: 20 },
-  { id: 5,  name: 'RAVARI Tool Apron Premium Leather', price: 1999, salePrice: 1499, category: 'Aprons', thumbnail: '/images/5.png', description: 'Durable premium-leather tool apron.', stock: 25 },
-  { id: 6,  name: 'RAVARI Leather Document Organizer', price: 1799, salePrice: null, category: 'Organizers', thumbnail: '/images/6.png', description: 'Keep documents elegant and organized.', stock: 18 },
-  { id: 7,  name: 'RAVARI Leather Jewelry Box', price: 2199, salePrice: 1799, category: 'Boxes', thumbnail: '/images/7.png', description: 'Handcrafted leather jewelry box.', stock: 10 },
-  { id: 8,  name: 'RAVARI Classic Brown Leather Messenger', price: 3299, salePrice: 2699, category: 'Bags', thumbnail: '/images/8.png', description: 'Classic messenger bag for work and travel.', stock: 14 },
-  { id: 9,  name: 'RAVARI Leather Travel Organizer', price: 1599, salePrice: 1199, category: 'Organizers', thumbnail: '/images/9.png', description: 'Compact travel organizer in fine leather.', stock: 22 },
-  { id: 10, name: 'RAVARI Leather Wallet Collection', price: 899, salePrice: 649, category: 'Wallets', thumbnail: '/images/10.png', description: 'Slim, refined leather wallet.', stock: 40 },
-  { id: 11, name: 'RAVARI Designer Leather Belt', price: 1299, salePrice: 999, category: 'Belts', thumbnail: '/images/11.png', description: 'Designer leather belt with signature buckle.', stock: 30 }
+  {
+    id: 1,
+    name: 'RAVARI Vintage Brown Leather Sling Bag for Men & Women',
+    slug: 'ravari-vintage-brown-leather-sling-bag',
+    price: 4599, salePrice: 2599, category: 'Sling Bags',
+    thumbnail: '/images/p1-a.png',
+    images: ['/images/p1-a.png', '/images/p1-b.png', '/images/p1-c.png'],
+    description: 'Compact vintage brown leather crossbody chest bag with multiple zippered compartments. Handcrafted for everyday versatility and timeless style.',
+    stock: 18, isNew: true, isFeatured: true
+  },
+  {
+    id: 2,
+    name: 'RAVARI Premium Brown Leather Sling Bag for Men & Women',
+    slug: 'ravari-premium-brown-leather-sling-bag',
+    price: 4599, salePrice: 2599, category: 'Sling Bags',
+    thumbnail: '/images/p2-a.png',
+    images: ['/images/p2-a.png', '/images/p2-b.png', '/images/p2-c.png'],
+    description: 'Premium full-grain brown leather sling bag with a stylish silhouette and durable hardware. The perfect blend of fashion and function.',
+    stock: 15, isNew: true, isFeatured: true
+  },
+  {
+    id: 3,
+    name: 'RAVARI Boho-Chic Leather-Trim Tote Bag for Women',
+    slug: 'ravari-boho-chic-leather-trim-tote-bag',
+    price: 4499, salePrice: 2499, category: 'Tote Bags',
+    thumbnail: '/images/p3-a.png',
+    images: ['/images/p3-a.png', '/images/p3-b.png', '/images/p3-c.png'],
+    description: 'Spacious boho-chic tote with premium leather trim and a soft woven body. Roomy enough for work, travel, and weekends.',
+    stock: 12, isNew: false, isFeatured: true
+  },
+  {
+    id: 4,
+    name: 'RAVARI Premium Textured Leather Handbag',
+    slug: 'ravari-premium-textured-leather-handbag',
+    price: 4999, salePrice: null, category: 'Handbags',
+    thumbnail: '/images/p4-a.png',
+    images: ['/images/p4-a.png', '/images/p4-b.png'],
+    description: 'Statement textured-leather handbag with structured form and refined detailing. A luxurious everyday companion.',
+    stock: 8, isNew: true, isFeatured: true
+  },
+  {
+    id: 5,
+    name: 'RAVARI Artisan Leather Work Apron for Men & Women',
+    slug: 'ravari-artisan-leather-work-apron',
+    price: 2999, salePrice: 1599, category: 'Aprons',
+    thumbnail: '/images/p5-a.png',
+    images: ['/images/p5-a.png', '/images/p5-b.png', '/images/p5-c.png'],
+    description: 'Durable artisan leather work apron with adjustable straps and practical pockets. Built for craftsmen, baristas, and creators.',
+    stock: 25, isNew: false, isFeatured: true
+  },
+  {
+    id: 6,
+    name: 'RAVARI Premium Leather Jewellery Box',
+    slug: 'ravari-premium-leather-jewellery-box',
+    price: 4999, salePrice: null, category: 'Organizers',
+    thumbnail: '/images/p6-a.jpg',
+    images: ['/images/p6-a.jpg'],
+    description: 'Handcrafted leather jewellery box with soft-lined compartments to keep your treasures organized and elegant.',
+    stock: 10, isNew: false, isFeatured: true
+  }
 ];
 
 // ---------------------------------------------------------------------------
@@ -64,31 +113,69 @@ const CREATE_TABLE_SQL = `
   CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255),
     description TEXT,
     price DECIMAL(10,2) NOT NULL,
     salePrice DECIMAL(10,2) NULL,
     stock INT DEFAULT 0,
     category VARCHAR(100),
     thumbnail VARCHAR(255),
+    images TEXT,
+    isNew TINYINT(1) DEFAULT 0,
+    isFeatured TINYINT(1) DEFAULT 0,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
+async function seedRows() {
+  for (const p of PRODUCTS) {
+    await query(
+      'INSERT INTO products (id, name, slug, description, price, salePrice, stock, category, thumbnail, images, isNew, isFeatured) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+      [p.id, p.name, p.slug, p.description, p.price, p.salePrice, p.stock, p.category, p.thumbnail, JSON.stringify(p.images || [p.thumbnail]), p.isNew ? 1 : 0, p.isFeatured ? 1 : 0]
+    );
+  }
+  console.log(`[RAVARI] ✅ Seeded ${PRODUCTS.length} products into MySQL`);
+}
+
 async function setupSchemaAndSeed() {
   await query(CREATE_TABLE_SQL);
-  const rows = await query('SELECT COUNT(*) AS c FROM products');
-  const count = rows[0].c;
-  if (count === 0) {
-    for (const p of PRODUCTS) {
-      await query(
-        'INSERT INTO products (id, name, description, price, salePrice, stock, category, thumbnail) VALUES (?,?,?,?,?,?,?,?)',
-        [p.id, p.name, p.description, p.price, p.salePrice, p.stock, p.category, p.thumbnail]
-      );
-    }
-    console.log('[RAVARI] ✅ Seeded 11 products into MySQL');
-  } else {
-    console.log(`[RAVARI] ✅ ${count} products already in MySQL`);
+  // Detect old schema (missing slug column) -> rebuild cleanly
+  const cols = await query("SHOW COLUMNS FROM products LIKE 'slug'");
+  if (!cols || cols.length === 0) {
+    console.log('[RAVARI] Old schema detected, rebuilding products table...');
+    await query('DROP TABLE IF EXISTS products');
+    await query(CREATE_TABLE_SQL);
+    await seedRows();
+    return;
   }
+  const rows = await query('SELECT COUNT(*) AS c FROM products');
+  if (rows[0].c === 0) {
+    await seedRows();
+  } else {
+    console.log(`[RAVARI] ✅ ${rows[0].c} products already in MySQL`);
+  }
+}
+
+// Normalize a DB row to the shape the frontend expects
+function shapeRow(r) {
+  let images = [];
+  try { images = r.images ? JSON.parse(r.images) : []; } catch (_) { images = []; }
+  return {
+    id: r.id, name: r.name, slug: r.slug, description: r.description,
+    price: Number(r.price), salePrice: r.salePrice != null ? Number(r.salePrice) : null,
+    stock: r.stock, category: r.category, thumbnail: r.thumbnail,
+    images, isNew: !!r.isNew, isFeatured: !!r.isFeatured
+  };
+}
+
+async function getAllProducts() {
+  if (dbReady && pool) {
+    try {
+      const rows = await query('SELECT * FROM products ORDER BY id ASC');
+      if (rows && rows.length) return rows.map(shapeRow);
+    } catch (err) { console.error('[RAVARI] products query failed:', err.message); }
+  }
+  return PRODUCTS;
 }
 
 async function initDatabase() {
@@ -142,31 +229,49 @@ fastify.get('/api/health', async () => ({
   time: new Date().toISOString()
 }));
 
-fastify.get('/api/products', async () => {
-  if (dbReady && pool) {
-    try {
-      const rows = await query('SELECT id, name, description, price, salePrice, stock, category, thumbnail FROM products ORDER BY id ASC');
-      if (rows && rows.length) return rows;
-    } catch (err) {
-      console.error('[RAVARI] products query failed:', err.message);
-    }
-  }
-  return PRODUCTS;
+// List all products (frontend expects { data: [...] })
+fastify.get('/api/products', async (request) => {
+  let all = await getAllProducts();
+  const limit = request.query && request.query.limit ? parseInt(request.query.limit, 10) : null;
+  if (limit && limit > 0) all = all.slice(0, limit);
+  return { data: all, total: all.length };
 });
 
+// Featured products for homepage
+fastify.get('/api/products/featured', async () => {
+  const all = await getAllProducts();
+  const featured = all.filter(p => p.isFeatured);
+  return { data: featured.length ? featured : all };
+});
+
+// Product by slug (used by ProductDetail page)
+fastify.get('/api/products/slug/:slug', async (request, reply) => {
+  const slug = request.params.slug;
+  const all = await getAllProducts();
+  const product = all.find(p => p.slug === slug);
+  if (!product) { reply.code(404); return { error: 'Product not found' }; }
+  return { data: product };
+});
+
+// Product by numeric id
 fastify.get('/api/products/:id', async (request, reply) => {
   const id = parseInt(request.params.id, 10);
-  if (dbReady && pool) {
-    try {
-      const rows = await query('SELECT id, name, description, price, salePrice, stock, category, thumbnail FROM products WHERE id = ?', [id]);
-      if (rows && rows.length) return rows[0];
-    } catch (err) {
-      console.error('[RAVARI] product query failed:', err.message);
-    }
-  }
-  const product = PRODUCTS.find(p => p.id === id);
+  const all = await getAllProducts();
+  const product = all.find(p => p.id === id);
   if (!product) { reply.code(404); return { error: 'Product not found' }; }
-  return product;
+  return { data: product };
+});
+
+// Minimal admin login (so /admin works); credentials via env or defaults
+fastify.post('/api/auth/login', async (request, reply) => {
+  const { email, password } = request.body || {};
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@ravari.in';
+  const adminPass = process.env.ADMIN_PASSWORD || 'ravari@2027';
+  if (email === adminEmail && password === adminPass) {
+    return { success: true, token: 'ravari-admin-' + Buffer.from(email).toString('base64'), user: { email, role: 'admin' } };
+  }
+  reply.code(401);
+  return { success: false, error: 'Invalid credentials' };
 });
 
 // SPA fallback -> index.html
