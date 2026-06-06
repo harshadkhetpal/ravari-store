@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node backend/server.js",
-    "build": "cd frontend && npm install --production=false && npm run build && cd ../backend && npm install --production",
+    "build": "npm install --production && cd frontend && npm install --production=false && npm run build && cd ../backend && npm install --production",
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
   "dependencies": {
