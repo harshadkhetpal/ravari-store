@@ -1,4 +1,8 @@
 require('dotenv').config();
+console.log('🚀 Server starting...');
+console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`PORT: ${process.env.PORT || 5000}`);
+
 const express = require('express');
 const cors = require('cors');
 const { Sequelize } = require('sequelize');
@@ -6,6 +10,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
+console.log('✅ Express app created');
 
 // Middleware
 app.use(cors({
@@ -119,6 +124,14 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Ravari backend running on port ${PORT}`);
-});
+console.log(`📍 Starting to listen on port ${PORT}...`);
+
+try {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Ravari backend running on port ${PORT}`);
+    console.log(`✅ App is ready to serve requests!`);
+  });
+} catch (err) {
+  console.error('❌ Failed to start server:', err);
+  process.exit(1);
+}
