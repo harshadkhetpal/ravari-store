@@ -51,6 +51,7 @@ if (process.env.DB_HOST || process.env.NODE_ENV === 'production') {
     }
   );
 
+  // Connect in background without blocking server startup
   sequelize.authenticate()
     .then(() => {
       console.log('✅ MySQL connected');
@@ -59,9 +60,8 @@ if (process.env.DB_HOST || process.env.NODE_ENV === 'production') {
     })
     .catch(err => {
       console.warn('⚠️  MySQL connection failed:', err.message);
+      console.warn('App will continue without database. Frontend will load.');
       sequelize = null;
-      // Fall back to MongoDB
-      initMongoDB();
     });
 
   global.sequelize = sequelize;
