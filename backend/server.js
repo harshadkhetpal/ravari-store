@@ -6,10 +6,12 @@ const fastify = Fastify({
   bodyLimit: 1048576
 });
 
-const PORT = parseInt(process.env.PORT || '8080');
-const HOST = process.env.HOST || '0.0.0.0';
+const PORT = process.env.PORT;
+const HOST = '0.0.0.0';
 
-console.log(`[RAVARI] Starting Fastify server on ${HOST}:${PORT}`);
+console.log(`[RAVARI] Initializing Fastify server`);
+console.log(`[RAVARI] PORT: ${PORT}`);
+console.log(`[RAVARI] HOST: ${HOST}`);
 
 // Health check
 fastify.get('/api/health', async (request, reply) => {
@@ -38,17 +40,7 @@ fastify.get('/api/products', async (request, reply) => {
   ];
 });
 
-// Homepage
-fastify.get('/', async (request, reply) => {
-  return {
-    message: 'Ravari Store - Luxury Leather Goods',
-    status: 'running',
-    version: '1.0.0',
-    api: '/api/health'
-  };
-});
-
-// Single product detail
+// Product detail
 fastify.get('/api/products/:id', async (request, reply) => {
   const products = [
     { id: 1, name: 'RAVARI Premium Brown Leather Sling Bag', price: 2499, sale: 1999, desc: 'Elegant brown leather sling bag' },
@@ -63,30 +55,31 @@ fastify.get('/api/products/:id', async (request, reply) => {
   return product;
 });
 
-// Start server
-const start = async () => {
-  try {
-    await fastify.listen({ port: PORT, host: HOST });
-    console.log(`[RAVARI] ✅ Fastify server running on http://${HOST}:${PORT}`);
-    console.log(`[RAVARI] Health check: http://${HOST}:${PORT}/api/health`);
-    console.log(`[RAVARI] Products: http://${HOST}:${PORT}/api/products`);
-  } catch (err) {
-    console.error('[RAVARI] ❌ Failed to start server:', err);
+// Homepage
+fastify.get('/', async (request, reply) => {
+  return {
+    message: 'Ravari Store - Luxury Leather Goods',
+    status: 'running',
+    version: '1.0.0',
+    api: '/api/health'
+  };
+});
+
+// Start listening
+fastify.listen({ port: PORT, host: HOST })
+  .then(() => console.log(`[RAVARI] Listening on ${HOST}:${PORT}`))
+  .catch((err) => {
+    fastify.log.error(err);
     process.exit(1);
-  }
-};
+  });
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
+process.on('SIGTERM', () => {
   console.log('[RAVARI] SIGTERM received, shutting down...');
-  await fastify.close();
-  process.exit(0);
+  fastify.close().then(() => process.exit(0));
 });
 
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
   console.log('[RAVARI] SIGINT received, shutting down...');
-  await fastify.close();
-  process.exit(0);
+  fastify.close().then(() => process.exit(0));
 });
-
-start();
