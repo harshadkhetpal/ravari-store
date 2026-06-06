@@ -79,37 +79,45 @@ async function tryConnect(target) {
   return model;
 }
 
+// Bound any single attempt so a filtered TCP port can never hang the loop
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, rej) => setTimeout(() => rej(new Error(`timeout(${label})`)), ms))
+  ]);
+}
+
 async function initDatabase() {
   const targets = [
     process.env.DB_HOST ? { host: process.env.DB_HOST, label: `env:${process.env.DB_HOST}` } : null,
-    { host: '127.0.0.1', label: 'tcp:127.0.0.1' },
     { socketPath: '/var/run/mysqld/mysqld.sock', label: 'sock:/var/run/mysqld/mysqld.sock' },
     { socketPath: '/run/mysqld/mysqld.sock', label: 'sock:/run/mysqld/mysqld.sock' },
     { socketPath: '/tmp/mysql.sock', label: 'sock:/tmp/mysql.sock' },
     { socketPath: '/var/lib/mysql/mysql.sock', label: 'sock:/var/lib/mysql/mysql.sock' },
+    { host: '127.0.0.1', label: 'tcp:127.0.0.1' },
     { host: 'localhost', label: 'tcp:localhost' }
   ].filter(Boolean);
 
   const errors = [];
-  for (let attempt = 1; attempt <= 4; attempt++) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
     for (const t of targets) {
       try {
         console.log(`[RAVARI] DB attempt ${attempt} via ${t.label}...`);
-        Product = await tryConnect(t);
+        Product = await withTimeout(tryConnect(t), 6000, t.label);
         dbReady = true;
         dbError = null;
         dbHostUsed = t.label;
         console.log(`[RAVARI] ✅ Database connected via ${t.label}`);
         return;
       } catch (err) {
-        const msg = `${t.label}: ${err.code || ''} ${err.message}`;
+        const msg = `${t.label}:${err.code || ''} ${err.message}`;
         errors.push(msg);
         console.error(`[RAVARI] ⚠️  DB failed ${msg}`);
       }
     }
-    await sleep(3000);
+    dbError = errors.slice(-7).join(' | '); // update after each round
+    await sleep(2000);
   }
-  dbError = errors.slice(-7).join(' | ');
   console.error('[RAVARI] ⚠️  All DB attempts failed, using fallback data');
 }
 
