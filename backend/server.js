@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 const Fastify = require('fastify');
+const path = require('path');
+const fs = require('fs');
 
 const fastify = Fastify({
   logger: true,
@@ -13,7 +15,19 @@ console.log(`[RAVARI] Initializing Fastify server`);
 console.log(`[RAVARI] PORT: ${PORT}`);
 console.log(`[RAVARI] HOST: ${HOST}`);
 
-// Health check
+// Serve static files from React build
+const buildPath = path.join(__dirname, '../frontend/build');
+if (fs.existsSync(buildPath)) {
+  console.log(`[RAVARI] Serving React frontend from: ${buildPath}`);
+  fastify.register(require('@fastify/static'), {
+    root: buildPath,
+    prefix: '/'
+  });
+} else {
+  console.log(`[RAVARI] ⚠️  React build not found at ${buildPath}`);
+}
+
+// Health check API
 fastify.get('/api/health', async (request, reply) => {
   return {
     status: 'ok',
@@ -55,19 +69,19 @@ fastify.get('/api/products/:id', async (request, reply) => {
   return product;
 });
 
-// Homepage
-fastify.get('/', async (request, reply) => {
-  return {
-    message: 'Ravari Store - Luxury Leather Goods',
-    status: 'running',
-    version: '1.0.0',
-    api: '/api/health'
-  };
+// SPA fallback - serve index.html for all unmatched routes
+fastify.setNotFoundHandler((request, reply) => {
+  const indexPath = path.join(buildPath, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    reply.sendFile('index.html');
+  } else {
+    reply.code(404).send({ error: 'Not found' });
+  }
 });
 
 // Start listening
 fastify.listen({ port: PORT, host: HOST })
-  .then(() => console.log(`[RAVARI] Listening on ${HOST}:${PORT}`))
+  .then(() => console.log(`[RAVARI] ✅ Listening on ${HOST}:${PORT}`))
   .catch((err) => {
     fastify.log.error(err);
     process.exit(1);
