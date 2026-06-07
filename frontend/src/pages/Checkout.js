@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { Helmet } from 'react-helmet-async';
+import { trackPageView } from '../utils/ga4Tracking';
 
 function Checkout() {
   const cartItems = useSelector(state => state.cart.items);
+
+  useEffect(() => {
+    trackPageView('/checkout', 'Checkout');
+  }, []);
   const { isAuthenticated } = useSelector(state => state.auth);
   const navigate = useNavigate();
   
@@ -48,6 +54,10 @@ function Checkout() {
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
+        <Helmet>
+          <title>Checkout | RAVARI</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
           <Link to="/products" className="text-blue-600 hover:text-blue-800">Continue shopping</Link>
@@ -58,6 +68,10 @@ function Checkout() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <Helmet>
+        <title>Checkout | RAVARI</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
 

@@ -1,11 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { Helmet } from 'react-helmet-async';
 import { FiTrash2 } from 'react-icons/fi';
+import { trackPageView } from '../utils/ga4Tracking';
 
 function Cart() {
   const cartItems = useSelector(state => state.cart.items);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    trackPageView('/cart', 'Shopping Cart');
+  }, []);
 
   const totals = useMemo(() => {
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -34,6 +40,10 @@ function Cart() {
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Helmet>
+          <title>Shopping Cart | RAVARI</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Your Cart is Empty</h1>
           <p className="text-gray-600 mb-8">Start shopping to add items to your cart</p>
@@ -50,6 +60,10 @@ function Cart() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <Helmet>
+        <title>Shopping Cart | RAVARI</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-4xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
 

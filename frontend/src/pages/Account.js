@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import { trackPageView } from '../utils/ga4Tracking';
 
 function Account() {
   const { isAuthenticated, user } = useSelector(state => state.auth);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    trackPageView('/account', 'My Account');
+  }, []);
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
+        <Helmet>
+          <title>My Account | RAVARI</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="text-center">
           <p className="text-gray-600 mb-4">Please login to view your account</p>
           <Link to="/login" className="text-blue-600 hover:text-blue-800">Login</Link>
@@ -19,6 +29,10 @@ function Account() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <Helmet>
+        <title>My Account | RAVARI</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">My Account</h1>
 

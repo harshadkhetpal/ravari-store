@@ -32,6 +32,10 @@ function ProductDetail() {
       const res = await api.get(`/products/slug/${slug}`);
       setProduct(res.data.product);
       setReviews(res.data.reviews || []);
+      // Track product view
+      if (res.data.product) {
+        trackProductView(res.data.product);
+      }
     } catch (error) {
       console.error('Error fetching product:', error);
     } finally {
@@ -104,8 +108,38 @@ function ProductDetail() {
       }))
     : [{ url: getImageUrl(product.thumbnail), alt: product.name }];
 
+  // Generate SEO data and schema
+  const productTitle = `${product.name} | Premium ${product.category} | RAVARI`;
+  const productDescription = `${product.description || product.name} - Premium handcrafted ${product.category.toLowerCase()}. Sustainable, artisan-made. Fast delivery across India.`;
+
+  const breadcrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Products', path: '/products' },
+    { name: product.category, path: `/products?category=${product.category.toLowerCase()}` },
+    { name: product.name, path: `/products/${slug}` }
+  ];
+
+  const productSchema = getProductSchema(product);
+  const breadcrumbSchema = getBreadcrumbSchema(breadcrumbs);
+
   return (
     <div className="min-h-screen bg-white py-8">
+      <SEO
+        title={productTitle}
+        description={productDescription}
+        keywords={`${product.name}, ${product.category}, luxury leather, handcrafted`}
+        canonical={`${SEO_CONFIG.site.url}/products/${slug}`}
+        ogTitle={`${product.name} | RAVARI Luxury Leather Goods`}
+        ogDescription={productDescription}
+        ogImage={images[0]?.url || product.thumbnail}
+        schemaMarkup={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            productSchema,
+            breadcrumbSchema
+          ]
+        }}
+      />
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Product Images Section */}

@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import { trackPageView } from '../utils/ga4Tracking';
 
 function OrderConfirmation() {
   const { orderId } = useParams();
 
+  useEffect(() => {
+    trackPageView(`/order-confirmation/${orderId}`, 'Order Confirmation');
+  }, [orderId]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <Helmet>
+        <title>Order Confirmed | RAVARI</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="text-center max-w-md">
         <div className="text-6xl mb-4">✓</div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>

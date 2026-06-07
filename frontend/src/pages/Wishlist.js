@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { Helmet } from 'react-helmet-async';
+import { trackPageView } from '../utils/ga4Tracking';
 
 function Wishlist() {
   const wishlistItems = useSelector(state => state.wishlist.items);
 
+  useEffect(() => {
+    trackPageView('/wishlist', 'My Wishlist');
+  }, []);
+
   if (wishlistItems.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Helmet>
+          <title>My Wishlist | RAVARI</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Your wishlist is empty</h1>
           <Link to="/products" className="inline-block bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-900 transition">
@@ -20,6 +30,10 @@ function Wishlist() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <Helmet>
+        <title>My Wishlist | RAVARI</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">My Wishlist</h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
