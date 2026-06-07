@@ -349,10 +349,26 @@ fastify.delete('/api/admin/products/:id', async (request, reply) => {
   return { success: true };
 });
 
+// Kill-switch service worker: neutralizes any stale SW from the old site
+// (the previous website-builder site registered an SW that kept serving its
+//  cached pages offline-first). This unregisters it and clears all caches.
+const KILL_SW = "self.addEventListener('install',function(){self.skipWaiting();});" +
+  "self.addEventListener('activate',function(e){e.waitUntil((async function(){" +
+  "try{var ks=await caches.keys();await Promise.all(ks.map(function(k){return caches.delete(k);}));}catch(_){}" +
+  "try{await self.registration.unregister();}catch(_){}" +
+  "try{var cs=await self.clients.matchAll();cs.forEach(function(c){c.navigate(c.url);});}catch(_){}" +
+  "})());});";
+function sendKillSw(request, reply) {
+  reply.type('application/javascript').header('Cache-Control', 'no-cache, no-store, must-revalidate').send(KILL_SW);
+}
+fastify.get('/sw.js', async (req, reply) => sendKillSw(req, reply));
+fastify.get('/service-worker.js', async (req, reply) => sendKillSw(req, reply));
+fastify.get('/serviceworker.js', async (req, reply) => sendKillSw(req, reply));
+
 // SPA fallback
 fastify.setNotFoundHandler((request, reply) => {
   const indexPath = path.join(buildPath, 'index.html');
-  if (fs.existsSync(indexPath)) reply.type('text/html').send(fs.readFileSync(indexPath));
+  if (fs.existsSync(indexPath)) reply.type('text/html').header('Cache-Control', 'no-cache').send(fs.readFileSync(indexPath));
   else reply.code(404).send({ error: 'Not found' });
 });
 
