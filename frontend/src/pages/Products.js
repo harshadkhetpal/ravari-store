@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import api from '../api/axiosConfig';
 import ProductCard from '../components/ProductCard';
 import { useDispatch } from 'react-redux';
+import SEO from '../components/SEO';
+import { SEO_CONFIG, PRODUCT_CATEGORIES } from '../utils/seoConstants';
+import { trackPageView } from '../utils/ga4Tracking';
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -16,6 +19,13 @@ function Products() {
   const [pagination, setPagination] = useState({ page: 1, pages: 1 });
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
+
+  // Track page view
+  useEffect(() => {
+    trackPageView('/products', 'Products - RAVARI');
+  }, []);
+
+  const seoConfig = SEO_CONFIG.pages.products;
 
   useEffect(() => {
     fetchProducts();
@@ -66,6 +76,15 @@ function Products() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title={seoConfig.title}
+        description={seoConfig.description}
+        keywords={seoConfig.keywords}
+        canonical={`${SEO_CONFIG.site.url}${seoConfig.path}`}
+        ogTitle="Shop Premium Leather Products | RAVARI"
+        ogDescription="Browse our complete collection of handcrafted luxury leather handbags, accessories, and organizers. Premium artisan-made leather goods from India."
+        ogImage="https://ravari.in/og-products.jpg"
+      />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-12">
           <p className="text-sm font-bold text-amber-700 uppercase tracking-widest mb-2">🛍️ Collections</p>

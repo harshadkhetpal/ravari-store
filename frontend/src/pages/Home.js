@@ -184,10 +184,13 @@ function Home() {
                   playsInline
                   poster={`/images/p${idx + 1}-a.png`}
                   onMouseEnter={(e) => {
-                    e.target.volume = 1;
+                    e.currentTarget.muted = false;
+                    e.currentTarget.volume = 1;
+                    const p = e.currentTarget.play();
+                    if (p && p.catch) p.catch(() => {});
                   }}
                   onMouseLeave={(e) => {
-                    e.target.volume = 0;
+                    e.currentTarget.muted = true;
                   }}
                 >
                   <source

@@ -1,9 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiMail, FiPhone, FiMapPin, FiClock } from 'react-icons/fi';
+import SEO from '../components/SEO';
+import { SEO_CONFIG } from '../utils/seoConstants';
+import { getOrganizationSchema, getLocalBusinessSchema } from '../utils/schemaMarkup';
+import { trackPageView, trackFormSubmission } from '../utils/ga4Tracking';
 
 function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+
+  // Track page view
+  useEffect(() => {
+    trackPageView('/contact', 'Contact RAVARI');
+  }, []);
+
+  const seoConfig = SEO_CONFIG.pages.contact;
+
+  // Combine schemas for this page
+  const pageSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      getOrganizationSchema(),
+      getLocalBusinessSchema()
+    ]
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -11,6 +31,7 @@ function Contact() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    trackFormSubmission('contact');
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
     setFormData({ name: '', email: '', phone: '', message: '' });
@@ -21,6 +42,16 @@ function Contact() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title={seoConfig.title}
+        description={seoConfig.description}
+        keywords={seoConfig.keywords}
+        canonical={`${SEO_CONFIG.site.url}${seoConfig.path}`}
+        ogTitle="Contact RAVARI - Luxury Leather Goods Support"
+        ogDescription="Get in touch with RAVARI for inquiries, custom orders, or customer support. Available 24/7 online or contact our Delhi studio."
+        ogImage="https://ravari.in/og-contact.jpg"
+        schemaMarkup={pageSchema}
+      />
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-b-4 border-amber-200 py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4">

@@ -3,10 +3,17 @@ const Fastify = require('fastify');
 const path = require('path');
 const fs = require('fs');
 
-const fastify = Fastify({ logger: true, bodyLimit: 2097152 });
+const fastify = Fastify({ logger: true, bodyLimit: 26214400 });
+
+// File uploads (product images)
+fastify.register(require('@fastify/multipart'), { limits: { fileSize: 25 * 1024 * 1024 } });
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
+
+// Uploads directory (admin-uploaded product images)
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+try { fs.mkdirSync(uploadsDir, { recursive: true }); } catch (_) {}
 
 console.log(`[RAVARI] Starting server on ${HOST}:${PORT}`);
 
@@ -136,8 +143,47 @@ async function seedRows() {
   console.log(`[RAVARI] ✅ Seeded ${PRODUCTS.length} products into MySQL`);
 }
 
+const CREATE_COUPONS_SQL = `
+  CREATE TABLE IF NOT EXISTS coupons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(60) NOT NULL UNIQUE,
+    type VARCHAR(20) NOT NULL DEFAULT 'percent',
+    value DECIMAL(10,2) NOT NULL,
+    minOrder DECIMAL(10,2) DEFAULT 0,
+    expiresAt DATE NULL,
+    active TINYINT(1) DEFAULT 1,
+    usedCount INT DEFAULT 0,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
+
+const CREATE_ORDERS_SQL = `
+  CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customerName VARCHAR(255),
+    customerEmail VARCHAR(255),
+    customerPhone VARCHAR(60),
+    address TEXT,
+    items TEXT,
+    subtotal DECIMAL(10,2) DEFAULT 0,
+    discount DECIMAL(10,2) DEFAULT 0,
+    total DECIMAL(10,2) DEFAULT 0,
+    couponCode VARCHAR(60),
+    status VARCHAR(40) DEFAULT 'pending',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
+
 async function setupSchemaAndSeed() {
   await query(CREATE_TABLE_SQL);
+  await query(CREATE_COUPONS_SQL);
+  await query(CREATE_ORDERS_SQL);
+  // Seed a couple of sample coupons if none exist
+  try {
+    const cc = await query('SELECT COUNT(*) AS c FROM coupons');
+    if (cc[0].c === 0) {
+      await query("INSERT INTO coupons (code,type,value,minOrder,active) VALUES ('WELCOME10','percent',10,0,1),('FLAT500','flat',500,2000,1)");
+      console.log('[RAVARI] ✅ Seeded sample coupons');
+    }
+  } catch (e) { console.error('[RAVARI] coupon seed:', e.message); }
   const cols = await query("SHOW COLUMNS FROM products LIKE 'rating'");
   if (!cols || cols.length === 0) {
     console.log('[RAVARI] Schema outdated, rebuilding products table...');
@@ -215,7 +261,8 @@ if (fs.existsSync(backendPublic)) {
   fastify.register(require('@fastify/static'), { root: backendPublic, prefix: '/assets/', decorateReply: false });
   // Direct /videos and /images passthrough to backend/public
   fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'videos'), prefix: '/videos/', decorateReply: false });
-  console.log(`[RAVARI] Serving videos from ${path.join(backendPublic, 'videos')}`);
+  fastify.register(require('@fastify/static'), { root: uploadsDir, prefix: '/uploads/', decorateReply: false });
+  console.log(`[RAVARI] Serving videos + uploads from ${backendPublic}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -347,6 +394,109 @@ fastify.delete('/api/admin/products/:id', async (request, reply) => {
     catch (e) { reply.code(500); return { error: e.message }; }
   }
   return { success: true };
+});
+
+// --- Image upload (admin) ---
+fastify.post('/api/admin/upload', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  try {
+    const data = await request.file();
+    if (!data) { reply.code(400); return { error: 'No file' }; }
+    const orig = (data.filename || 'upload.png').toLowerCase().replace(/[^a-z0-9._-]/g, '_');
+    const ext = orig.includes('.') ? orig.split('.').pop() : 'png';
+    const base = orig.replace(/\.[^.]*$/, '').slice(0, 40) || 'image';
+    const fname = `up_${Date.now()}_${base}.${ext}`;
+    const buf = await data.toBuffer();
+    fs.writeFileSync(path.join(uploadsDir, fname), buf);
+    return { success: true, url: `/uploads/${fname}` };
+  } catch (e) {
+    request.log.error(e);
+    reply.code(500); return { error: e.message };
+  }
+});
+
+// --- Coupons ---
+fastify.get('/api/coupons', async () => {
+  if (dbReady && pool) {
+    try { const rows = await query('SELECT * FROM coupons ORDER BY id DESC'); return { coupons: rows }; }
+    catch (e) { return { coupons: [] }; }
+  }
+  return { coupons: [] };
+});
+
+// Public: validate a coupon code against a cart subtotal
+fastify.post('/api/coupons/validate', async (request, reply) => {
+  const { code, subtotal } = request.body || {};
+  if (!dbReady || !pool) { reply.code(503); return { valid: false, error: 'Coupons unavailable' }; }
+  try {
+    const rows = await query('SELECT * FROM coupons WHERE code=? AND active=1', [String(code || '').toUpperCase()]);
+    if (!rows.length) { return { valid: false, error: 'Invalid code' }; }
+    const c = rows[0];
+    if (c.expiresAt && new Date(c.expiresAt) < new Date()) return { valid: false, error: 'Coupon expired' };
+    const sub = Number(subtotal || 0);
+    if (sub < Number(c.minOrder || 0)) return { valid: false, error: `Minimum order ₹${c.minOrder}` };
+    const discount = c.type === 'flat' ? Number(c.value) : Math.round(sub * Number(c.value) / 100);
+    return { valid: true, code: c.code, type: c.type, value: Number(c.value), discount, minOrder: Number(c.minOrder || 0) };
+  } catch (e) { reply.code(500); return { valid: false, error: e.message }; }
+});
+
+fastify.post('/api/admin/coupons', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  const b = request.body || {};
+  if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
+  try {
+    await query('INSERT INTO coupons (code,type,value,minOrder,expiresAt,active) VALUES (?,?,?,?,?,?)',
+      [String(b.code || '').toUpperCase(), b.type || 'percent', b.value || 0, b.minOrder || 0, b.expiresAt || null, b.active === false ? 0 : 1]);
+    return { success: true };
+  } catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+fastify.put('/api/admin/coupons/:id', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  const b = request.body || {};
+  if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
+  try {
+    await query('UPDATE coupons SET type=?, value=?, minOrder=?, expiresAt=?, active=? WHERE id=?',
+      [b.type || 'percent', b.value || 0, b.minOrder || 0, b.expiresAt || null, b.active ? 1 : 0, parseInt(request.params.id, 10)]);
+    return { success: true };
+  } catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+fastify.delete('/api/admin/coupons/:id', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
+  try { await query('DELETE FROM coupons WHERE id=?', [parseInt(request.params.id, 10)]); return { success: true }; }
+  catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// --- Orders ---
+fastify.get('/api/admin/orders', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) return { orders: [] };
+  try {
+    const rows = await query('SELECT * FROM orders ORDER BY id DESC LIMIT 200');
+    return { orders: rows.map(o => ({ ...o, items: (() => { try { return JSON.parse(o.items || '[]'); } catch (_) { return []; } })() })) };
+  } catch (e) { return { orders: [] }; }
+});
+
+// Public: place an order (checkout)
+fastify.post('/api/orders', async (request, reply) => {
+  const b = request.body || {};
+  if (dbReady && pool) {
+    try {
+      const r = await query('INSERT INTO orders (customerName,customerEmail,customerPhone,address,items,subtotal,discount,total,couponCode,status) VALUES (?,?,?,?,?,?,?,?,?,?)',
+        [b.customerName, b.customerEmail, b.customerPhone, b.address, JSON.stringify(b.items || []), b.subtotal || 0, b.discount || 0, b.total || 0, b.couponCode || null, 'pending']);
+      return { success: true, orderId: r.insertId };
+    } catch (e) { reply.code(500); return { error: e.message }; }
+  }
+  return { success: true, orderId: null };
+});
+
+fastify.put('/api/admin/orders/:id/status', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
+  try { await query('UPDATE orders SET status=? WHERE id=?', [(request.body || {}).status || 'pending', parseInt(request.params.id, 10)]); return { success: true }; }
+  catch (e) { reply.code(500); return { error: e.message }; }
 });
 
 // Kill-switch service worker: neutralizes any stale SW from the old site

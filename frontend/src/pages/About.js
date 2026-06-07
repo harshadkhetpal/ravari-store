@@ -1,9 +1,40 @@
 import React from 'react';
 import { FiAward, FiHeart, FiGlobe, FiUsers } from 'react-icons/fi';
+import SEO from '../components/SEO';
+import { SEO_CONFIG } from '../utils/seoConstants';
+import { getOrganizationSchema, getLocalBusinessSchema } from '../utils/schemaMarkup';
+import { trackPageView } from '../utils/ga4Tracking';
 
 function About() {
+  const seoConfig = SEO_CONFIG.pages.about;
+
+  // Track page view
+  React.useEffect(() => {
+    trackPageView('/about', 'About RAVARI');
+  }, []);
+
+  // Combine schemas for this page
+  const pageSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      getOrganizationSchema(),
+      getLocalBusinessSchema()
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title={seoConfig.title}
+        description={seoConfig.description}
+        keywords={seoConfig.keywords}
+        canonical={`${SEO_CONFIG.site.url}${seoConfig.path}`}
+        ogTitle="About RAVARI - Premium Handcrafted Leather Goods"
+        ogDescription="Discover RAVARI's journey of crafting luxury handcrafted leather goods since 2012. Learn about our commitment to quality, sustainability, and artisan craftsmanship."
+        ogImage="https://ravari.in/og-about.jpg"
+        schemaMarkup={pageSchema}
+      />
+
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-b-4 border-amber-200 py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4">

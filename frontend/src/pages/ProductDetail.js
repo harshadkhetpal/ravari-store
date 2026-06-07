@@ -3,6 +3,10 @@ import { useParams } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { FiZoomIn, FiChevronLeft, FiChevronRight, FiStar } from 'react-icons/fi';
+import SEO from '../components/SEO';
+import { SEO_CONFIG } from '../utils/seoConstants';
+import { getProductSchema, getBreadcrumbSchema } from '../utils/schemaMarkup';
+import { trackPageView, trackProductView } from '../utils/ga4Tracking';
 
 function ProductDetail() {
   const { slug } = useParams();
