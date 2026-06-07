@@ -249,7 +249,19 @@ async function initDatabase() {
 // ---------------------------------------------------------------------------
 const buildPath = path.join(__dirname, '../frontend/build');
 if (fs.existsSync(path.join(buildPath, 'index.html'))) {
-  fastify.register(require('@fastify/static'), { root: buildPath, prefix: '/' });
+  fastify.register(require('@fastify/static'), {
+    root: buildPath,
+    prefix: '/',
+    setHeaders: (res, filePath) => {
+      // Never cache HTML (so the browser always loads the current JS bundle);
+      // hashed JS/CSS/asset files are immutable and can be cached long-term.
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      } else if (/\.(js|css|png|jpe?g|gif|svg|webp|woff2?)$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  });
   console.log(`[RAVARI] Serving React frontend from ${buildPath}`);
 } else {
   console.log(`[RAVARI] ⚠️  React build not found at ${buildPath}`);
