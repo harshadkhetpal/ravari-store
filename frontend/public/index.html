@@ -81,5 +81,30 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <!-- Self-heal: if a stale cached bundle leaves the page blank, clear caches + SW and reload once -->
+    <script>
+      (function () {
+        function selfHeal() {
+          var root = document.getElementById('root');
+          if (root && root.children.length > 0) return; // app mounted fine
+          if (sessionStorage.getItem('rv_healed')) return; // only heal once per session
+          sessionStorage.setItem('rv_healed', '1');
+          try {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(function (rs) {
+                rs.forEach(function (r) { r.unregister(); });
+              });
+            }
+          } catch (e) {}
+          try {
+            if (window.caches && caches.keys) {
+              caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); });
+            }
+          } catch (e) {}
+          setTimeout(function () { location.reload(true); }, 300);
+        }
+        window.addEventListener('load', function () { setTimeout(selfHeal, 4000); });
+      })();
+    </script>
   </body>
 </html>
