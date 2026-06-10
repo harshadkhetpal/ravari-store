@@ -26,7 +26,7 @@ jobs:
     - name: Build Frontend
       run: |
         cd frontend
-        npm install --production
+        npm install
         npm run build
         cd ..
       
@@ -42,7 +42,7 @@ jobs:
         host: ${{ secrets.HOSTINGER_HOST }}
         username: ${{ secrets.HOSTINGER_USER }}
         password: ${{ secrets.HOSTINGER_PASSWORD }}
-        port: 22
+        port: 65002
         script: |
           cd /home/${{ secrets.HOSTINGER_USER }}/public_html/ravari-store
           
