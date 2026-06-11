@@ -31,7 +31,7 @@ jobs:
         username: ${{ secrets.HOSTINGER_USER }}
         password: ${{ secrets.HOSTINGER_PASSWORD }}
         port: 65002
-        script: rm -rf /home/${{ secrets.HOSTINGER_USER }}/public_html/ravari-store/frontend/build
+        script: rm -rf /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build
 
     - name: Upload new build to server
       uses: appleboy/scp-action@master
@@ -41,7 +41,7 @@ jobs:
         password: ${{ secrets.HOSTINGER_PASSWORD }}
         port: 65002
         source: "frontend/build"
-        target: "/home/${{ secrets.HOSTINGER_USER }}/public_html/ravari-store/frontend/"
+        target: "/home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/"
 
     - name: Restart PM2
       uses: appleboy/ssh-action@master
@@ -51,7 +51,8 @@ jobs:
         password: ${{ secrets.HOSTINGER_PASSWORD }}
         port: 65002
         script: |
-          pm2 restart ravari-store || pm2 start /home/${{ secrets.HOSTINGER_USER }}/public_html/ravari-store/server.js --name ravari-store
+          cd /home/${{ secrets.HOSTINGER_USER }}/nodejs
+          pm2 restart all || pm2 start server.js --name ravari-store
           echo "Deployment complete!"
 
     - name: Done
