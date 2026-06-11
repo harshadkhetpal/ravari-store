@@ -31,10 +31,10 @@ jobs:
         username: ${{ secrets.HOSTINGER_USER }}
         password: ${{ secrets.HOSTINGER_PASSWORD }}
         port: 65002
-        source: "frontend/build/*"
-        target: "/home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/"
+        source: "frontend/build"
+        target: "/home/${{ secrets.HOSTINGER_USER }}/nodejs/"
 
-    - name: Verify deployment
+    - name: Verify files on server
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOSTINGER_HOST }}
@@ -43,12 +43,13 @@ jobs:
         port: 65002
         command_timeout: 2m
         script: |
-          echo "=== Files in frontend/build ==="
+          echo "=== Contents of nodejs/frontend/build/ ==="
           ls /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/
-          echo "=== index.html title ==="
-          grep -o '<title>[^<]*</title>' /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/index.html
-          echo "=== CSS file ==="
+          echo "=== CSS files ==="
           ls /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/static/css/
+          echo "=== index.html title line ==="
+          grep -o 'Handcrafted\|Leather Crafted\|espresso\|btn-primary' /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/index.html || echo "no match in html"
+          grep -o 'espresso\|btn-primary\|Playfair' /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/static/css/*.css | head -5 || echo "no match in css"
 
     - name: Done
       if: success()
