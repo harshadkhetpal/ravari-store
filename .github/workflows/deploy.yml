@@ -18,39 +18,51 @@ jobs:
       with:
         node-version: '18'
 
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
     - name: Build Frontend
       run: |
         cd frontend
         npm install
         CI=false npm run build
 
-    - name: Upload build to server
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.HOSTINGER_HOST }}
-        username: ${{ secrets.HOSTINGER_USER }}
-        password: ${{ secrets.HOSTINGER_PASSWORD }}
-        port: 65002
-        source: "frontend/build"
-        target: "/home/${{ secrets.HOSTINGER_USER }}/nodejs/"
+    - name: Upload build to server (with retry)
+      run: |
+        for i in 1 2 3; do
+          echo "=== Upload attempt $i ==="
+          sshpass -p "$HOSTINGER_PASSWORD" scp \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            -P 65002 \
+            -r frontend/build \
+            "$HOSTINGER_USER@$HOSTINGER_HOST:/home/$HOSTINGER_USER/nodejs/" \
+          && echo "Upload succeeded!" && break \
+          || { echo "Attempt $i failed, retrying in 20s..."; sleep 20; }
+        done
+      env:
+        HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+        HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
+        HOSTINGER_PASSWORD: ${{ secrets.HOSTINGER_PASSWORD }}
 
-    - name: Verify files on server
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOSTINGER_HOST }}
-        username: ${{ secrets.HOSTINGER_USER }}
-        password: ${{ secrets.HOSTINGER_PASSWORD }}
-        port: 65002
-        command_timeout: 2m
-        script: |
-          echo "=== Contents of nodejs/frontend/build/ ==="
-          ls /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/
-          echo "=== CSS files ==="
-          ls /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/static/css/
-          echo "=== index.html title line ==="
-          grep -o 'Handcrafted\|Leather Crafted\|espresso\|btn-primary' /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/index.html || echo "no match in html"
-          grep -o 'espresso\|btn-primary\|Playfair' /home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/build/static/css/*.css | head -5 || echo "no match in css"
+    - name: Verify files on server (with retry)
+      run: |
+        for i in 1 2 3; do
+          echo "=== SSH attempt $i ==="
+          sshpass -p "$HOSTINGER_PASSWORD" ssh \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            -p 65002 \
+            "$HOSTINGER_USER@$HOSTINGER_HOST" \
+            "echo '=== Build contents ===' && ls /home/$HOSTINGER_USER/nodejs/frontend/build/ && echo '=== CSS ===' && ls /home/$HOSTINGER_USER/nodejs/frontend/build/static/css/" \
+          && break \
+          || { echo "Attempt $i failed, retrying in 20s..."; sleep 20; }
+        done
+      env:
+        HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+        HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
+        HOSTINGER_PASSWORD: ${{ secrets.HOSTINGER_PASSWORD }}
 
     - name: Done
       if: success()
-      run: echo "Live at https://ravari.in"
+      run: echo "Deployed! Live at https://ravari.in"
