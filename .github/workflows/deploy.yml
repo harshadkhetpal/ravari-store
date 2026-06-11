@@ -62,5 +62,22 @@ jobs:
         HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
         HOSTINGER_PASSWORD: ${{ secrets.HOSTINGER_PASSWORD }}
 
+    - name: Restart server
+      run: |
+        for i in 1 2 3; do
+          sshpass -p "$HOSTINGER_PASSWORD" ssh \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            -p 65002 \
+            "$HOSTINGER_USER@$HOSTINGER_HOST" \
+            "source ~/.bashrc 2>/dev/null; source ~/.profile 2>/dev/null; source ~/.nvm/nvm.sh 2>/dev/null; export PATH=\$PATH:/usr/local/bin:\$HOME/.npm-global/bin; pm2 restart all 2>/dev/null || (pkill -f 'node' || true; sleep 2; cd /home/$HOSTINGER_USER/nodejs && nohup node backend/server.js > app.log 2>&1 & echo 'Server restarted PID:'\$!)" \
+          && echo "Restart done!" && break \
+          || { echo "Attempt $i failed, retrying..."; sleep 20; }
+        done
+      env:
+        HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+        HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
+        HOSTINGER_PASSWORD: ${{ secrets.HOSTINGER_PASSWORD }}
+
     - name: Done
       run: echo "Deployed! Check https://ravari.in"
