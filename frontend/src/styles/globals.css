@@ -54,6 +54,10 @@ h1, h2, h3, h4, h5 {
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
 .fade-up { animation: fadeUp 0.7s ease-out forwards; }
 
 /* ── Utility Classes ─────────────────────────────────── */

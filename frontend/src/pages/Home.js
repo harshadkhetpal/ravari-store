@@ -1,28 +1,104 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { FiArrowRight } from 'react-icons/fi';
 import api from '../api/axiosConfig';
 import ProductCard from '../components/ProductCard';
-import { useDispatch } from 'react-redux';
-import { FiArrowRight, FiTruck, FiRefreshCw, FiAward, FiMessageCircle } from 'react-icons/fi';
 import SEO from '../components/SEO';
 import { SEO_CONFIG } from '../utils/seoConstants';
 import { getOrganizationSchema } from '../utils/schemaMarkup';
 import { trackPageView } from '../utils/ga4Tracking';
 
+/* ── Hero videos ───────────────────────────────────────── */
+const HERO_VIDEOS = [
+  '/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post.mp4',
+  '/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post%20(1).mp4',
+  '/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post%20(2).mp4',
+];
+
+/* ── Categories ────────────────────────────────────────── */
 const CATEGORIES = [
-  { name: 'Sling Bags',  image: '/images/p1-a.png', to: '/products?category=Sling+Bags' },
-  { name: 'Tote Bags',   image: '/images/p3-a.png', to: '/products?category=Tote+Bags' },
-  { name: 'Handbags',    image: '/images/p4-a.png', to: '/products?category=Handbags' },
-  { name: 'Accessories', image: '/images/p6-a.png', to: '/products?category=Organizers' },
+  { name: 'Sling Bags',    to: '/products?category=Sling+Bags',   img: '/images/p1-a.png' },
+  { name: 'Watch Box',     to: '/products?category=Watch+Box',    img: '/images/p2-a.png' },
+  { name: 'Tote Bags',     to: '/products?category=Tote+Bags',    img: '/images/p3-a.png' },
+  { name: 'Jewellery Box', to: '/products?category=Jewellery+Box',img: '/images/p4-a.png' },
 ];
 
-const TRUST = [
-  { icon: <FiTruck size={18} />,         title: 'Free Shipping',     sub: 'On orders above ₹2,000' },
-  { icon: <FiRefreshCw size={18} />,     title: 'Easy Returns',      sub: '7-day hassle-free returns' },
-  { icon: <FiAward size={18} />,         title: 'Genuine Leather',   sub: '100% authentic materials' },
-  { icon: <FiMessageCircle size={18} />, title: 'Dedicated Support', sub: 'Mon–Sat, 10am–7pm IST' },
-];
+/* ── Scrolling marquee bar ─────────────────────────────── */
+function MarqueeBar() {
+  const words = ['DURABLE', 'TEXTURED', 'FULL GRAIN', 'STITCHED', 'REINFORCED'];
+  const repeated = [...words, ...words, ...words, ...words];
+  return (
+    <div style={{ backgroundColor: '#0D0D0D', overflow: 'hidden', padding: '10px 0' }}>
+      <div style={{ display: 'flex', animation: 'marquee 28s linear infinite', width: 'max-content' }}>
+        {repeated.map((t, i) => (
+          <span key={i} style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.32em', color: '#C9A84C', textTransform: 'uppercase', padding: '0 2rem', whiteSpace: 'nowrap' }}>
+            {t} <span style={{ opacity: 0.3, marginLeft: '2rem' }}>·</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
+/* ── Hero video carousel ───────────────────────────────── */
+function HeroCarousel() {
+  const [current, setCurrent] = useState(0);
+  const videoRef = useRef(null);
+
+  const next = () => setCurrent(c => (c + 1) % HERO_VIDEOS.length);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.load();
+    v.play().catch(() => {});
+  }, [current]);
+
+  return (
+    <section style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '580px', backgroundColor: '#111', overflow: 'hidden' }}>
+      <video
+        ref={videoRef}
+        key={current}
+        autoPlay muted playsInline
+        onEnded={next}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+      >
+        <source src={HERO_VIDEOS[current]} type="video/mp4" />
+      </video>
+
+      {/* Vignette */}
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.15) 100%)' }} />
+
+      {/* Text — bottom left */}
+      <div style={{ position: 'absolute', bottom: '12%', left: '6%', zIndex: 2 }}>
+        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 400, letterSpacing: '0.35em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', marginBottom: '1.1rem' }}>
+          New Collection · 2025
+        </p>
+        <h1 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2.8rem, 6vw, 5.5rem)', fontWeight: 400, color: '#FFFFFF', lineHeight: 1.08, marginBottom: '2rem', maxWidth: '540px' }}>
+          Crafted for<br />
+          <em style={{ fontWeight: 300, fontStyle: 'italic' }}>every journey.</em>
+        </h1>
+        <Link to="/products"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.7rem', fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#FFFFFF', borderBottom: '1px solid rgba(255,255,255,0.5)', paddingBottom: '4px', transition: 'border-color 0.3s, color 0.3s' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = '#C9A84C'; e.currentTarget.style.color = '#C9A84C'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'; e.currentTarget.style.color = '#FFFFFF'; }}>
+          Shop Now <FiArrowRight size={13} />
+        </Link>
+      </div>
+
+      {/* Dots */}
+      <div style={{ position: 'absolute', bottom: '5%', right: '5%', display: 'flex', gap: '8px', zIndex: 2 }}>
+        {HERO_VIDEOS.map((_, i) => (
+          <button key={i} onClick={() => setCurrent(i)}
+            style={{ width: i === current ? '24px' : '6px', height: '6px', borderRadius: '3px', backgroundColor: i === current ? '#C9A84C' : 'rgba(255,255,255,0.35)', border: 'none', cursor: 'pointer', transition: 'all 0.4s ease', padding: 0 }} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── Main ──────────────────────────────────────────────── */
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [newArr,   setNewArr]   = useState([]);
@@ -59,83 +135,36 @@ export default function Home() {
         schemaMarkup={getOrganizationSchema()}
       />
 
-      {/* ── HERO ─────────────────────────────────────────── */}
-      <section style={{ position: 'relative', height: '92vh', minHeight: '600px', overflow: 'hidden', backgroundColor: '#0D0D0D' }}>
-        {/* Background video */}
-        <video
-          autoPlay muted loop playsInline
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.65 }}
-        >
-          <source src="/videos/Ravari%20Product%20Video%20-%2001.mp4" type="video/mp4" />
-        </video>
-
-        {/* Overlay gradient */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(13,13,13,0.75) 40%, rgba(13,13,13,0.2) 100%)' }} />
-
-        {/* Content */}
-        <div style={{ position: 'relative', zIndex: 2, height: '100%', maxWidth: '1400px', margin: '0 auto', padding: '0 3rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <p className="label" style={{ color: '#C9A84C', marginBottom: '1.5rem' }}>New Collection 2025</p>
-          <h1 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(3rem, 7vw, 6rem)', fontWeight: 500, color: '#FFFFFF', lineHeight: 1.05, marginBottom: '1.5rem', maxWidth: '600px' }}>
-            Purposefully<br />
-            <em style={{ fontStyle: 'italic', fontWeight: 300 }}>Crafted.</em>
-          </h1>
-          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.9rem', fontWeight: 300, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.05em', lineHeight: 1.8, marginBottom: '2.5rem', maxWidth: '380px' }}>
-            Handcrafted leather goods built for life — each piece a testament to artisan skill and enduring quality.
-          </p>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link to="/products" className="btn-outline-white">Shop Collection</Link>
-            <Link to="/about" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#C9A84C', display: 'flex', alignItems: 'center', gap: '0.5rem', paddingTop: '0.9rem', transition: 'gap 0.3s' }}
-              onMouseEnter={e => e.currentTarget.style.gap='0.8rem'}
-              onMouseLeave={e => e.currentTarget.style.gap='0.5rem'}>
-              Our Story <FiArrowRight size={14} />
-            </Link>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div style={{ position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', zIndex: 2 }}>
-          <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>Scroll</span>
-          <div style={{ width: '1px', height: '40px', background: 'linear-gradient(to bottom, rgba(201,168,76,0.8), transparent)' }} />
-        </div>
-      </section>
-
-      {/* ── TRUST STRIP ──────────────────────────────────── */}
-      <section style={{ borderBottom: '1px solid #E0DBD4', borderTop: '1px solid #E0DBD4' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '1.2rem 2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-            {TRUST.map(({ icon, title, sub }) => (
-              <div key={title} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0' }}>
-                <span style={{ color: '#C9A84C', flexShrink: 0 }}>{icon}</span>
-                <div>
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#0D0D0D' }}>{title}</p>
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: '#8C8680', marginTop: '1px' }}>{sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <MarqueeBar />
+      <HeroCarousel />
 
       {/* ── SHOP BY CATEGORY ─────────────────────────────── */}
-      <section style={{ padding: '6rem 0', backgroundColor: '#FFFFFF' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <p className="label" style={{ marginBottom: '1rem' }}>Explore</p>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 500, color: '#0D0D0D' }}>Shop by Category</h2>
+      <section style={{ padding: '7rem 0', backgroundColor: '#FFFFFF' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3.5rem' }}>
+            <div>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Explore</p>
+              <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Shop by Category</h2>
+            </div>
+            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px' }}>
+              View All <FiArrowRight size={11} />
+            </Link>
           </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
             {CATEGORIES.map(cat => (
-              <Link key={cat.name} to={cat.to} style={{ display: 'block', textDecoration: 'none' }}>
-                <div style={{ overflow: 'hidden', backgroundColor: '#F5F3EE', aspectRatio: '3/4', position: 'relative' }}>
-                  <img src={cat.image} alt={cat.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.7s ease' }}
-                    onMouseEnter={e => e.target.style.transform='scale(1.06)'}
-                    onMouseLeave={e => e.target.style.transform='scale(1)'}
+              <Link key={cat.name} to={cat.to} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+                <div style={{ overflow: 'hidden', backgroundColor: '#F0EDE8', aspectRatio: '3/4', position: 'relative' }}>
+                  <img
+                    src={cat.img} alt={cat.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94)' }}
+                    onMouseEnter={e => e.target.style.transform = 'scale(1.07)'}
+                    onMouseLeave={e => e.target.style.transform = 'scale(1)'}
                   />
                 </div>
                 <div style={{ paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontWeight: 500, color: '#0D0D0D', letterSpacing: '0.02em' }}>{cat.name}</h3>
-                  <FiArrowRight size={14} style={{ color: '#C9A84C' }} />
+                  <h3 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.05rem', fontWeight: 500, color: '#0D0D0D' }}>{cat.name}</h3>
+                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', color: '#8C8680', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Shop →</span>
                 </div>
               </Link>
             ))}
@@ -143,96 +172,99 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── FEATURED PRODUCTS ────────────────────────────── */}
-      <section style={{ padding: '4rem 0 6rem', backgroundColor: '#F5F3EE' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
+      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2.5rem' }}><div style={{ height: '1px', backgroundColor: '#E8E4DE' }} /></div>
+
+      {/* ── BEST SELLERS ─────────────────────────────────── */}
+      <section style={{ padding: '7rem 0', backgroundColor: '#FFFFFF' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3.5rem' }}>
             <div>
-              <p className="label" style={{ marginBottom: '0.75rem' }}>Handpicked</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', fontWeight: 500, color: '#0D0D0D' }}>Best Sellers</h2>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Handpicked</p>
+              <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Best Sellers</h2>
             </div>
-            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.4rem', borderBottom: '1px solid #C9A84C', paddingBottom: '2px' }}>
-              View All <FiArrowRight size={12} />
+            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px' }}>
+              View All <FiArrowRight size={11} />
             </Link>
           </div>
-
           {loading ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-              {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '400px' }} />)}
+              {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '420px' }} />)}
             </div>
           ) : featured.length > 0 ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-              {featured.map(p => <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />)}
-            </div>
-          ) : (
-            <p style={{ textAlign: 'center', color: '#8C8680', fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem' }}>Loading premium collection…</p>
-          )}
-        </div>
-      </section>
-
-      {/* ── BRAND STORY BANNER ───────────────────────────── */}
-      <section style={{ backgroundColor: '#0D0D0D', padding: '7rem 2rem' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-          <p className="label" style={{ marginBottom: '2rem' }}>Est. 2012</p>
-          <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2rem, 4vw, 3.2rem)', fontWeight: 400, color: '#FFFFFF', lineHeight: 1.3, marginBottom: '1.5rem' }}>
-            "Every stitch is a commitment.<br />
-            <em style={{ color: '#C9A84C' }}>Every piece, a lifetime."</em>
-          </h2>
-          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.85rem', fontWeight: 300, color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, marginBottom: '2.5rem', maxWidth: '500px', margin: '0 auto 2.5rem' }}>
-            Born from a devotion to the craft, RAVARI creates leather goods that outlast trends — made by artisans, made to last.
-          </p>
-          <Link to="/about" className="btn-outline-white">Discover Our Story</Link>
-        </div>
-      </section>
-
-      {/* ── NEW ARRIVALS ─────────────────────────────────── */}
-      <section style={{ padding: '6rem 0', backgroundColor: '#FFFFFF' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
-            <div>
-              <p className="label" style={{ marginBottom: '0.75rem' }}>Fresh In</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', fontWeight: 500, color: '#0D0D0D' }}>New Arrivals</h2>
-            </div>
-            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.4rem', borderBottom: '1px solid #C9A84C', paddingBottom: '2px' }}>
-              View All <FiArrowRight size={12} />
-            </Link>
-          </div>
-          {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-              {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '400px' }} />)}
-            </div>
-          ) : newArr.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-              {newArr.map(p => <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />)}
+              {featured.slice(0, 4).map(p => (
+                <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />
+              ))}
             </div>
           ) : null}
         </div>
       </section>
 
-      {/* ── CRAFT PROCESS ────────────────────────────────── */}
-      <section style={{ backgroundColor: '#F5F3EE', padding: '6rem 2rem' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <p className="label" style={{ marginBottom: '0.75rem' }}>How We Make It</p>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', fontWeight: 500, color: '#0D0D0D' }}>The Craft Process</h2>
+      {/* ── BRAND STORY ──────────────────────────────────── */}
+      <section style={{ backgroundColor: '#F5F3EE' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '500px' }}>
+          <div style={{ backgroundColor: '#E8E4DE', overflow: 'hidden' }}>
+            <img src="/images/Ravari%20Logo%20Banner.jpeg" alt="RAVARI craftsmanship"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2rem' }}>
-            {[
-              { n: '01', title: 'Design',    desc: 'Sketched by hand' },
-              { n: '02', title: 'Selection', desc: 'Premium leather sourced' },
-              { n: '03', title: 'Cutting',   desc: 'Precision patterns' },
-              { n: '04', title: 'Stitching', desc: 'Hand-sewn by artisans' },
-              { n: '05', title: 'Finishing', desc: 'Polished & inspected' },
-            ].map(({ n, title, desc }) => (
-              <div key={n} style={{ textAlign: 'center' }}>
-                <div style={{ width: '52px', height: '52px', border: '1px solid #C9A84C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
-                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.1em', color: '#C9A84C' }}>{n}</span>
-                </div>
-                <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 500, color: '#0D0D0D', marginBottom: '0.35rem' }}>{title}</h3>
-                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', color: '#8C8680', lineHeight: 1.6 }}>{desc}</p>
-              </div>
-            ))}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '5rem 4rem' }}>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '1.25rem' }}>Our Story</p>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: 400, color: '#0D0D0D', lineHeight: 1.15, marginBottom: '1.75rem' }}>
+              Craftsmanship<br />with Purpose
+            </h2>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.83rem', fontWeight: 300, color: '#4A4642', lineHeight: 2, marginBottom: '2.5rem' }}>
+              Ravari stands for craftsmanship with purpose. Made from durable, textured full-grain leather and finished with reinforced stitching, our products are designed to accompany every journey with confidence, character, and enduring style.
+            </p>
+            <Link to="/about"
+              style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#0D0D0D', display: 'inline-flex', alignItems: 'center', gap: '0.55rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '3px', width: 'fit-content' }}>
+              Read More <FiArrowRight size={12} />
+            </Link>
           </div>
+        </div>
+      </section>
+
+      {/* ── NEW ARRIVALS ─────────────────────────────────── */}
+      <section style={{ padding: '7rem 0', backgroundColor: '#FFFFFF' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3.5rem' }}>
+            <div>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Fresh In</p>
+              <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>New Arrivals</h2>
+            </div>
+            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px' }}>
+              View All <FiArrowRight size={11} />
+            </Link>
+          </div>
+          {loading ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+              {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '420px' }} />)}
+            </div>
+          ) : newArr.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+              {newArr.slice(0, 4).map(p => (
+                <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      {/* ── CRAFT QUALITIES STRIP ────────────────────────── */}
+      <section style={{ backgroundColor: '#0D0D0D', padding: '0' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
+          {[
+            { label: 'Full Grain',  desc: 'Highest quality leather' },
+            { label: 'Durable',     desc: 'Built to last decades'   },
+            { label: 'Reinforced',  desc: 'Double-stitched seams'   },
+            { label: 'Textured',    desc: 'Rich natural grain'       },
+            { label: 'Handcrafted', desc: 'Made by skilled artisans' },
+          ].map(({ label, desc }, i) => (
+            <div key={label} style={{ padding: '2.75rem 1.5rem', textAlign: 'center', borderRight: i < 4 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
+              <div style={{ width: '1px', height: '28px', backgroundColor: '#C9A84C', margin: '0 auto 1.25rem' }} />
+              <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.05rem', fontWeight: 500, color: '#FFFFFF', marginBottom: '0.35rem' }}>{label}</h4>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', color: 'rgba(255,255,255,0.38)', letterSpacing: '0.04em' }}>{desc}</p>
+            </div>
+          ))}
         </div>
       </section>
     </div>

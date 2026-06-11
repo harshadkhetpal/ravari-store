@@ -27,11 +27,6 @@ export default function Header() {
 
   return (
     <>
-      {/* Announcement bar */}
-      <div style={{ backgroundColor: '#0D0D0D', color: '#C9A84C', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', textAlign: 'center', padding: '9px 1rem' }}>
-        Free Shipping on Orders Above ₹2,000 &nbsp;·&nbsp; Handcrafted in India
-      </div>
-
       {/* Main header */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 100,
