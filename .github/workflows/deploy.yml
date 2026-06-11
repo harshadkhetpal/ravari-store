@@ -51,21 +51,12 @@ jobs:
         password: ${{ secrets.HOSTINGER_PASSWORD }}
         port: 65002
         script: |
-          export PATH=$PATH:/usr/local/bin:$HOME/.npm-global/bin:$HOME/node_modules/.bin:/usr/bin
-          PM2=$(which pm2 2>/dev/null || find $HOME -name pm2 -type f 2>/dev/null | head -1 || echo "")
-          echo "PM2 path: $PM2"
+          export PATH=$PATH:/usr/local/bin:$HOME/.npm-global/bin:$HOME/.local/bin:/usr/bin
           cd /home/${{ secrets.HOSTINGER_USER }}/nodejs
-          if [ -n "$PM2" ]; then
-            $PM2 stop all || true
-            $PM2 delete all || true
-            $PM2 start server.js --name ravari-store
-            $PM2 save
-            echo "Restarted via PM2"
-          else
-            pkill -f "node server.js" || true
-            nohup node server.js > /dev/null 2>&1 &
-            echo "Restarted via nohup"
-          fi
+          pkill -f "node server.js" || true
+          sleep 2
+          nohup node server.js > app.log 2>&1 &
+          echo "App restarted, PID: $!"
 
     - name: Done
       if: success()
