@@ -10,47 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-
-    - name: Build Frontend
-      run: |
-        cd frontend
-        npm install
-        CI=false npm run build
-
-    - name: Upload new build to server
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.HOSTINGER_HOST }}
-        username: ${{ secrets.HOSTINGER_USER }}
-        password: ${{ secrets.HOSTINGER_PASSWORD }}
-        port: 65002
-        source: "frontend/build"
-        target: "/home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/"
-
-    - name: Restart Node App
+    - name: Deploy via SSH
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOSTINGER_HOST }}
         username: ${{ secrets.HOSTINGER_USER }}
         password: ${{ secrets.HOSTINGER_PASSWORD }}
         port: 65002
+        command_timeout: 10m
         script: |
           source ~/.bashrc 2>/dev/null || true
           source ~/.profile 2>/dev/null || true
           source ~/.nvm/nvm.sh 2>/dev/null || true
           export PATH=$PATH:/usr/local/bin:$HOME/.npm-global/bin:$HOME/.local/bin
-          echo "PM2 location: $(which pm2 2>/dev/null || echo 'not in PATH')"
-          pm2 restart all 2>/dev/null || \
-          pm2 start /home/${{ secrets.HOSTINGER_USER }}/nodejs/backend/server.js --name ravari 2>/dev/null || \
-          (pkill -f "node" || true; sleep 1; cd /home/${{ secrets.HOSTINGER_USER }}/nodejs && nohup node backend/server.js > app.log 2>&1 & echo "Started PID: $!")
 
-    - name: Done
-      if: success()
-      run: echo "Live at https://ravari.in"
+          cd /home/${{ secrets.HOSTINGER_USER }}/nodejs
+
+          echo "=== Pulling latest code ==="
+          git pull origin main
+
+          echo "=== Building frontend ==="
+          cd frontend
+          npm install
+          CI=false npm run build
+          cd ..
+
+          echo "=== Restarting server ==="
+          pm2 restart all 2>/dev/null || \
+          pm2 start backend/server.js --name ravari 2>/dev/null || \
+          (pkill -f "node" || true; sleep 1; nohup node backend/server.js > app.log 2>&1 & echo "PID: $!")
+
+          echo "=== Done! ==="
