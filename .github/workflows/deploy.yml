@@ -27,7 +27,7 @@ jobs:
         npm install
         CI=false npm run build
 
-    - name: Upload build to server (with retry)
+    - name: Upload build contents directly into build folder
       run: |
         for i in 1 2 3; do
           echo "=== Upload attempt $i ==="
@@ -35,8 +35,8 @@ jobs:
             -o StrictHostKeyChecking=no \
             -o ConnectTimeout=30 \
             -P 65002 \
-            -r frontend/build \
-            "$HOSTINGER_USER@$HOSTINGER_HOST:/home/$HOSTINGER_USER/nodejs/" \
+            -r frontend/build/. \
+            "$HOSTINGER_USER@$HOSTINGER_HOST:/home/$HOSTINGER_USER/nodejs/frontend/build/" \
           && echo "Upload succeeded!" && break \
           || { echo "Attempt $i failed, retrying in 20s..."; sleep 20; }
         done
@@ -45,16 +45,15 @@ jobs:
         HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
         HOSTINGER_PASSWORD: ${{ secrets.HOSTINGER_PASSWORD }}
 
-    - name: Verify files on server (with retry)
+    - name: Verify correct files are on server
       run: |
         for i in 1 2 3; do
-          echo "=== SSH attempt $i ==="
           sshpass -p "$HOSTINGER_PASSWORD" ssh \
             -o StrictHostKeyChecking=no \
             -o ConnectTimeout=30 \
             -p 65002 \
             "$HOSTINGER_USER@$HOSTINGER_HOST" \
-            "echo '=== Build contents ===' && ls /home/$HOSTINGER_USER/nodejs/frontend/build/ && echo '=== CSS ===' && ls /home/$HOSTINGER_USER/nodejs/frontend/build/static/css/" \
+            "echo '=== index.html ===' && ls -la /home/$HOSTINGER_USER/nodejs/frontend/build/index.html && echo '=== CSS files ===' && ls /home/$HOSTINGER_USER/nodejs/frontend/build/static/css/ && echo '=== Check luxury CSS ===' && grep -c 'espresso\|btn-primary\|Playfair' /home/$HOSTINGER_USER/nodejs/frontend/build/static/css/*.css && echo 'Luxury CSS confirmed!'" \
           && break \
           || { echo "Attempt $i failed, retrying in 20s..."; sleep 20; }
         done
@@ -64,5 +63,4 @@ jobs:
         HOSTINGER_PASSWORD: ${{ secrets.HOSTINGER_PASSWORD }}
 
     - name: Done
-      if: success()
-      run: echo "Deployed! Live at https://ravari.in"
+      run: echo "Deployed! Check https://ravari.in"
