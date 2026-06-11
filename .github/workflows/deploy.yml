@@ -43,7 +43,7 @@ jobs:
         source: "frontend/build"
         target: "/home/${{ secrets.HOSTINGER_USER }}/nodejs/frontend/"
 
-    - name: Restart PM2
+    - name: Restart Node App
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOSTINGER_HOST }}
@@ -52,8 +52,13 @@ jobs:
         port: 65002
         script: |
           cd /home/${{ secrets.HOSTINGER_USER }}/nodejs
-          pm2 restart all || pm2 start server.js --name ravari-store
-          echo "Deployment complete!"
+          pm2 list
+          pm2 stop all || true
+          pm2 delete all || true
+          pm2 start server.js --name ravari-store
+          pm2 save
+          echo "Node app restarted with fresh process"
+          pm2 list
 
     - name: Done
       if: success()
