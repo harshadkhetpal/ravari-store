@@ -1,133 +1,101 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { FiSearch, FiShoppingCart, FiHeart, FiUser, FiMenu, FiX, FiInstagram, FiFacebook } from 'react-icons/fi';
+import { FiSearch, FiHeart, FiShoppingBag, FiMenu, FiX } from 'react-icons/fi';
 
-function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const NAV_LINKS = [
+  { label: 'Shop',        to: '/products' },
+  { label: 'Collections', to: '/products' },
+  { label: 'About',       to: '/about' },
+  { label: 'Contact',     to: '/contact' },
+];
+
+export default function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const cartItems = useSelector(state => state.cart.items);
-  const { isAuthenticated } = useSelector(state => state.auth);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location                = useLocation();
+  const cartItems               = useSelector(s => s.cart?.items || []);
+  const cartCount               = cartItems.reduce((n, i) => n + (i.quantity || 1), 0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => { setMenuOpen(false); }, [location]);
+
   return (
     <>
-      {/* Announcement Bar */}
-      <div style={{ backgroundColor: '#1A0F0A' }} className="text-center py-2 px-4">
-        <p style={{ fontFamily: 'Raleway, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', color: '#E8D5A3', fontWeight: 500 }}>
-          FREE SHIPPING ON ORDERS ABOVE ₹2,000 &nbsp;·&nbsp; HANDCRAFTED IN INDIA
-        </p>
+      {/* Announcement bar */}
+      <div style={{ backgroundColor: '#0D0D0D', color: '#C9A84C', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', textAlign: 'center', padding: '9px 1rem' }}>
+        Free Shipping on Orders Above ₹2,000 &nbsp;·&nbsp; Handcrafted in India
       </div>
 
-      {/* Main Header */}
-      <header
-        className={`bg-white sticky top-0 z-50 transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'shadow-none'}`}
-        style={{ borderBottom: '1px solid #E8DDD4' }}
-      >
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
+      {/* Main header */}
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        backgroundColor: '#FFFFFF',
+        borderBottom: '1px solid #E0DBD4',
+        boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.06)' : 'none',
+        transition: 'box-shadow 0.3s ease',
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem', display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', height: '68px' }}>
 
-            {/* Left — Social + Mobile toggle */}
-            <div className="flex items-center gap-4">
-              <button
-                className="md:hidden"
-                style={{ color: '#1A0F0A' }}
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Toggle menu"
-              >
-                {mobileMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
-              </button>
-              <div className="hidden md:flex items-center gap-3">
-                <a href="https://www.instagram.com/ravari_store" target="_blank" rel="noopener noreferrer"
-                  style={{ color: '#6B3A2A' }} className="hover:opacity-60 transition-opacity">
-                  <FiInstagram size={16} />
-                </a>
-                <a href="https://www.facebook.com/profile.php?id=61585497611013" target="_blank" rel="noopener noreferrer"
-                  style={{ color: '#6B3A2A' }} className="hover:opacity-60 transition-opacity">
-                  <FiFacebook size={16} />
-                </a>
-              </div>
-            </div>
-
-            {/* Center — Logo */}
-            <Link to="/" className="absolute left-1/2 -translate-x-1/2">
-              <img
-                src="/images/Ravari%20Logo%20Banner.jpeg"
-                alt="RAVARI"
-                style={{ height: '44px', maxWidth: '160px', objectFit: 'contain' }}
-              />
-            </Link>
-
-            {/* Right — Icons */}
-            <div className="flex items-center gap-4">
-              <button aria-label="Search" style={{ color: '#1C1C1C' }} className="hover:opacity-60 transition-opacity hidden md:block">
-                <FiSearch size={18} />
-              </button>
-
-              <Link to="/wishlist" className="relative" style={{ color: '#1C1C1C' }}>
-                <FiHeart size={18} className="hover:opacity-60 transition-opacity" />
-              </Link>
-
-              <Link to="/cart" className="relative" style={{ color: '#1C1C1C' }}>
-                <FiShoppingCart size={18} className="hover:opacity-60 transition-opacity" />
-                {cartItems.length > 0 && (
-                  <span className="absolute -top-2 -right-2 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold"
-                    style={{ backgroundColor: '#6B3A2A', fontSize: '0.6rem' }}>
-                    {cartItems.length}
-                  </span>
-                )}
-              </Link>
-
-              {!isAuthenticated ? (
-                <Link to="/account"
-                  style={{ fontFamily: 'Raleway, sans-serif', fontSize: '0.65rem', letterSpacing: '0.12em', fontWeight: 600, color: '#1A0F0A' }}
-                  className="hidden md:flex items-center gap-1 uppercase hover:opacity-60 transition-opacity">
-                  <FiUser size={15} />
-                  Login
-                </Link>
-              ) : (
-                <Link to="/account" style={{ color: '#1C1C1C' }} className="hidden md:block hover:opacity-60 transition-opacity">
-                  <FiUser size={18} />
-                </Link>
-              )}
-            </div>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex justify-center gap-10 mt-4 pt-4" style={{ borderTop: '1px solid #E8DDD4' }}>
-            {[
-              { to: '/products', label: 'Shop Collection' },
-              { to: '/about',    label: 'Our Story' },
-              { to: '/contact',  label: 'Contact' },
-            ].map(({ to, label }) => (
-              <Link key={to} to={to} className="nav-link pb-1">{label}</Link>
+          {/* Left nav */}
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '2rem' }} className="hidden-mobile">
+            {NAV_LINKS.slice(0, 2).map(l => (
+              <Link key={l.label} to={l.to} className="nav-link">{l.label}</Link>
             ))}
           </nav>
-        </div>
 
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t" style={{ borderColor: '#E8DDD4', backgroundColor: '#FAF7F2' }}>
-            <nav className="flex flex-col px-6 py-6 gap-5">
-              {[
-                { to: '/products', label: 'Shop Collection' },
-                { to: '/about',    label: 'Our Story' },
-                { to: '/contact',  label: 'Contact' },
-                { to: '/account',  label: 'My Account' },
-              ].map(({ to, label }) => (
-                <Link key={to} to={to} onClick={() => setMobileMenuOpen(false)} className="nav-link">{label}</Link>
+          {/* Logo — centered */}
+          <Link to="/" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+            <span style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.9rem', fontWeight: 600, letterSpacing: '0.18em', color: '#0D0D0D', lineHeight: 1 }}>RAVARI</span>
+            <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.48rem', fontWeight: 400, letterSpacing: '0.35em', color: '#C9A84C', textTransform: 'uppercase' }}>Purposefully Crafted</span>
+          </Link>
+
+          {/* Right: nav + icons */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '2rem' }}>
+            <nav style={{ display: 'flex', alignItems: 'center', gap: '2rem' }} className="hidden-mobile">
+              {NAV_LINKS.slice(2).map(l => (
+                <Link key={l.label} to={l.to} className="nav-link">{l.label}</Link>
               ))}
             </nav>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.1rem' }}>
+              <button aria-label="Search" style={{ color: '#0D0D0D', display: 'flex', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='#C9A84C'} onMouseLeave={e => e.currentTarget.style.color='#0D0D0D'}>
+                <FiSearch size={17} />
+              </button>
+              <Link to="/wishlist" aria-label="Wishlist" style={{ color: '#0D0D0D', display: 'flex', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='#C9A84C'} onMouseLeave={e => e.currentTarget.style.color='#0D0D0D'}>
+                <FiHeart size={17} />
+              </Link>
+              <Link to="/cart" aria-label="Cart" style={{ color: '#0D0D0D', display: 'flex', position: 'relative', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color='#C9A84C'} onMouseLeave={e => e.currentTarget.style.color='#0D0D0D'}>
+                <FiShoppingBag size={17} />
+                {cartCount > 0 && (
+                  <span style={{ position: 'absolute', top: '-6px', right: '-7px', backgroundColor: '#C9A84C', color: '#0D0D0D', fontSize: '0.5rem', fontWeight: 700, width: '15px', height: '15px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount}</span>
+                )}
+              </Link>
+              <button className="show-mobile" onClick={() => setMenuOpen(o => !o)} aria-label="Menu" style={{ color: '#0D0D0D', display: 'none' }}>
+                {menuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+              </button>
+            </div>
           </div>
-        )}
+        </div>
       </header>
+
+      {/* Mobile full-screen menu */}
+      {menuOpen && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: '#FFFFFF', zIndex: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2.5rem' }}>
+          <button onClick={() => setMenuOpen(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', color: '#0D0D0D' }}>
+            <FiX size={24} />
+          </button>
+          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.6rem', fontWeight: 600, letterSpacing: '0.2em' }}>RAVARI</span>
+          <div className="divider-gold" style={{ width: '40px' }} />
+          {NAV_LINKS.map(l => (
+            <Link key={l.label} to={l.to} style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: '#0D0D0D' }}>{l.label}</Link>
+          ))}
+        </div>
+      )}
     </>
   );
 }
-
-export default Header;

@@ -4,74 +4,77 @@
 
 /* ── RAVARI Design Tokens ────────────────────────────── */
 :root {
-  --espresso:   #1A0F0A;
-  --cognac:     #6B3A2A;
-  --cognac-mid: #8B5A3A;
+  --black:      #0D0D0D;
+  --white:      #FFFFFF;
+  --off-white:  #F5F3EE;
   --gold:       #C9A84C;
   --gold-light: #E8D5A3;
-  --cream:      #FAF7F2;
-  --ivory:      #F4EFE6;
-  --charcoal:   #1C1C1C;
-  --warm-gray:  #6B6560;
-  --border:     #E8DDD4;
+  --gold-dark:  #A8893A;
+  --gray-100:   #F0EDE8;
+  --gray-300:   #D4CFC8;
+  --gray-500:   #8C8680;
+  --gray-700:   #4A4642;
+  --border:     #E0DBD4;
 }
 
 /* ── Reset ───────────────────────────────────────────── */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+img { max-width: 100%; height: auto; display: block; }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; background: none; }
 
 /* ── Base Typography ─────────────────────────────────── */
 body {
-  font-family: 'Raleway', -apple-system, BlinkMacSystemFont, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #ffffff;
-  color: var(--charcoal);
+  font-family: 'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--white);
+  color: var(--black);
   font-weight: 400;
   letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4 {
-  font-family: 'Playfair Display', Georgia, serif;
+h1, h2, h3, h4, h5 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  line-height: 1.1;
   letter-spacing: -0.01em;
-  line-height: 1.15;
 }
 
 /* ── Scrollbar ───────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--cream); }
-::-webkit-scrollbar-thumb { background: var(--cognac-mid); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--cognac); }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--off-white); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
 
 /* ── Animations ──────────────────────────────────────── */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+.fade-up { animation: fadeUp 0.7s ease-out forwards; }
 
-.fade-in { animation: fadeIn 0.5s ease-out; }
+/* ── Utility Classes ─────────────────────────────────── */
+.font-serif    { font-family: 'Cormorant Garamond', Georgia, serif; }
+.font-sans     { font-family: 'Jost', sans-serif; }
+.text-gold     { color: var(--gold); }
+.text-gray     { color: var(--gray-500); }
+.bg-off-white  { background-color: var(--off-white); }
+.bg-black      { background-color: var(--black); }
 
-/* ── Luxury Utility Classes ──────────────────────────── */
-.font-serif    { font-family: 'Playfair Display', Georgia, serif; }
-.font-cormorant{ font-family: 'Cormorant Garamond', Georgia, serif; }
-.font-sans     { font-family: 'Raleway', sans-serif; }
+/* Eyebrow label */
+.label {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
 
-.text-espresso  { color: var(--espresso); }
-.text-cognac    { color: var(--cognac); }
-.text-gold      { color: var(--gold); }
-.text-warm-gray { color: var(--warm-gray); }
-.bg-cream       { background-color: var(--cream); }
-.bg-ivory       { background-color: var(--ivory); }
-.border-luxury  { border-color: var(--border); }
-
-/* Thin gold divider */
+/* Gold divider */
 .divider-gold {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
@@ -79,110 +82,118 @@ h1, h2, h3, h4 {
   margin: 0;
 }
 
-/* Gold text gradient */
-.text-gold-gradient {
-  background: linear-gradient(135deg, var(--gold) 0%, #A07830 50%, var(--gold) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Skeleton shimmer */
-.skeleton {
-  background: linear-gradient(90deg, var(--ivory) 25%, #EDE5D8 50%, var(--ivory) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 4px;
-}
-
-/* Luxury button */
+/* ── Buttons ─────────────────────────────────────────── */
 .btn-primary {
-  display: inline-block;
-  background-color: var(--espresso);
-  color: #ffffff;
-  font-family: 'Raleway', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--black);
+  color: var(--white);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  padding: 0.875rem 2.5rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  padding: 0.9rem 2.5rem;
+  border: 1px solid var(--black);
+  transition: all 0.3s ease;
 }
 .btn-primary:hover {
-  background-color: var(--cognac);
-  transform: translateY(-1px);
+  background-color: var(--gold);
+  border-color: var(--gold);
+  color: var(--black);
 }
 
 .btn-outline {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   background-color: transparent;
-  color: var(--espresso);
-  font-family: 'Raleway', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
+  color: var(--black);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  padding: 0.875rem 2.5rem;
-  border: 1px solid var(--espresso);
-  cursor: pointer;
+  padding: 0.9rem 2.5rem;
+  border: 1px solid var(--black);
   transition: all 0.3s ease;
 }
 .btn-outline:hover {
-  background-color: var(--espresso);
-  color: #ffffff;
+  background-color: var(--black);
+  color: var(--white);
 }
 
-/* Section headings */
-.section-eyebrow {
-  font-family: 'Raleway', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.3em;
+.btn-outline-white {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: var(--white);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--gold);
+  padding: 0.9rem 2.5rem;
+  border: 1px solid var(--white);
+  transition: all 0.3s ease;
+}
+.btn-outline-white:hover {
+  background-color: var(--white);
+  color: var(--black);
 }
 
-/* Nav link underline */
+/* ── Nav link ────────────────────────────────────────── */
 .nav-link {
-  font-family: 'Raleway', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--charcoal);
+  color: var(--black);
   position: relative;
   transition: color 0.2s;
 }
 .nav-link::after {
   content: '';
   position: absolute;
-  bottom: -2px;
+  bottom: -3px;
   left: 0;
   width: 0;
   height: 1px;
-  background-color: var(--cognac);
+  background: var(--gold);
   transition: width 0.3s ease;
 }
-.nav-link:hover { color: var(--cognac); }
+.nav-link:hover { color: var(--gold); }
 .nav-link:hover::after { width: 100%; }
 
-/* Responsive images */
-img { max-width: 100%; height: auto; }
-
-/* Forms */
-input[type='text']:focus,
-input[type='email']:focus,
-input[type='password']:focus,
-input[type='number']:focus,
-textarea:focus,
-select:focus {
-  @apply outline-none ring-1 ring-offset-0;
-  ring-color: var(--cognac);
+/* ── Skeleton ────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--gray-100) 25%, #E8E4DE 50%, var(--gray-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 2px;
 }
 
-button { @apply transition-all duration-200; }
-button:disabled { @apply opacity-50 cursor-not-allowed; }
+/* ── Product card ────────────────────────────────────── */
+.product-card { background: var(--white); }
+.product-image-wrap {
+  overflow: hidden;
+  background: var(--gray-100);
+  position: relative;
+}
+.product-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+.product-card:hover .product-image-wrap img { transform: scale(1.05); }
 
-a { text-decoration: none; }
+/* Forms */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--gold) !important;
+}
+button:disabled { opacity: 50%; cursor: not-allowed; }
