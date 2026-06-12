@@ -293,61 +293,6 @@ export default function Home() {
       {/* ── CRAFT REEL CAROUSEL ──────────────────────────── */}
       <ReelCarousel />
 
-      {/* ── SHOP BY CATEGORY ─────────────────────────────── */}
-      <section className="section-padding" style={{ backgroundColor: '#FFFFFF' }}>
-        <div className="section-inner">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
-            <div>
-              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Explore</p>
-              <h2 className="section-heading" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.6rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Shop by Category</h2>
-            </div>
-            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px', whiteSpace: 'nowrap' }}>
-              View All <FiArrowRight size={11} />
-            </Link>
-          </div>
-          <div className="category-grid">
-            {CATEGORIES.map(cat => (
-              <Link key={cat.name} to={cat.to} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
-                <div style={{ overflow: 'hidden', backgroundColor: '#F0EDE8', aspectRatio: '3/4' }}>
-                  <img src={cat.img} alt={cat.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.9s ease' }}
-                    onMouseEnter={e => e.target.style.transform = 'scale(1.07)'}
-                    onMouseLeave={e => e.target.style.transform = 'scale(1)'} />
-                </div>
-                <div style={{ paddingTop: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.05rem', fontWeight: 500, color: '#0D0D0D' }}>{cat.name}</h3>
-                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', color: '#8C8680', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Shop →</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2.5rem' }}><div style={{ height: '1px', backgroundColor: '#E8E4DE' }} /></div>
-
-      {/* ── BEST SELLERS ─────────────────────────────────── */}
-      <section className="section-padding" style={{ backgroundColor: '#FFFFFF' }}>
-        <div className="section-inner">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
-            <div>
-              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Handpicked</p>
-              <h2 className="section-heading" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Best Sellers</h2>
-            </div>
-            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px', whiteSpace: 'nowrap' }}>
-              View All <FiArrowRight size={11} />
-            </Link>
-          </div>
-          {loading ? (
-            <div className="product-grid">{[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '380px' }} />)}</div>
-          ) : featured.length > 0 ? (
-            <div className="product-grid">
-              {featured.slice(0, 4).map(p => <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />)}
-            </div>
-          ) : null}
-        </div>
-      </section>
-
       {/* ── BRAND STORY ──────────────────────────────────── */}
       <section style={{ backgroundColor: '#F5F3EE' }}>
         <div className="brand-story-grid" style={{ maxWidth: '1300px', margin: '0 auto' }}>
@@ -367,28 +312,6 @@ export default function Home() {
               Read More <FiArrowRight size={12} />
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* ── NEW ARRIVALS ─────────────────────────────────── */}
-      <section className="section-padding" style={{ backgroundColor: '#FFFFFF' }}>
-        <div className="section-inner">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
-            <div>
-              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Fresh In</p>
-              <h2 className="section-heading" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>New Arrivals</h2>
-            </div>
-            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px', whiteSpace: 'nowrap' }}>
-              View All <FiArrowRight size={11} />
-            </Link>
-          </div>
-          {loading ? (
-            <div className="product-grid">{[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '380px' }} />)}</div>
-          ) : newArr.length > 0 ? (
-            <div className="product-grid">
-              {newArr.slice(0, 4).map(p => <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />)}
-            </div>
-          ) : null}
         </div>
       </section>
 
