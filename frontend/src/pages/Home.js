@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { FiArrowRight } from 'react-icons/fi';
+import { FiArrowRight, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import api from '../api/axiosConfig';
 import ProductCard from '../components/ProductCard';
 import SEO from '../components/SEO';
@@ -9,11 +9,13 @@ import { SEO_CONFIG } from '../utils/seoConstants';
 import { getOrganizationSchema } from '../utils/schemaMarkup';
 import { trackPageView } from '../utils/ga4Tracking';
 
-/* ── Hero videos ───────────────────────────────────────── */
-const HERO_VIDEOS = [
-  '/static/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post.mp4',
-  '/static/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post%20(1).mp4',
-  '/static/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post%20(2).mp4',
+/* ── Hero slides ───────────────────────────────────────── */
+const SLIDES = [
+  { img: '/static/videos/hero1.jpg', to: '/products?category=Jewellery+Box' },
+  { img: '/static/videos/hero2.jpg', to: '/products?category=Watch+Box'     },
+  { img: '/static/videos/hero3.jpg', to: '/products?category=Tote+Bags'     },
+  { img: '/static/videos/hero4.jpg', to: '/products'                        },
+  { img: '/static/videos/hero5.jpg', to: '/products'                        },
 ];
 
 /* ── Categories ────────────────────────────────────────── */
@@ -24,74 +26,96 @@ const CATEGORIES = [
   { name: 'Jewellery Box', to: '/products?category=Jewellery+Box', img: '/static/videos/Untitled%20design%20(46).png' },
 ];
 
-/* ── Scrolling marquee bar ─────────────────────────────── */
-function MarqueeBar() {
-  const words = ['DURABLE', 'TEXTURED', 'FULL GRAIN', 'STITCHED', 'REINFORCED'];
-  const repeated = [...words, ...words, ...words, ...words];
-  return (
-    <div style={{ backgroundColor: '#0D0D0D', overflow: 'hidden', padding: '10px 0' }}>
-      <div style={{ display: 'flex', animation: 'marquee 28s linear infinite', width: 'max-content' }}>
-        {repeated.map((t, i) => (
-          <span key={i} style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.32em', color: '#C9A84C', textTransform: 'uppercase', padding: '0 2rem', whiteSpace: 'nowrap' }}>
-            {t} <span style={{ opacity: 0.3, marginLeft: '2rem' }}>·</span>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ── Hero video carousel ───────────────────────────────── */
-function HeroCarousel() {
+/* ── Hero image slider (Nappa Dori style) ──────────────── */
+function HeroSlider() {
   const [current, setCurrent] = useState(0);
-  const videoRef = useRef(null);
+  const timerRef = useRef(null);
 
-  const next = () => setCurrent(c => (c + 1) % HERO_VIDEOS.length);
+  const goTo = useCallback(idx => {
+    setCurrent((idx + SLIDES.length) % SLIDES.length);
+  }, []);
 
+  /* Auto-advance every 5s */
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.load();
-    v.play().catch(() => {});
-  }, [current]);
+    timerRef.current = setInterval(() => goTo(current + 1), 5000);
+    return () => clearInterval(timerRef.current);
+  }, [current, goTo]);
 
   return (
-    <section style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '580px', backgroundColor: '#111', overflow: 'hidden' }}>
-      <video
-        ref={videoRef}
-        key={current}
-        autoPlay muted playsInline
-        onEnded={next}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
-      >
-        <source src={HERO_VIDEOS[current]} type="video/mp4" />
-      </video>
+    <section style={{ position: 'relative', width: '100%', height: '88vh', minHeight: '540px', overflow: 'hidden', backgroundColor: '#1a1008' }}>
 
-      {/* Vignette */}
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.15) 100%)' }} />
+      {/* Slides */}
+      {SLIDES.map((slide, i) => (
+        <div key={i} style={{
+          position: 'absolute', inset: 0,
+          opacity: i === current ? 1 : 0,
+          transition: 'opacity 0.9s ease-in-out',
+          zIndex: i === current ? 1 : 0,
+        }}>
+          <img
+            src={slide.img}
+            alt={`Slide ${i + 1}`}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+          />
+          {/* subtle bottom gradient for button readability */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 50%)' }} />
+        </div>
+      ))}
 
-      {/* Text — bottom left */}
-      <div style={{ position: 'absolute', bottom: '12%', left: '6%', zIndex: 2 }}>
-        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 400, letterSpacing: '0.35em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', marginBottom: '1.1rem' }}>
-          New Collection · 2025
-        </p>
-        <h1 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2.8rem, 6vw, 5.5rem)', fontWeight: 400, color: '#FFFFFF', lineHeight: 1.08, marginBottom: '2rem', maxWidth: '540px' }}>
-          Crafted for<br />
-          <em style={{ fontWeight: 300, fontStyle: 'italic' }}>every journey.</em>
-        </h1>
-        <Link to="/products"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.7rem', fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#FFFFFF', borderBottom: '1px solid rgba(255,255,255,0.5)', paddingBottom: '4px', transition: 'border-color 0.3s, color 0.3s' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = '#C9A84C'; e.currentTarget.style.color = '#C9A84C'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'; e.currentTarget.style.color = '#FFFFFF'; }}>
-          Shop Now <FiArrowRight size={13} />
+      {/* SHOP NOW button — bottom left */}
+      <div style={{ position: 'absolute', bottom: '10%', left: '5%', zIndex: 10 }}>
+        <Link
+          to={SLIDES[current].to}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.7rem',
+            fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 500,
+            letterSpacing: '0.25em', textTransform: 'uppercase',
+            color: '#FFFFFF',
+            backgroundColor: 'rgba(0,0,0,0.45)',
+            border: '1px solid rgba(255,255,255,0.6)',
+            padding: '0.8rem 2rem',
+            backdropFilter: 'blur(4px)',
+            transition: 'background 0.3s, border-color 0.3s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#C9A84C'; e.currentTarget.style.borderColor = '#C9A84C'; e.currentTarget.style.color = '#0D0D0D'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.45)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'; e.currentTarget.style.color = '#FFFFFF'; }}>
+          SHOP NOW <FiArrowRight size={13} />
         </Link>
       </div>
 
-      {/* Dots */}
-      <div style={{ position: 'absolute', bottom: '5%', right: '5%', display: 'flex', gap: '8px', zIndex: 2 }}>
-        {HERO_VIDEOS.map((_, i) => (
-          <button key={i} onClick={() => setCurrent(i)}
-            style={{ width: i === current ? '24px' : '6px', height: '6px', borderRadius: '3px', backgroundColor: i === current ? '#C9A84C' : 'rgba(255,255,255,0.35)', border: 'none', cursor: 'pointer', transition: 'all 0.4s ease', padding: 0 }} />
+      {/* Prev / Next arrows */}
+      {[
+        { dir: -1, side: 'left',  icon: <FiChevronLeft  size={22} /> },
+        { dir:  1, side: 'right', icon: <FiChevronRight size={22} /> },
+      ].map(({ dir, side, icon }) => (
+        <button key={side} onClick={() => goTo(current + dir)}
+          style={{
+            position: 'absolute', top: '50%', [side]: '1.5rem',
+            transform: 'translateY(-50%)',
+            zIndex: 10, background: 'rgba(0,0,0,0.3)',
+            border: '1px solid rgba(255,255,255,0.25)',
+            color: '#FFFFFF', width: '42px', height: '42px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', transition: 'background 0.2s',
+            backdropFilter: 'blur(4px)',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.7)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.3)'}>
+          {icon}
+        </button>
+      ))}
+
+      {/* Dot navigation — bottom center */}
+      <div style={{ position: 'absolute', bottom: '4%', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
+        {SLIDES.map((_, i) => (
+          <button key={i} onClick={() => goTo(i)}
+            style={{
+              width: i === current ? '28px' : '8px', height: '8px',
+              borderRadius: '4px',
+              backgroundColor: i === current ? '#C9A84C' : 'rgba(255,255,255,0.45)',
+              border: 'none', cursor: 'pointer',
+              transition: 'all 0.4s ease', padding: 0,
+            }} />
         ))}
       </div>
     </section>
@@ -135,8 +159,7 @@ export default function Home() {
         schemaMarkup={getOrganizationSchema()}
       />
 
-      <MarqueeBar />
-      <HeroCarousel />
+      <HeroSlider />
 
       {/* ── SHOP BY CATEGORY ─────────────────────────────── */}
       <section style={{ padding: '7rem 0', backgroundColor: '#FFFFFF' }}>

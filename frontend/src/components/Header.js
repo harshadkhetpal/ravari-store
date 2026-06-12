@@ -4,14 +4,12 @@ import { useSelector } from 'react-redux';
 import { FiSearch, FiHeart, FiShoppingBag, FiMenu, FiX, FiPhone } from 'react-icons/fi';
 
 const NAV = [
-  { label: 'About Us',    to: '/about' },
-  { label: 'Shop',        to: '/products' },
-  { label: 'Collection',  to: '/products' },
-  { label: 'Sling Bags',  to: '/products?category=Sling+Bags' },
-  { label: 'Watch Box',   to: '/products?category=Watch+Box' },
-  { label: 'Tote Bags',   to: '/products?category=Tote+Bags' },
+  { label: 'About Us',     to: '/about' },
+  { label: 'Shop',         to: '/products' },
+  { label: 'Collection',   to: '/products' },
+  { label: 'Tote Bags',    to: '/products?category=Tote+Bags' },
   { label: 'Jewellery Box', to: '/products?category=Jewellery+Box' },
-  { label: 'Contact',     to: '/contact' },
+  { label: 'Contact',      to: '/contact' },
 ];
 
 const TOP_BG  = '#0D0B08';
