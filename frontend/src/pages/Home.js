@@ -165,32 +165,29 @@ export default function Home() {
       <HeroSlider />
 
       {/* ── SHOP BY CATEGORY ─────────────────────────────── */}
-      <section style={{ padding: '7rem 0', backgroundColor: '#FFFFFF' }}>
-        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3.5rem' }}>
+      <section className="section-padding" style={{ backgroundColor: '#FFFFFF' }}>
+        <div className="section-inner">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
             <div>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Explore</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Shop by Category</h2>
+              <h2 className="section-heading" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.6rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Shop by Category</h2>
             </div>
-            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px' }}>
+            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px', whiteSpace: 'nowrap' }}>
               View All <FiArrowRight size={11} />
             </Link>
           </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+          <div className="category-grid">
             {CATEGORIES.map(cat => (
               <Link key={cat.name} to={cat.to} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
-                <div style={{ overflow: 'hidden', backgroundColor: '#F0EDE8', aspectRatio: '3/4', position: 'relative' }}>
-                  <img
-                    src={cat.img} alt={cat.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94)' }}
+                <div style={{ overflow: 'hidden', backgroundColor: '#F0EDE8', aspectRatio: '3/4' }}>
+                  <img src={cat.img} alt={cat.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.9s ease' }}
                     onMouseEnter={e => e.target.style.transform = 'scale(1.07)'}
-                    onMouseLeave={e => e.target.style.transform = 'scale(1)'}
-                  />
+                    onMouseLeave={e => e.target.style.transform = 'scale(1)'} />
                 </div>
-                <div style={{ paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.05rem', fontWeight: 500, color: '#0D0D0D' }}>{cat.name}</h3>
-                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', color: '#8C8680', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Shop →</span>
+                <div style={{ paddingTop: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.05rem', fontWeight: 500, color: '#0D0D0D' }}>{cat.name}</h3>
+                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', color: '#8C8680', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Shop →</span>
                 </div>
               </Link>
             ))}
@@ -201,26 +198,22 @@ export default function Home() {
       <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2.5rem' }}><div style={{ height: '1px', backgroundColor: '#E8E4DE' }} /></div>
 
       {/* ── BEST SELLERS ─────────────────────────────────── */}
-      <section style={{ padding: '7rem 0', backgroundColor: '#FFFFFF' }}>
-        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3.5rem' }}>
+      <section className="section-padding" style={{ backgroundColor: '#FFFFFF' }}>
+        <div className="section-inner">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
             <div>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Handpicked</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Best Sellers</h2>
+              <h2 className="section-heading" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Best Sellers</h2>
             </div>
-            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px' }}>
+            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px', whiteSpace: 'nowrap' }}>
               View All <FiArrowRight size={11} />
             </Link>
           </div>
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-              {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '420px' }} />)}
-            </div>
+            <div className="product-grid">{[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '380px' }} />)}</div>
           ) : featured.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-              {featured.slice(0, 4).map(p => (
-                <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />
-              ))}
+            <div className="product-grid">
+              {featured.slice(0, 4).map(p => <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />)}
             </div>
           ) : null}
         </div>
@@ -228,21 +221,20 @@ export default function Home() {
 
       {/* ── BRAND STORY ──────────────────────────────────── */}
       <section style={{ backgroundColor: '#F5F3EE' }}>
-        <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '500px' }}>
-          <div style={{ backgroundColor: '#E8E4DE', overflow: 'hidden' }}>
+        <div className="brand-story-grid" style={{ maxWidth: '1300px', margin: '0 auto' }}>
+          <div style={{ backgroundColor: '#E8E4DE', overflow: 'hidden', minHeight: '320px' }}>
             <img src="/images/Ravari%20Logo%20Banner.jpeg" alt="RAVARI craftsmanship"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '5rem 4rem' }}>
+          <div className="brand-story-text" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4rem 3.5rem' }}>
             <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '1.25rem' }}>Our Story</p>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2rem, 3.5vw, 3rem)', fontWeight: 400, color: '#0D0D0D', lineHeight: 1.15, marginBottom: '1.75rem' }}>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 400, color: '#0D0D0D', lineHeight: 1.15, marginBottom: '1.5rem' }}>
               Craftsmanship<br />with Purpose
             </h2>
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.83rem', fontWeight: 300, color: '#4A4642', lineHeight: 2, marginBottom: '2.5rem' }}>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.83rem', fontWeight: 300, color: '#4A4642', lineHeight: 1.9, marginBottom: '2rem' }}>
               Ravari stands for craftsmanship with purpose. Made from durable, textured full-grain leather and finished with reinforced stitching, our products are designed to accompany every journey with confidence, character, and enduring style.
             </p>
-            <Link to="/about"
-              style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#0D0D0D', display: 'inline-flex', alignItems: 'center', gap: '0.55rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '3px', width: 'fit-content' }}>
+            <Link to="/about" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#0D0D0D', display: 'inline-flex', alignItems: 'center', gap: '0.55rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '3px', width: 'fit-content' }}>
               Read More <FiArrowRight size={12} />
             </Link>
           </div>
@@ -250,34 +242,30 @@ export default function Home() {
       </section>
 
       {/* ── NEW ARRIVALS ─────────────────────────────────── */}
-      <section style={{ padding: '7rem 0', backgroundColor: '#FFFFFF' }}>
-        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3.5rem' }}>
+      <section className="section-padding" style={{ backgroundColor: '#FFFFFF' }}>
+        <div className="section-inner">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
             <div>
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Fresh In</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>New Arrivals</h2>
+              <h2 className="section-heading" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem, 3vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>New Arrivals</h2>
             </div>
-            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px' }}>
+            <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '2px', whiteSpace: 'nowrap' }}>
               View All <FiArrowRight size={11} />
             </Link>
           </div>
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-              {[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '420px' }} />)}
-            </div>
+            <div className="product-grid">{[...Array(4)].map((_, i) => <div key={i} className="skeleton" style={{ height: '380px' }} />)}</div>
           ) : newArr.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-              {newArr.slice(0, 4).map(p => (
-                <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />
-              ))}
+            <div className="product-grid">
+              {newArr.slice(0, 4).map(p => <ProductCard key={p._id} product={p} onAddToCart={addToCart} onToggleWishlist={() => {}} isInWishlist={false} />)}
             </div>
           ) : null}
         </div>
       </section>
 
       {/* ── CRAFT QUALITIES STRIP ────────────────────────── */}
-      <section style={{ backgroundColor: '#0D0D0D', padding: '0' }}>
-        <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
+      <section style={{ backgroundColor: '#0D0D0D' }}>
+        <div className="craft-grid" style={{ maxWidth: '1300px', margin: '0 auto' }}>
           {[
             { label: 'Full Grain',  desc: 'Highest quality leather' },
             { label: 'Durable',     desc: 'Built to last decades'   },
@@ -285,10 +273,10 @@ export default function Home() {
             { label: 'Textured',    desc: 'Rich natural grain'       },
             { label: 'Handcrafted', desc: 'Made by skilled artisans' },
           ].map(({ label, desc }, i) => (
-            <div key={label} style={{ padding: '2.75rem 1.5rem', textAlign: 'center', borderRight: i < 4 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
-              <div style={{ width: '1px', height: '28px', backgroundColor: '#C9A84C', margin: '0 auto 1.25rem' }} />
-              <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.05rem', fontWeight: 500, color: '#FFFFFF', marginBottom: '0.35rem' }}>{label}</h4>
-              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', color: 'rgba(255,255,255,0.38)', letterSpacing: '0.04em' }}>{desc}</p>
+            <div key={label} className="craft-item" style={{ padding: '2.5rem 1.25rem', textAlign: 'center', borderRight: i < 4 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
+              <div style={{ width: '1px', height: '24px', backgroundColor: '#C9A84C', margin: '0 auto 1rem' }} />
+              <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 500, color: '#FFFFFF', marginBottom: '0.3rem' }}>{label}</h4>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', color: 'rgba(255,255,255,0.38)', letterSpacing: '0.04em' }}>{desc}</p>
             </div>
           ))}
         </div>
