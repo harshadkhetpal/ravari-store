@@ -144,10 +144,11 @@ function ProductDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Product Images Section */}
           <div>
-            {/* Main Image with Zoom */}
-            <div className="mb-6 relative bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl overflow-hidden border-4 border-amber-200">
+            {/* Main Image */}
+            <div className="mb-4" style={{ border: '1px solid #E8E4DE', backgroundColor: '#FAFAF8' }}>
               <div
-                className="relative w-full h-96 md:h-[500px] cursor-zoom-in overflow-hidden group"
+                className="relative w-full cursor-zoom-in overflow-hidden"
+                style={{ height: '520px' }}
                 onMouseEnter={() => setZoomActive(true)}
                 onMouseLeave={() => setZoomActive(false)}
                 onMouseMove={handleZoom}
@@ -155,17 +156,13 @@ function ProductDetail() {
                 <img
                   src={images[selectedImage]?.url || product.thumbnail}
                   alt={product.name}
-                  style={zoomActive ? {
-                    transform: `scale(2)`,
-                    transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`
-                  } : {}}
-                  className="w-full h-full object-cover transition-transform duration-300"
+                  style={{
+                    width: '100%', height: '100%',
+                    objectFit: 'contain', display: 'block',
+                    ...(zoomActive ? { transform: `scale(2)`, transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` } : {})
+                  }}
+                  className="transition-transform duration-300"
                 />
-                {zoomActive && (
-                  <div className="absolute top-4 right-4 bg-amber-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2">
-                    <FiZoomIn /> Zoomed
-                  </div>
-                )}
               </div>
 
               {/* Navigation Arrows */}
@@ -198,7 +195,7 @@ function ProductDetail() {
                       idx === selectedImage ? 'border-amber-600 shadow-lg' : 'border-amber-200'
                     }`}
                   >
-                    <img src={img.url} alt={`View ${idx + 1}`} className="w-full h-20 object-cover" />
+                    <img src={img.url} alt={`View ${idx + 1}`} style={{ width: '100%', height: '80px', objectFit: 'contain', backgroundColor: '#FAFAF8' }} />
                   </button>
                 ))}
               </div>

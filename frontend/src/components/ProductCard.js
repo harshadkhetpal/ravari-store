@@ -28,7 +28,8 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
           <img
             src={product.thumbnail || product.images?.[0]?.url || '/placeholder.jpg'}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-700"
+            className="w-full h-full transition-transform duration-700"
+            style={{ objectFit: 'contain', backgroundColor: '#FAFAF8' }}
             style={{ transform: hovered ? 'scale(1.06)' : 'scale(1)' }}
             onLoad={() => setImageLoading(false)}
             onError={e => {
