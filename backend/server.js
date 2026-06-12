@@ -45,13 +45,22 @@ const PRODUCTS = [
   },
   {
     id: 3, _id: '3',
-    name: 'RAVARI Boho-Chic Leather-Trim Tote Bag for Women',
+    name: 'RAVARI Boho-Chic Leather-Trim Tote Bag for Women | Boho Tribal Canvas Handbag | Stylish Everyday Fashion Carry for Office, Travel & Casual Use',
     slug: 'ravari-boho-chic-leather-trim-tote-bag',
     price: 4499, salePrice: 2499, category: 'Tote Bags',
-    thumbnail: '/images/p3-a.png',
-    images: [img('/images/p3-a.png', 'Boho-Chic Tote Bag'), img('/images/p3-b.png', 'Boho-Chic Tote interior'), img('/images/p3-c.png', 'Boho-Chic Tote detail')],
-    description: 'Spacious boho-chic tote with premium leather trim and a soft woven body. Roomy enough for work, travel, and weekends.',
-    stock: 12, isNew: false, isFeatured: true, rating: 4, reviewCount: 7
+    thumbnail: '/static/products/tote-boho/img1.png',
+    images: [
+      img('/static/products/tote-boho/img1.png', 'RAVARI Boho Tote Bag — Front View'),
+      img('/static/products/tote-boho/img2.png', 'RAVARI Boho Tote — Features'),
+      img('/static/products/tote-boho/img3.png', 'RAVARI Boho Tote — Designed To Carry All'),
+      img('/static/products/tote-boho/img4.png', 'RAVARI Boho Tote — Spacious Compartments'),
+      img('/static/products/tote-boho/img5.png', 'RAVARI Boho Tote — Model Shot'),
+    ],
+    description: 'Boho Tribal Canvas Handbag with genuine leather trim and braided detailing. Spacious enough for a 16" laptop, water bottle, wallet & more. 3 main compartments with centre zippered divider. Dimensions: 16" × 14" × 5". Top Zip Closure | Comfortable Leather Handles | Durable Reinforced Stitching.',
+    longDescription: 'A statement piece that blends artisan craft with everyday utility. Handwoven tribal canvas body with genuine leather trim. Perfect for office, travel and casual use.',
+    material: ['Genuine Leather', 'Tribal Canvas', 'Braided Leather Trim'],
+    dimensions: { length: '16"', width: '5"', height: '14"' },
+    stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
   {
     id: 4, _id: '4',
@@ -509,6 +518,57 @@ fastify.put('/api/admin/orders/:id/status', async (request, reply) => {
   if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
   try { await query('UPDATE orders SET status=? WHERE id=?', [(request.body || {}).status || 'pending', parseInt(request.params.id, 10)]); return { success: true }; }
   catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// ---------------------------------------------------------------------------
+// Payment — Razorpay + COD
+// ---------------------------------------------------------------------------
+const RAZORPAY_KEY_ID     = process.env.RAZORPAY_KEY_ID     || '';
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
+
+// Create Razorpay order
+fastify.post('/api/payment/razorpay/create', async (request, reply) => {
+  try {
+    const { amount, currency = 'INR', receipt } = request.body || {};
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+      reply.code(503); return { error: 'Razorpay not configured' };
+    }
+    const Razorpay = require('razorpay');
+    const rzp = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET });
+    const order = await rzp.orders.create({ amount: Math.round(amount * 100), currency, receipt: receipt || `rcpt_${Date.now()}` });
+    return { success: true, order, key: RAZORPAY_KEY_ID };
+  } catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// Verify Razorpay payment signature
+fastify.post('/api/payment/razorpay/verify', async (request, reply) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = request.body || {};
+    const crypto = require('crypto');
+    const expected = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`).digest('hex');
+    if (expected !== razorpay_signature) { reply.code(400); return { success: false, error: 'Invalid signature' }; }
+    return { success: true, paymentId: razorpay_payment_id };
+  } catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// Public Razorpay key (for frontend)
+fastify.get('/api/payment/razorpay/key', async () => ({ key: RAZORPAY_KEY_ID }));
+
+// COD order
+fastify.post('/api/orders/cod', async (request, reply) => {
+  const b = request.body || {};
+  if (dbReady && pool) {
+    try {
+      const r = await query(
+        'INSERT INTO orders (customerName,customerEmail,customerPhone,address,items,subtotal,discount,total,couponCode,status) VALUES (?,?,?,?,?,?,?,?,?,?)',
+        [b.customerName, b.customerEmail, b.customerPhone, b.address,
+         JSON.stringify(b.items || []), b.subtotal || 0, b.discount || 0, b.total || 0,
+         b.couponCode || null, 'cod_pending']);
+      return { success: true, orderId: `RAV${r.insertId}`, method: 'cod' };
+    } catch (e) { reply.code(500); return { error: e.message }; }
+  }
+  return { success: true, orderId: `RAV${Date.now()}`, method: 'cod' };
 });
 
 // Kill-switch service worker: neutralizes any stale SW from the old site

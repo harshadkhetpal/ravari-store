@@ -1,142 +1,315 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { FiArrowLeft, FiCheckCircle, FiTruck, FiCreditCard, FiSmartphone } from 'react-icons/fi';
+import api from '../api/axiosConfig';
 import { trackPageView } from '../utils/ga4Tracking';
 
-function Checkout() {
-  const cartItems = useSelector(state => state.cart.items);
+const GOLD = '#C9A84C';
+const inp = {
+  width: '100%', padding: '0.75rem 1rem',
+  border: '1px solid #E0DBD4', outline: 'none',
+  fontFamily: 'Jost, sans-serif', fontSize: '0.82rem',
+  color: '#0D0D0D', backgroundColor: '#FAFAF8',
+  transition: 'border-color 0.2s', borderRadius: '1px',
+};
 
-  useEffect(() => {
-    trackPageView('/checkout', 'Checkout');
-  }, []);
-  const { isAuthenticated } = useSelector(state => state.auth);
-  const navigate = useNavigate();
-  
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    street: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: '',
-    paymentMethod: 'stripe'
+const PAYMENT_OPTIONS = [
+  { id: 'razorpay', label: 'Pay Online', sub: 'UPI · Credit/Debit Card · Net Banking · Wallets', icon: <FiCreditCard size={18} /> },
+  { id: 'cod',      label: 'Cash on Delivery', sub: 'Pay when your order arrives', icon: <FiTruck size={18} /> },
+];
+
+export default function Checkout() {
+  const cartItems  = useSelector(s => s.cart?.items || []);
+  const { user }   = useSelector(s => s.auth || {});
+  const dispatch   = useDispatch();
+
+  const [step,    setStep]    = useState(1); // 1=address, 2=payment, 3=success
+  const [loading, setLoading] = useState(false);
+  const [orderId, setOrderId] = useState('');
+  const [error,   setError]   = useState('');
+  const [form, setForm] = useState({
+    firstName: '', lastName: '', email: user?.email || '',
+    phone: '', street: '', city: '', state: '',
+    postalCode: '', country: 'India',
+    paymentMethod: 'razorpay',
   });
 
-  const [loading, setLoading] = useState(false);
-
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const tax = Math.round(subtotal * 0.18);
-  const shipping = subtotal > 5000 ? 0 : 200;
-  const total = subtotal + tax + shipping;
-
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      alert('Please login first');
-      navigate('/login');
-      return;
+  useEffect(() => {
+    trackPageView('/checkout', 'Checkout | RAVARI');
+    if (!document.getElementById('razorpay-sdk')) {
+      const s = document.createElement('script');
+      s.id  = 'razorpay-sdk';
+      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      document.body.appendChild(s);
     }
-    
-    setLoading(true);
-    // TODO: Implement payment and order creation
-    console.log('Processing order:', { formData, items: cartItems, total });
-    setLoading(false);
-  };
+  }, []);
 
-  if (cartItems.length === 0) {
+  const subtotal = cartItems.reduce((a, i) => a + i.price * i.quantity, 0);
+  const discount = 0;
+  const shipping = subtotal > 5000 ? 0 : 200;
+  const total    = subtotal - discount + shipping;
+
+  const set = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const requiredAddr = ['firstName', 'lastName', 'email', 'phone', 'street', 'city', 'state', 'postalCode'];
+  const addrValid = requiredAddr.every(k => form[k].trim());
+
+  /* ── Razorpay ── */
+  async function payWithRazorpay() {
+    setLoading(true); setError('');
+    try {
+      const { data } = await api.post('/api/payment/razorpay/create', { amount: total, receipt: `rcpt_${Date.now()}` });
+      if (!data.order) throw new Error(data.error || 'Could not create payment order');
+
+      const options = {
+        key:         data.key,
+        amount:      data.order.amount,
+        currency:    data.order.currency,
+        name:        'RAVARI',
+        description: 'Handcrafted Leather Goods',
+        order_id:    data.order.id,
+        prefill:     { name: `${form.firstName} ${form.lastName}`, email: form.email, contact: form.phone },
+        theme:       { color: GOLD },
+        handler: async (response) => {
+          try {
+            const v = await api.post('/api/payment/razorpay/verify', response);
+            if (v.data.success) await placeOrder('razorpay', response.razorpay_payment_id);
+            else { setError('Payment verification failed. Please contact support.'); setLoading(false); }
+          } catch { setError('Verification error. Please contact support.'); setLoading(false); }
+        },
+        modal: { ondismiss: () => setLoading(false) },
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (e) {
+      setError(e.response?.data?.error || e.message || 'Payment failed');
+      setLoading(false);
+    }
+  }
+
+  /* ── COD ── */
+  async function payWithCOD() {
+    setLoading(true); setError('');
+    try {
+      const payload = buildPayload('cod');
+      const { data } = await api.post('/api/orders/cod', payload);
+      if (data.success) {
+        setOrderId(data.orderId);
+        dispatch({ type: 'CLEAR_CART' });
+        setStep(3);
+      } else throw new Error(data.error);
+    } catch (e) {
+      setError(e.response?.data?.error || e.message || 'Order placement failed');
+    }
+    setLoading(false);
+  }
+
+  function buildPayload(method) {
+    return {
+      customerName:  `${form.firstName} ${form.lastName}`,
+      customerEmail: form.email,
+      customerPhone: form.phone,
+      address:       `${form.street}, ${form.city}, ${form.state} - ${form.postalCode}, ${form.country}`,
+      items:         cartItems.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, image: i.image })),
+      subtotal, discount, shipping, total,
+      paymentMethod: method,
+    };
+  }
+
+  async function placeOrder(method, txnId) {
+    const payload = { ...buildPayload(method), transactionId: txnId };
+    await api.post('/api/orders', payload);
+    setOrderId(`RAV${Date.now()}`);
+    dispatch({ type: 'CLEAR_CART' });
+    setStep(3);
+    setLoading(false);
+  }
+
+  async function handlePay() {
+    if (form.paymentMethod === 'razorpay') await payWithRazorpay();
+    else await payWithCOD();
+  }
+
+  /* ── Empty cart ── */
+  if (cartItems.length === 0 && step !== 3) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Helmet>
-          <title>Checkout | RAVARI</title>
-          <meta name="robots" content="noindex, nofollow" />
-        </Helmet>
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-          <Link to="/products" className="text-blue-600 hover:text-blue-800">Continue shopping</Link>
-        </div>
+      <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
+        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', color: '#0D0D0D' }}>Your cart is empty</p>
+        <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: GOLD, borderBottom: `1px solid ${GOLD}`, paddingBottom: '2px' }}>
+          Continue Shopping
+        </Link>
       </div>
     );
   }
 
+  /* ── Success ── */
+  if (step === 3) {
+    return (
+      <div style={{ minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', padding: '4rem 2rem', textAlign: 'center' }}>
+        <FiCheckCircle size={52} style={{ color: GOLD }} />
+        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Order Placed!</h1>
+        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', color: '#4A4642', maxWidth: '400px', lineHeight: 1.8 }}>
+          Thank you for your order. We'll send a confirmation to <strong>{form.email}</strong>.
+          {orderId && <><br />Order ID: <strong>{orderId}</strong></>}
+        </p>
+        {form.paymentMethod === 'cod' && (
+          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', color: '#8C8680', background: '#F5F3EE', padding: '0.75rem 1.5rem' }}>
+            Cash on Delivery — please keep ₹{total.toLocaleString('en-IN')} ready at delivery.
+          </p>
+        )}
+        <Link to="/products" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', backgroundColor: GOLD, padding: '0.9rem 2.5rem', border: `1px solid ${GOLD}`, marginTop: '0.5rem' }}>
+          Continue Shopping
+        </Link>
+      </div>
+    );
+  }
+
+  /* ── Main layout ── */
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <Helmet>
-        <title>Checkout | RAVARI</title>
-        <meta name="robots" content="noindex, nofollow" />
-      </Helmet>
-      <div className="max-w-7xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+    <>
+      <div style={{ backgroundColor: '#F5F3EE', minHeight: '100vh', padding: '3rem 0 5rem' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem' }}>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-6">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Shipping Address</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <input type="text" name="firstName" placeholder="First Name" onChange={handleInputChange} className="col-span-2 md:col-span-1 px-4 py-2 border border-gray-300 rounded" />
-                  <input type="text" name="lastName" placeholder="Last Name" onChange={handleInputChange} className="col-span-2 md:col-span-1 px-4 py-2 border border-gray-300 rounded" />
-                  <input type="email" name="email" placeholder="Email" onChange={handleInputChange} className="col-span-2 px-4 py-2 border border-gray-300 rounded" />
-                  <input type="text" name="phone" placeholder="Phone" onChange={handleInputChange} className="col-span-2 px-4 py-2 border border-gray-300 rounded" />
-                  <input type="text" name="street" placeholder="Street" onChange={handleInputChange} className="col-span-2 px-4 py-2 border border-gray-300 rounded" />
-                  <input type="text" name="city" placeholder="City" onChange={handleInputChange} className="col-span-2 md:col-span-1 px-4 py-2 border border-gray-300 rounded" />
-                  <input type="text" name="state" placeholder="State" onChange={handleInputChange} className="col-span-2 md:col-span-1 px-4 py-2 border border-gray-300 rounded" />
-                  <input type="text" name="postalCode" placeholder="Postal Code" onChange={handleInputChange} className="col-span-2 md:col-span-1 px-4 py-2 border border-gray-300 rounded" />
-                  <input type="text" name="country" placeholder="Country" onChange={handleInputChange} className="col-span-2 md:col-span-1 px-4 py-2 border border-gray-300 rounded" />
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Method</h2>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="radio" name="paymentMethod" value="stripe" onChange={handleInputChange} className="mr-2" />
-                    Credit/Debit Card (Stripe)
-                  </label>
-                  <label className="flex items-center">
-                    <input type="radio" name="paymentMethod" value="razorpay" onChange={handleInputChange} className="mr-2" />
-                    UPI/Card (Razorpay)
-                  </label>
-                </div>
-              </div>
-
-              <button type="submit" disabled={loading} className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-900 disabled:opacity-50">
-                {loading ? 'Processing...' : 'Place Order'}
-              </button>
-            </form>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem' }}>
+            <Link to="/cart" style={{ color: '#8C8680', display: 'flex' }}><FiArrowLeft size={18} /></Link>
+            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 400, color: '#0D0D0D' }}>Checkout</h1>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6 h-fit">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
-            <div className="space-y-3 mb-4 pb-4 border-b">
-              {cartItems.map((item, idx) => (
-                <div key={idx} className="flex justify-between text-sm">
-                  <span>{item.name} x{item.quantity}</span>
-                  <span>₹{item.price * item.quantity}</span>
+          {/* Steps indicator */}
+          <div style={{ display: 'flex', gap: '2rem', marginBottom: '2.5rem' }}>
+            {['Delivery', 'Payment'].map((s, i) => (
+              <div key={s} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontFamily: 'Jost, sans-serif', fontWeight: 600, backgroundColor: step > i + 1 ? GOLD : step === i + 1 ? '#0D0D0D' : '#D4CFC8', color: '#FFF' }}>
+                  {step > i + 1 ? '✓' : i + 1}
+                </div>
+                <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: step === i + 1 ? '#0D0D0D' : '#8C8680' }}>{s}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '2rem', alignItems: 'start' }}>
+
+            {/* ── Left panel ── */}
+            <div style={{ backgroundColor: '#FFFFFF', padding: '2rem', border: '1px solid #E8E4DE' }}>
+
+              {/* STEP 1 — Address */}
+              {step === 1 && (
+                <>
+                  <h2 style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', marginBottom: '1.5rem' }}>Delivery Address</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                    {[
+                      { name: 'firstName', placeholder: 'First Name *', col: 1 },
+                      { name: 'lastName',  placeholder: 'Last Name *',  col: 1 },
+                      { name: 'email',     placeholder: 'Email Address *', col: 2 },
+                      { name: 'phone',     placeholder: 'Phone Number *',  col: 2 },
+                      { name: 'street',    placeholder: 'Street Address *', col: 2 },
+                      { name: 'city',      placeholder: 'City *',       col: 1 },
+                      { name: 'state',     placeholder: 'State *',      col: 1 },
+                      { name: 'postalCode',placeholder: 'PIN Code *',   col: 1 },
+                      { name: 'country',   placeholder: 'Country',      col: 1 },
+                    ].map(f => (
+                      <input key={f.name} name={f.name} placeholder={f.placeholder}
+                        value={form[f.name]} onChange={set}
+                        style={{ ...inp, gridColumn: f.col === 2 ? 'span 2' : 'span 1' }}
+                        onFocus={e => e.target.style.borderColor = GOLD}
+                        onBlur={e => e.target.style.borderColor = '#E0DBD4'} />
+                    ))}
+                  </div>
+                  <button onClick={() => addrValid && setStep(2)} disabled={!addrValid}
+                    style={{ marginTop: '1.5rem', width: '100%', padding: '0.9rem', backgroundColor: addrValid ? '#0D0D0D' : '#D4CFC8', color: '#FFF', fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', border: 'none', cursor: addrValid ? 'pointer' : 'not-allowed', transition: 'background 0.2s' }}>
+                    Continue to Payment
+                  </button>
+                </>
+              )}
+
+              {/* STEP 2 — Payment */}
+              {step === 2 && (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <button onClick={() => setStep(1)} style={{ color: '#8C8680', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}><FiArrowLeft size={16} /></button>
+                    <h2 style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D' }}>Payment Method</h2>
+                  </div>
+
+                  {/* Delivery summary */}
+                  <div style={{ background: '#F5F3EE', padding: '0.85rem 1rem', marginBottom: '1.5rem', borderLeft: `3px solid ${GOLD}` }}>
+                    <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', color: '#4A4642', lineHeight: 1.7 }}>
+                      <strong>{form.firstName} {form.lastName}</strong> · {form.phone}<br />
+                      {form.street}, {form.city}, {form.state} — {form.postalCode}
+                    </p>
+                  </div>
+
+                  {/* Payment options */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                    {PAYMENT_OPTIONS.map(opt => (
+                      <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', border: `1.5px solid ${form.paymentMethod === opt.id ? GOLD : '#E0DBD4'}`, cursor: 'pointer', transition: 'border-color 0.2s', backgroundColor: form.paymentMethod === opt.id ? '#FDFBF6' : '#FFF' }}>
+                        <input type="radio" name="paymentMethod" value={opt.id} checked={form.paymentMethod === opt.id} onChange={set} style={{ accentColor: GOLD }} />
+                        <span style={{ color: GOLD }}>{opt.icon}</span>
+                        <div>
+                          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', fontWeight: 600, color: '#0D0D0D' }}>{opt.label}</p>
+                          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: '#8C8680', marginTop: '2px' }}>{opt.sub}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+
+                  {error && <p style={{ color: '#C0392B', fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', marginBottom: '1rem' }}>{error}</p>}
+
+                  <button onClick={handlePay} disabled={loading}
+                    style={{ width: '100%', padding: '0.95rem', backgroundColor: loading ? '#D4CFC8' : GOLD, color: '#0D0D0D', fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s' }}>
+                    {loading ? 'Processing…' : form.paymentMethod === 'cod' ? `Place COD Order — ₹${total.toLocaleString('en-IN')}` : `Pay ₹${total.toLocaleString('en-IN')}`}
+                  </button>
+
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', color: '#8C8680', textAlign: 'center', marginTop: '1rem' }}>
+                    🔒 Secure checkout · Payments powered by Razorpay
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* ── Order Summary ── */}
+            <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', border: '1px solid #E8E4DE', position: 'sticky', top: '6rem' }}>
+              <h2 style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', marginBottom: '1.25rem' }}>Order Summary</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.25rem', paddingBottom: '1.25rem', borderBottom: '1px solid #E8E4DE' }}>
+                {cartItems.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '0.85rem', alignItems: 'center' }}>
+                    <div style={{ width: '56px', height: '56px', flexShrink: 0, backgroundColor: '#F0EDE8', overflow: 'hidden' }}>
+                      {item.image && <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', color: '#0D0D0D', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
+                      <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: '#8C8680', marginTop: '2px' }}>Qty: {item.quantity}</p>
+                    </div>
+                    <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', fontWeight: 600, color: '#0D0D0D', flexShrink: 0 }}>₹{(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                  </div>
+                ))}
+              </div>
+              {[
+                { label: 'Subtotal',  val: `₹${subtotal.toLocaleString('en-IN')}` },
+                { label: 'Shipping',  val: shipping === 0 ? 'FREE' : `₹${shipping}` },
+              ].map(r => (
+                <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', color: '#4A4642' }}>{r.label}</span>
+                  <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', color: '#0D0D0D' }}>{r.val}</span>
                 </div>
               ))}
-            </div>
-            <div className="space-y-2 mb-4 pb-4 border-b">
-              <div className="flex justify-between"><span>Subtotal</span><span>₹{subtotal}</span></div>
-              <div className="flex justify-between"><span>Tax</span><span>₹{tax}</span></div>
-              <div className="flex justify-between"><span>Shipping</span><span>{shipping === 0 ? 'FREE' : `₹${shipping}`}</span></div>
-            </div>
-            <div className="flex justify-between text-lg font-bold">
-              <span>Total</span>
-              <span>₹{total}</span>
+              <div style={{ height: '1px', backgroundColor: '#E8E4DE', margin: '0.85rem 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 600, color: '#0D0D0D' }}>Total</span>
+                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 600, color: GOLD }}>₹{total.toLocaleString('en-IN')}</span>
+              </div>
+              {shipping === 0 && <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', color: '#C9A84C', marginTop: '0.5rem', textAlign: 'right' }}>✓ Free shipping applied</p>}
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .checkout-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+    </>
   );
 }
-
-export default Checkout;

@@ -70,7 +70,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['stripe', 'razorpay', 'bank_transfer'],
+    enum: ['razorpay', 'cod', 'upi', 'card', 'netbanking', 'bank_transfer'],
     required: true
   },
   paymentStatus: {
