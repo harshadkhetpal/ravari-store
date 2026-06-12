@@ -24,26 +24,6 @@ function img(url, alt) { return { url, alt }; }
 
 const PRODUCTS = [
   {
-    id: 1, _id: '1',
-    name: 'RAVARI Vintage Brown Leather Sling Bag for Men & Women',
-    slug: 'ravari-vintage-brown-leather-sling-bag',
-    price: 4599, salePrice: 2599, category: 'Sling Bags',
-    thumbnail: '/images/p1-a.png',
-    images: [img('/images/p1-a.png', 'Vintage Brown Leather Sling Bag'), img('/images/p1-b.png', 'Vintage Sling Bag side'), img('/images/p1-c.png', 'Vintage Sling Bag detail')],
-    description: 'Compact vintage brown leather crossbody chest bag with multiple zippered compartments. Handcrafted for everyday versatility and timeless style.',
-    stock: 18, isNew: true, isFeatured: true, rating: 5, reviewCount: 12
-  },
-  {
-    id: 2, _id: '2',
-    name: 'RAVARI Premium Brown Leather Sling Bag for Men & Women',
-    slug: 'ravari-premium-brown-leather-sling-bag',
-    price: 4599, salePrice: 2599, category: 'Sling Bags',
-    thumbnail: '/images/p2-a.png',
-    images: [img('/images/p2-a.png', 'Premium Brown Leather Sling Bag'), img('/images/p2-b.png', 'Premium Sling Bag side'), img('/images/p2-c.png', 'Premium Sling Bag detail')],
-    description: 'Premium full-grain brown leather sling bag with a stylish silhouette and durable hardware. The perfect blend of fashion and function.',
-    stock: 15, isNew: true, isFeatured: true, rating: 5, reviewCount: 9
-  },
-  {
     id: 3, _id: '3',
     name: 'RAVARI Boho-Chic Leather-Trim Tote Bag for Women | Boho Tribal Canvas Handbag | Stylish Everyday Fashion Carry for Office, Travel & Casual Use',
     slug: 'ravari-boho-chic-leather-trim-tote-bag',
@@ -62,36 +42,6 @@ const PRODUCTS = [
     dimensions: { length: '16"', width: '5"', height: '14"' },
     stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
-  {
-    id: 4, _id: '4',
-    name: 'RAVARI Premium Textured Leather Handbag',
-    slug: 'ravari-premium-textured-leather-handbag',
-    price: 4999, salePrice: null, category: 'Handbags',
-    thumbnail: '/images/p4-a.png',
-    images: [img('/images/p4-a.png', 'Premium Textured Leather Handbag'), img('/images/p4-b.png', 'Textured Handbag detail')],
-    description: 'Statement textured-leather handbag with structured form and refined detailing. A luxurious everyday companion.',
-    stock: 8, isNew: true, isFeatured: true, rating: 5, reviewCount: 5
-  },
-  {
-    id: 5, _id: '5',
-    name: 'RAVARI Artisan Leather Work Apron for Men & Women',
-    slug: 'ravari-artisan-leather-work-apron',
-    price: 2999, salePrice: 1599, category: 'Aprons',
-    thumbnail: '/images/p5-a.png',
-    images: [img('/images/p5-a.png', 'Artisan Leather Work Apron'), img('/images/p5-b.png', 'Work Apron pockets'), img('/images/p5-c.png', 'Work Apron detail')],
-    description: 'Durable artisan leather work apron with adjustable straps and practical pockets. Built for craftsmen, baristas, and creators.',
-    stock: 25, isNew: false, isFeatured: true, rating: 5, reviewCount: 14
-  },
-  {
-    id: 6, _id: '6',
-    name: 'RAVARI Premium Leather Jewellery Box',
-    slug: 'ravari-premium-leather-jewellery-box',
-    price: 4999, salePrice: null, category: 'Organizers',
-    thumbnail: '/images/p6-a.jpg',
-    images: [img('/images/p6-a.jpg', 'Premium Leather Jewellery Box')],
-    description: 'Handcrafted leather jewellery box with soft-lined compartments to keep your treasures organized and elegant.',
-    stock: 10, isNew: false, isFeatured: true, rating: 4, reviewCount: 3
-  }
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.

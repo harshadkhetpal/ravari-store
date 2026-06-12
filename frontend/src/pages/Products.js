@@ -1,216 +1,112 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import ProductCard from '../components/ProductCard';
 import { useDispatch } from 'react-redux';
 import SEO from '../components/SEO';
-import { SEO_CONFIG, PRODUCT_CATEGORIES } from '../utils/seoConstants';
+import { SEO_CONFIG } from '../utils/seoConstants';
 import { trackPageView } from '../utils/ga4Tracking';
+import { FiChevronDown } from 'react-icons/fi';
+
+const GOLD = '#C9A84C';
 
 function Products() {
-  const [products, setProducts] = useState([]);
+  const [products,   setProducts]   = useState([]);
   const [categories, setCategories] = useState([]);
-  const [filters, setFilters] = useState({
-    category: '',
-    minPrice: 0,
-    maxPrice: 100000,
-    search: '',
-    sort: 'newest'
-  });
-  const [pagination, setPagination] = useState({ page: 1, pages: 1 });
-  const [loading, setLoading] = useState(true);
+  const [filters,    setFilters]    = useState({ category: '', sort: 'newest', search: '' });
+  const [loading,    setLoading]    = useState(true);
   const dispatch = useDispatch();
 
-  // Track page view
-  useEffect(() => {
-    trackPageView('/products', 'Products - RAVARI');
-  }, []);
-
-  const seoConfig = SEO_CONFIG.pages.products;
+  useEffect(() => { trackPageView('/products', 'Shop — RAVARI'); }, []);
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, [filters, pagination.page]);
+    setLoading(true);
+    Promise.all([
+      api.get('/products', { params: filters }),
+      api.get('/products/categories/list'),
+    ]).then(([pRes, cRes]) => {
+      setProducts(pRes.data.products || pRes.data || []);
+      setCategories(cRes.data.categories || []);
+    }).catch(() => {
+      setProducts([]); setCategories([]);
+    }).finally(() => setLoading(false));
+  }, [filters]);
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/products', { params: { ...filters, page: pagination.page } });
-      setProducts(res.data.products);
-      setPagination(res.data.pagination);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const set = (key, val) => setFilters(f => ({ ...f, [key]: val }));
 
-  const fetchCategories = async () => {
-    try {
-      const res = await api.get('/products/categories/list');
-      setCategories(res.data.categories || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      setCategories([]);
-    }
-  };
+  const addToCart = p => dispatch({
+    type: 'ADD_TO_CART',
+    payload: { productId: p._id, name: p.name, price: p.salePrice || p.price, image: p.thumbnail, quantity: 1, selectedOptions: {} },
+  });
 
-  const handleAddToCart = (product) => {
-    dispatch({
-      type: 'ADD_TO_CART',
-      payload: {
-        productId: product._id,
-        name: product.name,
-        price: product.salePrice || product.price,
-        image: product.thumbnail,
-        quantity: 1,
-        selectedOptions: {}
-      }
-    });
-  };
-
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    setPagination({ ...pagination, page: 1 });
+  const selectStyle = {
+    appearance: 'none', WebkitAppearance: 'none',
+    fontFamily: 'Jost, sans-serif', fontSize: '0.68rem',
+    letterSpacing: '0.08em', color: '#0D0D0D',
+    border: '1px solid #D4CFC8', backgroundColor: '#FAFAF8',
+    padding: '0.6rem 2.5rem 0.6rem 1rem',
+    cursor: 'pointer', outline: 'none',
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
       <SEO
-        title={seoConfig.title}
-        description={seoConfig.description}
-        keywords={seoConfig.keywords}
-        canonical={`${SEO_CONFIG.site.url}${seoConfig.path}`}
-        ogTitle="Shop Premium Leather Products | RAVARI"
-        ogDescription="Browse our complete collection of handcrafted luxury leather handbags, accessories, and organizers. Premium artisan-made leather goods from India."
-        ogImage="https://ravari.in/og-products.jpg"
+        title="Shop — RAVARI | Handcrafted Leather Goods"
+        description="Shop RAVARI's collection of handcrafted leather bags, totes, and accessories. Premium artisan leather goods from India."
+        keywords={SEO_CONFIG.pages.products?.keywords}
+        canonical={`${SEO_CONFIG.site.url}/products`}
       />
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-12">
-          <p className="text-sm font-bold text-amber-700 uppercase tracking-widest mb-2">🛍️ Collections</p>
-          <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-4">Shop Collection</h1>
-          <p className="text-lg text-gray-600 font-semibold">Discover our curated selection of luxury handcrafted leather goods</p>
-        </div>
 
-        <div className="flex gap-8">
-          {/* Filters Sidebar */}
-          <div className="w-64 flex-shrink-0">
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl border-2 border-amber-200 shadow-sm">
-              <h3 className="font-black text-gray-900 mb-6 text-lg uppercase tracking-wider">🔍 Filters</h3>
+      {/* Page Header */}
+      <div style={{ backgroundColor: '#0D0B08', padding: '4rem 2rem 3.5rem', textAlign: 'center' }}>
+        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: GOLD, marginBottom: '0.7rem' }}>Handcrafted Leather</p>
+        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 400, color: '#FFFFFF', lineHeight: 1.15 }}>Our Collection</h1>
+      </div>
 
-              {/* Search */}
-              <div className="mb-6">
-                <label className="text-sm font-bold text-gray-900 block mb-3 uppercase tracking-wider">Search</label>
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-amber-200 rounded-lg text-sm focus:outline-none focus:border-amber-600 bg-white font-semibold"
-                />
-              </div>
+      <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '2.5rem 2rem 6rem' }}>
 
-              {/* Category */}
-              <div className="mb-6">
-                <label className="text-sm font-bold text-gray-900 block mb-3 uppercase tracking-wider">Category</label>
-                <select
-                  value={filters.category}
-                  onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-amber-200 rounded-lg text-sm focus:outline-none focus:border-amber-600 bg-white font-semibold"
-                >
-                  <option value="">All Categories</option>
-                  {categories && categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-6">
-                <label className="text-sm font-bold text-gray-900 block mb-3 uppercase tracking-wider">Price Range</label>
-                <div className="flex gap-2 mb-2">
-                  <input
-                    type="number"
-                    placeholder="Min"
-                    value={filters.minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                    className="w-1/2 px-3 py-2 border-2 border-amber-200 rounded-lg text-sm font-semibold bg-white focus:outline-none focus:border-amber-600"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                    className="w-1/2 px-3 py-2 border-2 border-amber-200 rounded-lg text-sm font-semibold bg-white focus:outline-none focus:border-amber-600"
-                  />
-                </div>
-              </div>
-
-              {/* Sort */}
-              <div>
-                <label className="text-sm font-bold text-gray-900 block mb-3 uppercase tracking-wider">Sort By</label>
-                <select
-                  value={filters.sort}
-                  onChange={(e) => handleFilterChange('sort', e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-amber-200 rounded-lg text-sm font-semibold bg-white focus:outline-none focus:border-amber-600"
-                >
-                  <option value="newest">Newest</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                  <option value="rating">Rating</option>
-                </select>
-              </div>
-            </div>
+        {/* Filter bar */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #E8E4DE' }}>
+          {/* Category pills */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {['', ...categories].map(cat => (
+              <button key={cat || 'all'} onClick={() => set('category', cat)}
+                style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0.45rem 1.1rem', border: `1px solid ${filters.category === cat ? '#0D0D0D' : '#D4CFC8'}`, backgroundColor: filters.category === cat ? '#0D0D0D' : 'transparent', color: filters.category === cat ? '#FFF' : '#4A4642', cursor: 'pointer', transition: 'all 0.2s' }}>
+                {cat || 'All'}
+              </button>
+            ))}
           </div>
 
-          {/* Products Grid */}
-          <div className="flex-1">
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="bg-gray-100 rounded-lg h-80 animate-pulse"></div>
-                ))}
-              </div>
-            ) : products.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  {products.map(product => (
-                    <ProductCard
-                      key={product._id}
-                      product={product}
-                      onAddToCart={handleAddToCart}
-                      onToggleWishlist={() => {}}
-                      isInWishlist={false}
-                    />
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {pagination.pages > 1 && (
-                  <div className="flex justify-center gap-2 mt-8">
-                    {[...Array(pagination.pages)].map((_, i) => (
-                      <button
-                        key={i + 1}
-                        onClick={() => setPagination({ ...pagination, page: i + 1 })}
-                        className={`px-4 py-2 rounded-lg font-bold transition ${
-                          pagination.page === i + 1
-                            ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-lg'
-                            : 'bg-amber-100 text-amber-700 hover:bg-amber-200 border-2 border-amber-200'
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-600">No products found</p>
-              </div>
-            )}
+          {/* Sort */}
+          <div style={{ position: 'relative' }}>
+            <select value={filters.sort} onChange={e => set('sort', e.target.value)} style={selectStyle}>
+              <option value="newest">Newest First</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+            </select>
+            <FiChevronDown size={14} style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#8C8680' }} />
           </div>
         </div>
+
+        {/* Grid */}
+        {loading ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} style={{ backgroundColor: '#F0EDE8', height: '380px', animation: 'pulse 1.5s infinite' }} />
+            ))}
+          </div>
+        ) : products.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '6rem 2rem' }}>
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', color: '#8C8680', marginBottom: '1rem' }}>No products yet</p>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', color: '#8C8680' }}>New arrivals coming soon</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+            {products.map(p => (
+              <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
