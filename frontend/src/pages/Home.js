@@ -164,6 +164,41 @@ export default function Home() {
 
       <HeroSlider />
 
+      {/* ── BRAND VIDEO ──────────────────────────────────── */}
+      <section style={{ backgroundColor: '#0D0B08', padding: '5rem 0' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 2rem', textAlign: 'center' }}>
+          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.8rem' }}>Crafted With Purpose</p>
+          <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 400, color: '#FFFFFF', marginBottom: '2.5rem', lineHeight: 1.2 }}>
+            The Art of Leather
+          </h2>
+          <div style={{ position: 'relative', width: '100%', borderRadius: '2px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.6)', border: '1px solid rgba(201,168,76,0.2)' }}>
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              style={{ width: '100%', display: 'block', maxHeight: '70vh', objectFit: 'cover' }}
+            >
+              <source src="/static/videos/brand-video.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <div style={{ marginTop: '2.5rem' }}>
+            <Link to="/products" style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.7rem',
+              fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 500,
+              letterSpacing: '0.25em', textTransform: 'uppercase',
+              color: '#0D0D0D', backgroundColor: '#C9A84C',
+              padding: '0.9rem 2.5rem', border: '1px solid #C9A84C',
+              transition: 'all 0.3s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#C9A84C'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#C9A84C'; e.currentTarget.style.color = '#0D0D0D'; }}>
+              Explore Collection <FiArrowRight size={13} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── SHOP BY CATEGORY ─────────────────────────────── */}
       <section className="section-padding" style={{ backgroundColor: '#FFFFFF' }}>
         <div className="section-inner">
