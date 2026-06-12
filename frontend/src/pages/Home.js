@@ -20,10 +20,10 @@ const SLIDES = [
 
 /* ── Categories ────────────────────────────────────────── */
 const CATEGORIES = [
-  { name: 'Sling Bags',    to: '/products?category=Sling+Bags',    img: '/static/videos/Copilot_20260416_160042.png' },
-  { name: 'Watch Box',     to: '/products?category=Watch+Box',     img: '/static/videos/Untitled%20design%20(51).png' },
-  { name: 'Tote Bags',     to: '/products?category=Tote+Bags',     img: '/static/videos/Untitled%20design%20(4).png' },
-  { name: 'Jewellery Box', to: '/products?category=Jewellery+Box', img: '/static/videos/Untitled%20design%20(46).png' },
+  { name: 'Sling Bags',    to: '/products?category=Sling+Bags',    img: '/static/videos/cat-sling.png' },
+  { name: 'Watch Box',     to: '/products?category=Watch+Box',     img: '/static/videos/cat-watch.png' },
+  { name: 'Tote Bags',     to: '/products?category=Tote+Bags',     img: '/static/videos/cat-tote.png' },
+  { name: 'Jewellery Box', to: '/products?category=Jewellery+Box', img: '/static/videos/cat-jewellery.png' },
 ];
 
 /* ── Hero image slider (Nappa Dori style) ──────────────── */
