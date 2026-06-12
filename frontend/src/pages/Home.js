@@ -293,11 +293,33 @@ export default function Home() {
       {/* ── CRAFT REEL CAROUSEL ──────────────────────────── */}
       <ReelCarousel />
 
+      {/* ── OUR BESTSELLERS ──────────────────────────────── */}
+      <section style={{ backgroundColor: '#FFFFFF', padding: '5rem 0' }}>
+        <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Handpicked For You</p>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 400, color: '#0D0D0D' }}>Our Bestsellers</h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+            {featured.length === 0 && !loading ? null : featured.map(p => (
+              <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} />
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+            <Link to="/products" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', border: '1px solid #0D0D0D', padding: '0.9rem 2.5rem', transition: 'all 0.3s' }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#0D0D0D'; e.currentTarget.style.color = '#FFF'; }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#0D0D0D'; }}>
+              View All Products <FiArrowRight size={13} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── BRAND STORY ──────────────────────────────────── */}
       <section style={{ backgroundColor: '#F5F3EE' }}>
         <div className="brand-story-grid" style={{ maxWidth: '1300px', margin: '0 auto' }}>
-          <div style={{ backgroundColor: '#E8E4DE', overflow: 'hidden', minHeight: '320px' }}>
-            <img src="/images/Ravari%20Logo%20Banner.jpeg" alt="RAVARI craftsmanship"
+          <div style={{ backgroundColor: '#E8E4DE', overflow: 'hidden', minHeight: '420px' }}>
+            <img src="/static/videos/model2.webp" alt="RAVARI craftsmanship"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
           <div className="brand-story-text" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4rem 3.5rem' }}>
