@@ -6,7 +6,6 @@ import { FiSearch, FiHeart, FiShoppingBag, FiMenu, FiX, FiPhone, FiMail } from '
 const NAV = [
   { label: 'About Us',   to: '/about'    },
   { label: 'Shop',       to: '/products' },
-  { label: 'Collection', to: '/products' },
   { label: 'Contact',    to: '/contact'  },
 ];
 

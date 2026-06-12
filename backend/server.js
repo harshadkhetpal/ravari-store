@@ -143,17 +143,10 @@ async function setupSchemaAndSeed() {
       console.log('[RAVARI] ✅ Seeded sample coupons');
     }
   } catch (e) { console.error('[RAVARI] coupon seed:', e.message); }
-  const cols = await query("SHOW COLUMNS FROM products LIKE 'rating'");
-  if (!cols || cols.length === 0) {
-    console.log('[RAVARI] Schema outdated, rebuilding products table...');
-    await query('DROP TABLE IF EXISTS products');
-    await query(CREATE_TABLE_SQL);
-    await seedRows();
-    return;
-  }
-  const rows = await query('SELECT COUNT(*) AS c FROM products');
-  if (rows[0].c === 0) await seedRows();
-  else console.log(`[RAVARI] ✅ ${rows[0].c} products already in MySQL`);
+  // Always sync MySQL with the PRODUCTS array (truncate + re-seed)
+  await query('TRUNCATE TABLE products');
+  await seedRows();
+  console.log(`[RAVARI] ✅ Synced ${PRODUCTS.length} products to MySQL`);
 }
 
 function shapeRow(r) {

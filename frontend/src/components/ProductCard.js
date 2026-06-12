@@ -11,7 +11,13 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
   return (
     <div
       className="group"
-      style={{ background: '#fff' }}
+      style={{
+        background: '#fff',
+        border: '1px solid #E8E4DE',
+        transition: 'border-color 0.3s, box-shadow 0.3s',
+        boxShadow: hovered ? '0 4px 24px rgba(0,0,0,0.07)' : 'none',
+        borderColor: hovered ? '#C9A84C' : '#E8E4DE',
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -56,7 +62,7 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
       </Link>
 
       {/* Info */}
-      <div className="pt-4 pb-5 px-1">
+      <div className="pt-4 pb-5 px-3">
         <p className="section-eyebrow mb-1" style={{ color: '#C9A84C' }}>{product.category}</p>
         <Link to={`/products/${product.slug}`}>
           <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1rem', fontWeight: 500, color: '#1A0F0A', marginBottom: '0.5rem', lineHeight: 1.3 }}
