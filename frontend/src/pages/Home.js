@@ -11,11 +11,11 @@ import { trackPageView } from '../utils/ga4Tracking';
 
 /* ── Hero slides ───────────────────────────────────────── */
 const SLIDES = [
-  { img: '/static/videos/hero1.jpg', to: '/products?category=Jewellery+Box' },
-  { img: '/static/videos/hero2.jpg', to: '/products?category=Watch+Box'     },
-  { img: '/static/videos/hero3.jpg', to: '/products?category=Tote+Bags'     },
-  { img: '/static/videos/hero4.jpg', to: '/products'                        },
-  { img: '/static/videos/hero5.jpg', to: '/products'                        },
+  { img: '/static/videos/hero1.png', to: '/products?category=Jewellery+Box' },
+  { img: '/static/videos/hero2.png', to: '/products?category=Watch+Box'     },
+  { img: '/static/videos/hero3.png', to: '/products?category=Tote+Bags'     },
+  { img: '/static/videos/hero4.png', to: '/products'                        },
+  { img: '/static/videos/hero5.png', to: '/products'                        },
 ];
 
 /* ── Categories ────────────────────────────────────────── */
