@@ -199,6 +199,58 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── CRAFT REEL CAROUSEL ──────────────────────────── */}
+      <section style={{ backgroundColor: '#0D0B08', paddingBottom: '4rem' }}>
+        <div style={{ textAlign: 'center', padding: '3.5rem 2rem 2rem' }}>
+          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Behind The Craft</p>
+          <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.6rem, 3vw, 2.6rem)', fontWeight: 400, color: '#FFFFFF', lineHeight: 1.2 }}>Stories In Every Stitch</h2>
+        </div>
+
+        {/* Scrollable row */}
+        <div className="hide-scrollbar" style={{ display: 'flex', gap: '12px', overflowX: 'auto', padding: '0 2rem', scrollSnapType: 'x mandatory' }}>
+          {[
+            { type: 'video', src: '/static/videos/brand-video.mp4' },
+            { type: 'video', src: '/static/videos/reel1.mp4' },
+            { type: 'img',   src: '/static/videos/hero1.png' },
+            { type: 'video', src: '/static/videos/reel2.mp4' },
+            { type: 'img',   src: '/static/videos/hero2.png' },
+            { type: 'video', src: '/static/videos/reel3.mp4' },
+            { type: 'img',   src: '/static/videos/hero3.png' },
+            { type: 'img',   src: '/static/videos/hero4.png' },
+            { type: 'img',   src: '/static/videos/hero5.png' },
+          ].map((item, i) => (
+            <div key={i} style={{
+              flexShrink: 0,
+              width: 'clamp(220px, 28vw, 340px)',
+              aspectRatio: '9/16',
+              borderRadius: '2px',
+              overflow: 'hidden',
+              scrollSnapAlign: 'start',
+              border: '1px solid rgba(201,168,76,0.15)',
+              position: 'relative',
+              backgroundColor: '#1a1008',
+            }}>
+              {item.type === 'video' ? (
+                <video
+                  autoPlay muted loop playsInline
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                >
+                  <source src={item.src} type="video/mp4" />
+                </video>
+              ) : (
+                <img
+                  src={item.src}
+                  alt={`Ravari craft ${i + 1}`}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                />
+              )}
+              {/* Gold shimmer overlay on hover */}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(201,168,76,0.15) 0%, transparent 40%)', pointerEvents: 'none' }} />
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── SHOP BY CATEGORY ─────────────────────────────── */}
       <section className="section-padding" style={{ backgroundColor: '#FFFFFF' }}>
         <div className="section-inner">
