@@ -75,12 +75,12 @@ function ReelCarousel() {
             }}>
               {item.type === 'video' ? (
                 <video autoPlay muted loop playsInline
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}>
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
                   <source src={item.src} type="video/mp4" />
                 </video>
               ) : (
                 <img src={item.src} alt={`Ravari ${i + 1}`}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               )}
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(201,168,76,0.1) 0%, transparent 40%)', pointerEvents: 'none' }} />
             </div>
