@@ -11,17 +11,17 @@ import { trackPageView } from '../utils/ga4Tracking';
 
 /* ── Hero videos ───────────────────────────────────────── */
 const HERO_VIDEOS = [
-  '/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post.mp4',
-  '/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post%20(1).mp4',
-  '/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post%20(2).mp4',
+  '/static/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post.mp4',
+  '/static/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post%20(1).mp4',
+  '/static/videos/Cream%20%26%20Brown%20Product%20Leather%20Instagram%20Post%20(2).mp4',
 ];
 
 /* ── Categories ────────────────────────────────────────── */
 const CATEGORIES = [
-  { name: 'Sling Bags',    to: '/products?category=Sling+Bags',   img: '/images/p1-a.png' },
-  { name: 'Watch Box',     to: '/products?category=Watch+Box',    img: '/images/p2-a.png' },
-  { name: 'Tote Bags',     to: '/products?category=Tote+Bags',    img: '/images/p3-a.png' },
-  { name: 'Jewellery Box', to: '/products?category=Jewellery+Box',img: '/images/p4-a.png' },
+  { name: 'Sling Bags',    to: '/products?category=Sling+Bags',    img: '/static/videos/Copilot_20260416_160042.png' },
+  { name: 'Watch Box',     to: '/products?category=Watch+Box',     img: '/static/videos/Untitled%20design%20(51).png' },
+  { name: 'Tote Bags',     to: '/products?category=Tote+Bags',     img: '/static/videos/Untitled%20design%20(4).png' },
+  { name: 'Jewellery Box', to: '/products?category=Jewellery+Box', img: '/static/videos/Untitled%20design%20(46).png' },
 ];
 
 /* ── Scrolling marquee bar ─────────────────────────────── */
