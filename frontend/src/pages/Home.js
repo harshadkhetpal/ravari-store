@@ -9,6 +9,96 @@ import { SEO_CONFIG } from '../utils/seoConstants';
 import { getOrganizationSchema } from '../utils/schemaMarkup';
 import { trackPageView } from '../utils/ga4Tracking';
 
+/* ── Reel Carousel ─────────────────────────────────────── */
+const REELS = [
+  { type: 'video', src: '/static/videos/reel1.mp4'   },
+  { type: 'img',   src: '/static/videos/model1.png'  },
+  { type: 'video', src: '/static/videos/reel2.mp4'   },
+  { type: 'img',   src: '/static/videos/model3.webp' },
+  { type: 'video', src: '/static/videos/reel3.mp4'   },
+  { type: 'img',   src: '/static/videos/model2.webp' },
+];
+
+const TILE_W = 300; // px per tile
+const TILE_GAP = 10;
+
+function ReelCarousel() {
+  const scrollRef = useRef(null);
+
+  const scroll = dir => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollBy({ left: dir * (TILE_W + TILE_GAP) * 2, behavior: 'smooth' });
+  };
+
+  const arrowStyle = {
+    position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+    zIndex: 10, width: '42px', height: '42px',
+    background: 'rgba(13,11,8,0.75)', border: '1px solid rgba(201,168,76,0.5)',
+    color: '#C9A84C', cursor: 'pointer', display: 'flex',
+    alignItems: 'center', justifyContent: 'center',
+    transition: 'background 0.2s, border-color 0.2s',
+    backdropFilter: 'blur(4px)',
+  };
+
+  return (
+    <section style={{ backgroundColor: '#0D0B08', paddingBottom: '4rem' }}>
+      <div style={{ textAlign: 'center', padding: '3.5rem 2rem 2rem' }}>
+        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Behind The Craft</p>
+        <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.6rem, 3vw, 2.6rem)', fontWeight: 400, color: '#FFFFFF', lineHeight: 1.2 }}>Stories In Every Stitch</h2>
+      </div>
+
+      {/* Wrapper with arrows */}
+      <div style={{ position: 'relative', padding: '0 3.5rem' }}>
+
+        {/* Left arrow */}
+        <button onClick={() => scroll(-1)} aria-label="Previous"
+          style={{ ...arrowStyle, left: '0.5rem' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.25)'; e.currentTarget.style.borderColor = '#C9A84C'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(13,11,8,0.75)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; }}>
+          <FiChevronLeft size={20} />
+        </button>
+
+        {/* Scrollable row */}
+        <div ref={scrollRef} className="hide-scrollbar"
+          style={{ display: 'flex', gap: `${TILE_GAP}px`, overflowX: 'auto', scrollSnapType: 'x mandatory' }}>
+          {REELS.map((item, i) => (
+            <div key={i} style={{
+              flexShrink: 0,
+              width: `${TILE_W}px`,
+              height: '400px',
+              scrollSnapAlign: 'start',
+              border: '1px solid rgba(201,168,76,0.15)',
+              position: 'relative',
+              backgroundColor: '#1a1008',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              overflow: 'hidden',
+            }}>
+              {item.type === 'video' ? (
+                <video autoPlay muted loop playsInline
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}>
+                  <source src={item.src} type="video/mp4" />
+                </video>
+              ) : (
+                <img src={item.src} alt={`Ravari ${i + 1}`}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+              )}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(201,168,76,0.1) 0%, transparent 40%)', pointerEvents: 'none' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Right arrow */}
+        <button onClick={() => scroll(1)} aria-label="Next"
+          style={{ ...arrowStyle, right: '0.5rem' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.25)'; e.currentTarget.style.borderColor = '#C9A84C'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(13,11,8,0.75)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; }}>
+          <FiChevronRight size={20} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
 /* ── Hero slides ───────────────────────────────────────── */
 const SLIDES = [
   { img: '/static/videos/hero1.png', to: '/products?category=Jewellery+Box' },
@@ -201,54 +291,7 @@ export default function Home() {
       </section>
 
       {/* ── CRAFT REEL CAROUSEL ──────────────────────────── */}
-      <section style={{ backgroundColor: '#0D0B08', paddingBottom: '4rem' }}>
-        <div style={{ textAlign: 'center', padding: '3.5rem 2rem 2rem' }}>
-          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Behind The Craft</p>
-          <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(1.6rem, 3vw, 2.6rem)', fontWeight: 400, color: '#FFFFFF', lineHeight: 1.2 }}>Stories In Every Stitch</h2>
-        </div>
-
-        {/* Scrollable row */}
-        <div className="hide-scrollbar" style={{ display: 'flex', gap: '12px', overflowX: 'auto', padding: '0 2rem', scrollSnapType: 'x mandatory' }}>
-          {[
-            { type: 'video', src: '/static/videos/reel1.mp4'   },
-            { type: 'img',   src: '/static/videos/model1.png'  },
-            { type: 'video', src: '/static/videos/reel2.mp4'   },
-            { type: 'img',   src: '/static/videos/model3.webp' },
-            { type: 'video', src: '/static/videos/reel3.mp4'   },
-            { type: 'img',   src: '/static/videos/model2.webp' },
-            { type: 'video', src: '/static/videos/reel4.mp4'   },
-          ].map((item, i) => (
-            <div key={i} style={{
-              flexShrink: 0,
-              width: 'clamp(220px, 28vw, 340px)',
-              aspectRatio: '9/16',
-              borderRadius: '2px',
-              overflow: 'hidden',
-              scrollSnapAlign: 'start',
-              border: '1px solid rgba(201,168,76,0.15)',
-              position: 'relative',
-              backgroundColor: '#1a1008',
-            }}>
-              {item.type === 'video' ? (
-                <video
-                  autoPlay muted loop playsInline
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                >
-                  <source src={item.src} type="video/mp4" />
-                </video>
-              ) : (
-                <img
-                  src={item.src}
-                  alt={`Ravari craft ${i + 1}`}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                />
-              )}
-              {/* Gold shimmer overlay on hover */}
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(201,168,76,0.15) 0%, transparent 40%)', pointerEvents: 'none' }} />
-            </div>
-          ))}
-        </div>
-      </section>
+      <ReelCarousel />
 
       {/* ── SHOP BY CATEGORY ─────────────────────────────── */}
       <section className="section-padding" style={{ backgroundColor: '#FFFFFF' }}>
