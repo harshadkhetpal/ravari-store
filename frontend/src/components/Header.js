@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { FiSearch, FiHeart, FiShoppingBag, FiMenu, FiX, FiPhone } from 'react-icons/fi';
+import { FiSearch, FiHeart, FiShoppingBag, FiMenu, FiX, FiPhone, FiMail } from 'react-icons/fi';
 
 const NAV = [
-  { label: 'About Us',     to: '/about' },
-  { label: 'Shop',         to: '/products' },
-  { label: 'Collection',   to: '/products' },
-  { label: 'Tote Bags',    to: '/products?category=Tote+Bags' },
-  { label: 'Jewellery Box', to: '/products?category=Jewellery+Box' },
-  { label: 'Contact',      to: '/contact' },
+  { label: 'About Us',   to: '/about'    },
+  { label: 'Shop',       to: '/products' },
+  { label: 'Collection', to: '/products' },
+  { label: 'Contact',    to: '/contact'  },
 ];
 
 const TOP_BG  = '#0D0B08';
@@ -42,15 +40,26 @@ export default function Header() {
           height: '64px',
         }}>
 
-          {/* Left — phone */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <FiPhone size={13} style={{ color: GOLD }} />
-            <a href="tel:+919084260869"
-              style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', fontWeight: 400, letterSpacing: '0.08em', color: 'rgba(255,255,255,0.75)', transition: 'color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.color = GOLD}
-              onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}>
-              +91 90842 60869
-            </a>
+          {/* Left — phone + email */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <FiPhone size={12} style={{ color: GOLD, flexShrink: 0 }} />
+              <a href="tel:+919084260869"
+                style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', fontWeight: 400, letterSpacing: '0.05em', color: 'rgba(255,255,255,0.75)', transition: 'color 0.2s', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => e.currentTarget.style.color = GOLD}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}>
+                +91 90842 60869
+              </a>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <FiMail size={12} style={{ color: GOLD, flexShrink: 0 }} />
+              <a href="mailto:ravari.store@gmail.com"
+                style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', fontWeight: 400, letterSpacing: '0.03em', color: 'rgba(255,255,255,0.75)', transition: 'color 0.2s', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => e.currentTarget.style.color = GOLD}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}>
+                ravari.store@gmail.com
+              </a>
+            </div>
           </div>
 
           {/* Center — RAVARI wordmark */}

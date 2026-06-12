@@ -42,28 +42,31 @@ function HeroSlider() {
   }, [current, goTo]);
 
   return (
-    <section style={{ position: 'relative', width: '100%', height: '88vh', minHeight: '540px', overflow: 'hidden', backgroundColor: '#1a1008' }}>
+    <section style={{ position: 'relative', width: '100%', backgroundColor: '#1a1008', lineHeight: 0 }}>
 
-      {/* Slides */}
-      {SLIDES.map((slide, i) => (
-        <div key={i} style={{
-          position: 'absolute', inset: 0,
-          opacity: i === current ? 1 : 0,
-          transition: 'opacity 0.9s ease-in-out',
-          zIndex: i === current ? 1 : 0,
-        }}>
-          <img
-            src={slide.img}
-            alt={`Slide ${i + 1}`}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
-          />
-          {/* subtle bottom gradient for button readability */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 50%)' }} />
-        </div>
-      ))}
+      {/* Slides — stacked, only current visible */}
+      <div style={{ position: 'relative', width: '100%' }}>
+        {SLIDES.map((slide, i) => (
+          <div key={i} style={{
+            position: i === 0 ? 'relative' : 'absolute',
+            top: 0, left: 0, width: '100%',
+            opacity: i === current ? 1 : 0,
+            transition: 'opacity 0.9s ease-in-out',
+            zIndex: i === current ? 1 : 0,
+            lineHeight: 0,
+          }}>
+            <img
+              src={slide.img}
+              alt={`Slide ${i + 1}`}
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 45%)' }} />
+          </div>
+        ))}
+      </div>
 
       {/* SHOP NOW button — bottom left */}
-      <div style={{ position: 'absolute', bottom: '10%', left: '5%', zIndex: 10 }}>
+      <div style={{ position: 'absolute', bottom: '8%', left: '5%', zIndex: 10 }}>
         <Link
           to={SLIDES[current].to}
           style={{
