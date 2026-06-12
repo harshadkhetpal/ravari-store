@@ -195,6 +195,10 @@ h1, h2, h3, h4, h5 {
 }
 .product-card:hover .product-image-wrap img { transform: scale(1.05); }
 
+/* Hide scrollbar for nav */
+.hide-scrollbar { scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
 /* Forms */
 input:focus, textarea:focus, select:focus {
   outline: none;
