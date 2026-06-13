@@ -117,6 +117,25 @@ const PRODUCTS = [
     ],
     stock: 15, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
   },
+  {
+    id: 6, _id: '6',
+    name: 'RAVARI Artisan Leather Work Apron for Men & Women | Heavy-Duty Multi-Pocket Electrician, Craft, Barber, Kitchen & Workshop Apron with Adjustable Shoulder Strap',
+    slug: 'ravari-artisan-leather-work-apron',
+    price: 2999, salePrice: 1899, category: 'Aprons',
+    thumbnail: '/static/products/work-apron/img1.png',
+    images: [
+      img('/static/products/work-apron/img1.png', 'RAVARI Work Apron — Front View'),
+      img('/static/products/work-apron/img2.png', 'RAVARI Work Apron — Detail'),
+      img('/static/products/work-apron/img3.png', 'RAVARI Work Apron — Pockets'),
+      img('/static/products/work-apron/img4.png', 'RAVARI Work Apron — Lifestyle'),
+      img('/static/products/work-apron/img5.png', 'RAVARI Work Apron — Features'),
+      img('/static/products/work-apron/img6.png', 'RAVARI Work Apron — Strap Detail'),
+      img('/static/products/work-apron/img7.png', 'RAVARI Work Apron — Model Shot'),
+    ],
+    description: 'Heavy-duty genuine leather work apron with multiple deep pockets for tools, accessories, and essentials. Adjustable shoulder strap fits all body types. Ideal for electricians, carpenters, barbers, chefs, and craftsmen. Durable reinforced stitching built to last.',
+    material: ['Genuine Leather', 'Reinforced Stitching', 'Adjustable Straps'],
+    stock: 25, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
