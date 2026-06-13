@@ -5,6 +5,7 @@ import {
   FiLogOut, FiChevronDown, FiChevronUp, FiRefreshCw,
   FiPhone, FiMail, FiMapPin, FiCreditCard, FiAlertCircle,
   FiPlus, FiTrash2, FiEdit2, FiCheck, FiX,
+  FiBell, FiTruck, FiDollarSign, FiMessageSquare, FiSlash,
 } from 'react-icons/fi';
 
 /* ─── Design tokens ─── */
@@ -16,12 +17,17 @@ const MUTED  = 'rgba(201,168,76,0.5)';
 
 /* ─── Status config ─── */
 const STATUS_CFG = {
-  pending:     { label: 'Pending',     bg: '#FEF3C7', color: '#92400E' },
-  cod_pending: { label: 'COD Pending', bg: '#FED7AA', color: '#9A3412' },
-  processing:  { label: 'Processing',  bg: '#DBEAFE', color: '#1E40AF' },
-  shipped:     { label: 'Shipped',     bg: '#EDE9FE', color: '#5B21B6' },
-  delivered:   { label: 'Delivered',   bg: '#D1FAE5', color: '#065F46' },
-  cancelled:   { label: 'Cancelled',   bg: '#FEE2E2', color: '#991B1B' },
+  pending:          { label: 'Pending',          bg: '#FEF3C7', color: '#92400E' },
+  cod_pending:      { label: 'COD Pending',      bg: '#FED7AA', color: '#9A3412' },
+  confirmed:        { label: 'Confirmed',        bg: '#E0F2FE', color: '#0369A1' },
+  processing:       { label: 'Processing',       bg: '#DBEAFE', color: '#1E40AF' },
+  packed:           { label: 'Packed',           bg: '#F3E8FF', color: '#7E22CE' },
+  shipped:          { label: 'Shipped',          bg: '#EDE9FE', color: '#5B21B6' },
+  out_for_delivery: { label: 'Out for Delivery', bg: '#FFF7ED', color: '#C2410C' },
+  delivered:        { label: 'Delivered',        bg: '#D1FAE5', color: '#065F46' },
+  cancelled:        { label: 'Cancelled',        bg: '#FEE2E2', color: '#991B1B' },
+  returned:         { label: 'Returned',         bg: '#FCE7F3', color: '#9D174D' },
+  refunded:         { label: 'Refunded',         bg: '#F0FFF4', color: '#166534' },
 };
 
 function StatusBadge({ status }) {
@@ -42,17 +48,19 @@ async function apiFetch(path, opts = {}) {
 
 /* ─── Sidebar ─── */
 const NAV_ITEMS = [
-  { key: 'dashboard', label: 'Dashboard',  Icon: FiGrid },
-  { key: 'orders',    label: 'Orders',     Icon: FiShoppingBag },
-  { key: 'customers', label: 'Customers',  Icon: FiUsers },
-  { key: 'products',  label: 'Products',   Icon: FiPackage },
-  { key: 'coupons',   label: 'Coupons',    Icon: FiTag },
-  { key: 'returns',   label: 'Returns',    Icon: FiAlertCircle },
-  { key: 'invoices',  label: 'Invoices',   Icon: FiCreditCard },
-  { key: 'charts',    label: 'Analytics',  Icon: FiRefreshCw },
+  { key: 'dashboard',      label: 'Dashboard',    Icon: FiGrid },
+  { key: 'notifications',  label: 'Notifications',Icon: FiBell },
+  { key: 'orders',         label: 'Orders',       Icon: FiShoppingBag },
+  { key: 'customers',      label: 'Customers',    Icon: FiUsers },
+  { key: 'products',       label: 'Products',     Icon: FiPackage },
+  { key: 'coupons',        label: 'Coupons',      Icon: FiTag },
+  { key: 'returns',        label: 'Returns',      Icon: FiAlertCircle },
+  { key: 'invoices',       label: 'Invoices',     Icon: FiCreditCard },
+  { key: 'payments',       label: 'Payments',     Icon: FiDollarSign },
+  { key: 'charts',         label: 'Analytics',    Icon: FiRefreshCw },
 ];
 
-function Sidebar({ active, setActive, onLogout, mobileOpen, setMobileOpen }) {
+function Sidebar({ active, setActive, onLogout, mobileOpen, setMobileOpen, unreadCount }) {
   return (
     <>
       {/* Mobile overlay */}
@@ -89,10 +97,13 @@ function Sidebar({ active, setActive, onLogout, mobileOpen, setMobileOpen }) {
                   color: isActive ? GOLD : 'rgba(255,255,255,0.55)',
                   borderLeft: isActive ? `2px solid ${GOLD}` : '2px solid transparent',
                   backgroundColor: isActive ? 'rgba(201,168,76,0.07)' : 'transparent',
-                  transition: 'all 0.15s',
+                  transition: 'all 0.15s', position: 'relative',
                 }}>
                 <Icon size={15} />
                 {label}
+                {key === 'notifications' && unreadCount > 0 && (
+                  <span style={{ marginLeft: 'auto', backgroundColor: '#EF4444', color: '#fff', fontSize: '0.5rem', fontWeight: 700, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{unreadCount}</span>
+                )}
               </button>
             );
           })}
@@ -161,6 +172,20 @@ export default function AdminDashboard() {
   const [returns, setReturns]           = useState([]);
   const [returnNote, setReturnNote]     = useState({});
 
+  /* notifications */
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount]     = useState(0);
+
+  /* payments */
+  const [payments, setPayments] = useState([]);
+
+  /* tracking edit */
+  const [trackingEdit, setTrackingEdit] = useState({});
+
+  /* cancel dialog */
+  const [cancelDialog, setCancelDialog] = useState(null); // { orderId, customerName, customerEmail }
+  const [cancelMsg, setCancelMsg]       = useState('');
+
   /* invoice */
   const [invoiceOrder, setInvoiceOrder] = useState(null);
   const [invoicePrint, setInvoicePrint] = useState(false);
@@ -182,7 +207,7 @@ export default function AdminDashboard() {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [dash, ord, cust, prod, coup, anal, ret] = await Promise.all([
+      const [dash, ord, cust, prod, coup, anal, ret, notifs, pays] = await Promise.all([
         apiFetch('/admin/dashboard'),
         apiFetch('/admin/orders'),
         apiFetch('/admin/customers'),
@@ -190,6 +215,8 @@ export default function AdminDashboard() {
         apiFetch('/coupons'),
         apiFetch('/admin/analytics'),
         apiFetch('/admin/returns'),
+        apiFetch('/admin/notifications'),
+        apiFetch('/admin/payments'),
       ]);
       setDashStats(dash.stats || null);
       setRecentOrders(dash.recentOrders || []);
@@ -199,6 +226,9 @@ export default function AdminDashboard() {
       setCoupons(coup.coupons || []);
       setAnalytics(anal);
       setReturns(ret.returns || []);
+      setNotifications(notifs.notifications || []);
+      setUnreadCount(notifs.unreadCount || 0);
+      setPayments(pays.payments || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   }, []);
@@ -243,6 +273,34 @@ export default function AdminDashboard() {
     setEditingStock(prev => { const n = { ...prev }; delete n[p.id]; return n; });
   };
 
+  /* ── Tracking number save ── */
+  const saveTracking = async (orderId) => {
+    const tn = trackingEdit[orderId] || '';
+    await apiFetch(`/admin/orders/${orderId}/tracking`, { method: 'PUT', body: JSON.stringify({ trackingNumber: tn }) });
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, trackingNumber: tn } : o));
+    setTrackingEdit(prev => { const n={...prev}; delete n[orderId]; return n; });
+  };
+
+  /* ── Cancel order with message ── */
+  const cancelOrder = async () => {
+    if (!cancelDialog) return;
+    await apiFetch(`/admin/orders/${cancelDialog.orderId}/cancel`, { method: 'POST', body: JSON.stringify({ message: cancelMsg }) });
+    setOrders(prev => prev.map(o => o.id === cancelDialog.orderId ? { ...o, status: 'cancelled', cancelMessage: cancelMsg } : o));
+    setCancelDialog(null); setCancelMsg('');
+  };
+
+  /* ── Mark notification read ── */
+  const markNotifRead = async (id) => {
+    await apiFetch(`/admin/notifications/${id}/read`, { method: 'PUT' });
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: 1 } : n));
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  };
+  const markAllRead = async () => {
+    await apiFetch('/admin/notifications/read-all', { method: 'PUT' });
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: 1 })));
+    setUnreadCount(0);
+  };
+
   /* ── Filtered orders ── */
   const filteredOrders = orderFilter ? orders.filter(o => o.status === orderFilter) : orders;
 
@@ -276,7 +334,7 @@ export default function AdminDashboard() {
         .admin-sidebar { display: flex; }
       `}</style>
 
-      <Sidebar active={active} setActive={setActive} onLogout={logout} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+      <Sidebar active={active} setActive={setActive} onLogout={logout} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} unreadCount={unreadCount} />
 
       {/* Main content */}
       <div className="admin-main" style={{ marginLeft: '220px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -363,10 +421,10 @@ export default function AdminDashboard() {
               {/* Filter bar */}
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: '#8C8680', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Filter:</span>
-                {['', 'pending', 'cod_pending', 'processing', 'shipped', 'delivered', 'cancelled'].map(s => (
+                {['', 'pending', 'cod_pending', 'confirmed', 'packed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled', 'returned', 'refunded'].map(s => (
                   <button key={s || 'all'} onClick={() => setOrderFilter(s)}
                     style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.3rem 0.85rem', border: `1px solid ${orderFilter === s ? '#1A0F0A' : '#D4CFC8'}`, backgroundColor: orderFilter === s ? '#1A0F0A' : 'transparent', color: orderFilter === s ? '#fff' : '#6B6560', cursor: 'pointer' }}>
-                    {s || 'All'} {s ? `(${orders.filter(o => o.status === s).length})` : `(${orders.length})`}
+                    {STATUS_CFG[s]?.label || 'All'} {s ? `(${orders.filter(o => o.status === s).length})` : `(${orders.length})`}
                   </button>
                 ))}
               </div>
@@ -377,18 +435,21 @@ export default function AdminDashboard() {
                     <thead>
                       <tr>
                         <TH></TH>
-                        <TH>Order</TH>
+                        <TH>Order ID</TH>
                         <TH>Customer</TH>
+                        <TH>Phone</TH>
                         <TH>Items</TH>
                         <TH>Amount</TH>
                         <TH>Payment</TH>
                         <TH>Status</TH>
+                        <TH>Tracking</TH>
                         <TH>Date</TH>
+                        <TH>Actions</TH>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredOrders.length === 0 && (
-                        <tr><td colSpan="8" style={{ textAlign: 'center', color: '#8C8680', padding: '3rem', fontFamily: 'Jost, sans-serif', fontSize: '0.8rem' }}>No orders found</td></tr>
+                        <tr><td colSpan="11" style={{ textAlign: 'center', color: '#8C8680', padding: '3rem', fontFamily: 'Jost, sans-serif', fontSize: '0.8rem' }}>No orders found</td></tr>
                       )}
                       {filteredOrders.map(o => (
                         <React.Fragment key={o.id}>
@@ -396,29 +457,56 @@ export default function AdminDashboard() {
                             <TD style={{ width: '32px', color: '#8C8680' }}>
                               {expandedOrder === o.id ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
                             </TD>
-                            <TD><span style={{ fontWeight: 600 }}>#{o.id}</span></TD>
+                            <TD><span style={{ fontWeight: 600 }}>RAV{o.id}</span></TD>
                             <TD>
                               <span style={{ fontWeight: 500 }}>{o.customerName || '—'}</span><br />
-                              <span style={{ fontSize: '0.65rem', color: '#8C8680' }}>{o.customerEmail}</span>
+                              <span style={{ fontSize: '0.62rem', color: '#8C8680' }}>{o.customerEmail}</span>
                             </TD>
+                            <TD style={{ fontSize: '0.72rem', color: '#4A4642', whiteSpace: 'nowrap' }}>{o.customerPhone || '—'}</TD>
                             <TD>{Array.isArray(o.items) ? o.items.length : 0} item{o.items?.length !== 1 ? 's' : ''}</TD>
                             <TD><span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 600 }}>₹{Number(o.total).toLocaleString('en-IN')}</span></TD>
-                            <TD style={{ textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.06em', color: '#6B6560' }}>{o.paymentMethod || '—'}</TD>
+                            <TD style={{ textTransform: 'uppercase', fontSize: '0.62rem', letterSpacing: '0.06em', color: '#6B6560' }}>{o.paymentMethod || '—'}</TD>
                             <TD onClick={e => e.stopPropagation()}>
                               <select value={o.status} onChange={e => updateOrderStatus(o.id, e.target.value)}
-                                style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', padding: '0.3rem 0.5rem', border: '1px solid #D4CFC8', backgroundColor: '#FAFAF8', cursor: 'pointer', outline: 'none' }}>
+                                style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', padding: '0.3rem 0.5rem', border: '1px solid #D4CFC8', backgroundColor: '#FAFAF8', cursor: 'pointer', outline: 'none' }}>
                                 {Object.keys(STATUS_CFG).map(s => <option key={s} value={s}>{STATUS_CFG[s].label}</option>)}
                               </select>
                             </TD>
-                            <TD style={{ fontSize: '0.65rem', color: '#8C8680', whiteSpace: 'nowrap' }}>
+                            <TD onClick={e => e.stopPropagation()} style={{ minWidth: '140px' }}>
+                              {trackingEdit[o.id] !== undefined ? (
+                                <div style={{ display: 'flex', gap: '0.3rem' }}>
+                                  <input value={trackingEdit[o.id]} onChange={e => setTrackingEdit(prev => ({ ...prev, [o.id]: e.target.value }))}
+                                    style={{ width: '90px', fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', padding: '0.25rem 0.4rem', border: '1px solid #C9A84C', outline: 'none' }} />
+                                  <button onClick={() => saveTracking(o.id)} style={{ background: 'none', border: 'none', color: '#16A34A', cursor: 'pointer' }}><FiCheck size={12} /></button>
+                                  <button onClick={() => setTrackingEdit(prev => { const n={...prev}; delete n[o.id]; return n; })} style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer' }}><FiX size={12} /></button>
+                                </div>
+                              ) : (
+                                <button onClick={() => setTrackingEdit(prev => ({ ...prev, [o.id]: o.trackingNumber || '' }))}
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.62rem', color: o.trackingNumber ? '#0369A1' : '#8C8680', fontFamily: 'Jost, sans-serif' }}>
+                                  <FiTruck size={11} />
+                                  {o.trackingNumber || 'Add tracking'}
+                                </button>
+                              )}
+                            </TD>
+                            <TD style={{ fontSize: '0.62rem', color: '#8C8680', whiteSpace: 'nowrap' }}>
                               {o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                            </TD>
+                            <TD onClick={e => e.stopPropagation()}>
+                              <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+                                {o.status !== 'cancelled' && (
+                                  <button title="Cancel Order" onClick={() => { setCancelDialog({ orderId: o.id, customerName: o.customerName, customerEmail: o.customerEmail, customerPhone: o.customerPhone }); setCancelMsg(`Dear ${o.customerName || 'Customer'},\n\nWe regret to inform you that your RAVARI order #RAV${o.id} has been cancelled due to temporary unavailability of the product. We sincerely apologise for the inconvenience.\n\nIf you made an online payment, a full refund will be processed within 5–7 business days.\n\nThank you for your understanding.\n\nWarm regards,\nTeam RAVARI`); }}
+                                    style={{ background: 'none', border: '1px solid #FCA5A5', color: '#DC2626', padding: '0.25rem 0.4rem', cursor: 'pointer', fontSize: '0.6rem', fontFamily: 'Jost, sans-serif', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                    <FiSlash size={11} /> Cancel
+                                  </button>
+                                )}
+                              </div>
                             </TD>
                           </tr>
 
                           {/* Expanded detail row */}
                           {expandedOrder === o.id && (
                             <tr>
-                              <td colSpan="8" style={{ backgroundColor: '#FAFAF8', padding: '0 1rem 1.25rem 3rem', borderBottom: '2px solid #E8E4DE' }}>
+                              <td colSpan="11" style={{ backgroundColor: '#FAFAF8', padding: '0 1rem 1.25rem 3rem', borderBottom: '2px solid #E8E4DE' }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.25rem', paddingTop: '1rem' }}>
 
                                   {/* Items */}
@@ -490,6 +578,62 @@ export default function AdminDashboard() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ══════════ NOTIFICATIONS ══════════ */}
+          {active === 'notifications' && (
+            <div>
+              <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE', marginBottom: '1.5rem' }}>
+                <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #E8E4DE', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: GOLD, fontWeight: 600, marginBottom: '0.2rem' }}>Admin</p>
+                    <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.35rem', fontWeight: 600, color: '#2A2320' }}>Notifications Center</h2>
+                  </div>
+                  {unreadCount > 0 && (
+                    <button onClick={markAllRead}
+                      style={{ fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, backgroundColor: GOLD, color: '#0D0B08', padding: '0.5rem 1.25rem', border: 'none', cursor: 'pointer', fontFamily: 'Jost, sans-serif' }}>
+                      Mark All Read ({unreadCount})
+                    </button>
+                  )}
+                </div>
+
+                {notifications.length === 0 ? (
+                  <div style={{ padding: '3rem', textAlign: 'center', color: '#8C8680', fontFamily: 'Jost, sans-serif', fontSize: '0.8rem' }}>
+                    No notifications yet.
+                  </div>
+                ) : (
+                  <div>
+                    {notifications.map(n => (
+                      <div key={n.id} style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #F0EDE8', display: 'flex', gap: '1rem', alignItems: 'flex-start', backgroundColor: n.isRead ? '#fff' : '#FFFDF7' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: n.isRead ? '#D1D5DB' : '#C9A84C', marginTop: '5px', flexShrink: 0 }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+                            <div>
+                              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', fontWeight: 600, color: '#2A2320', marginBottom: '0.2rem' }}>{n.title}</p>
+                              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', color: '#4A4642' }}>{n.message}</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
+                              <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', color: '#8C8680', whiteSpace: 'nowrap' }}>
+                                {new Date(n.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              {!n.isRead && (
+                                <button onClick={() => markNotifRead(n.id)}
+                                  style={{ fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, color: GOLD, background: 'none', border: `1px solid ${GOLD}`, padding: '0.2rem 0.5rem', cursor: 'pointer', fontFamily: 'Jost, sans-serif' }}>
+                                  Mark Read
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          {n.orderId && (
+                            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', color: '#8C8680', marginTop: '0.3rem' }}>Order: RAV{n.orderId}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -775,6 +919,58 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {/* ══════════ PAYMENTS ══════════ */}
+          {active === 'payments' && (
+            <div>
+              <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE' }}>
+                <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #E8E4DE' }}>
+                  <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: GOLD, fontWeight: 600, marginBottom: '0.2rem' }}>Finance</p>
+                  <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.35rem', fontWeight: 600, color: '#2A2320' }}>Payment Management</h2>
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Jost, sans-serif', fontSize: '0.72rem' }}>
+                    <thead>
+                      <tr style={{ backgroundColor: '#FAFAF8', borderBottom: '2px solid #E8E4DE' }}>
+                        {['Order ID', 'Customer', 'Phone', 'Amount', 'Payment Method', 'Payment Status', 'Order Status', 'Date'].map(h => (
+                          <th key={h} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.58rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8C8680', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(payments || []).map(p => (
+                        <tr key={p.id} style={{ borderBottom: '1px solid #F0EDE8' }}>
+                          <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: '#2A2320', whiteSpace: 'nowrap' }}>RAV{p.id}</td>
+                          <td style={{ padding: '0.85rem 1rem', color: '#4A4642' }}>{p.customerName}</td>
+                          <td style={{ padding: '0.85rem 1rem', color: '#6B7280' }}>{p.customerPhone || '—'}</td>
+                          <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: '#2A2320' }}>₹{(p.totalAmount || 0).toLocaleString('en-IN')}</td>
+                          <td style={{ padding: '0.85rem 1rem' }}>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 8px', backgroundColor: p.paymentMethod === 'cod' ? '#FFF7ED' : '#EDE9FE', color: p.paymentMethod === 'cod' ? '#C2410C' : '#5B21B6', borderRadius: '2px' }}>
+                              {p.paymentMethod === 'cod' ? 'COD' : (p.paymentMethod || '—').toUpperCase()}
+                            </span>
+                          </td>
+                          <td style={{ padding: '0.85rem 1rem' }}>
+                            {(() => {
+                              const st = p.status === 'delivered' ? 'paid' : p.status === 'cancelled' ? 'refunded' : p.status === 'refunded' ? 'refunded' : 'pending';
+                              const cfg = { paid: { bg: '#D1FAE5', c: '#065F46' }, pending: { bg: '#FEF3C7', c: '#92400E' }, refunded: { bg: '#FCE7F3', c: '#9D174D' } }[st] || { bg: '#F3F4F6', c: '#374151' };
+                              return <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 8px', backgroundColor: cfg.bg, color: cfg.c, borderRadius: '2px' }}>{st}</span>;
+                            })()}
+                          </td>
+                          <td style={{ padding: '0.85rem 1rem' }}><StatusBadge status={p.status} /></td>
+                          <td style={{ padding: '0.85rem 1rem', color: '#8C8680', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>
+                            {p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                      {(!payments || payments.length === 0) && (
+                        <tr><td colSpan="8" style={{ padding: '2rem', textAlign: 'center', color: '#8C8680', fontFamily: 'Jost, sans-serif' }}>No payment records found.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ══════════ INVOICES ══════════ */}
           {active === 'invoices' && (
             <div>
@@ -1042,6 +1238,49 @@ export default function AdminDashboard() {
 
         </div>
       </div>
+
+      {/* ══════════ CANCEL ORDER DIALOG ══════════ */}
+      {cancelDialog && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE', padding: '2rem', maxWidth: '520px', width: '100%', fontFamily: 'Jost, sans-serif' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+              <div>
+                <p style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#DC2626', fontWeight: 600, marginBottom: '0.25rem' }}>Cancel Order RAV{cancelDialog.orderId}</p>
+                <p style={{ fontSize: '0.78rem', color: '#4A4642' }}>Cancelling for: <strong>{cancelDialog.customerName}</strong></p>
+              </div>
+              <button onClick={() => setCancelDialog(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8C8680' }}><FiX size={18} /></button>
+            </div>
+
+            <p style={{ fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8C8680', marginBottom: '0.5rem', fontWeight: 600 }}>Message to Customer</p>
+            <p style={{ fontSize: '0.62rem', color: '#8C8680', marginBottom: '0.5rem' }}>This message will be saved with the order. You can share it via WhatsApp or email manually.</p>
+            <textarea value={cancelMsg} onChange={e => setCancelMsg(e.target.value)} rows={8}
+              style={{ width: '100%', fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', padding: '0.75rem', border: '1px solid #D4CFC8', outline: 'none', resize: 'vertical', color: '#2A2320', boxSizing: 'border-box', lineHeight: 1.6 }} />
+
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+              <button onClick={cancelOrder}
+                style={{ backgroundColor: '#DC2626', color: '#fff', padding: '0.65rem 1.5rem', border: 'none', cursor: 'pointer', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                Confirm Cancellation
+              </button>
+              {cancelDialog.customerPhone && (
+                <a href={`https://wa.me/${cancelDialog.customerPhone.replace(/\D/g,'')}?text=${encodeURIComponent(cancelMsg)}`} target="_blank" rel="noreferrer"
+                  style={{ backgroundColor: '#25D366', color: '#fff', padding: '0.65rem 1.5rem', border: 'none', cursor: 'pointer', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <FiMessageSquare size={13} /> Send via WhatsApp
+                </a>
+              )}
+              {cancelDialog.customerEmail && (
+                <a href={`mailto:${cancelDialog.customerEmail}?subject=Order%20RAV${cancelDialog.orderId}%20Cancellation%20%E2%80%94%20RAVARI&body=${encodeURIComponent(cancelMsg)}`}
+                  style={{ backgroundColor: 'transparent', color: '#4A4642', padding: '0.65rem 1.5rem', border: '1px solid #D4CFC8', cursor: 'pointer', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <FiMail size={13} /> Send via Email
+                </a>
+              )}
+              <button onClick={() => setCancelDialog(null)}
+                style={{ background: 'none', border: '1px solid #D4CFC8', color: '#8C8680', padding: '0.65rem 1rem', cursor: 'pointer', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem' }}>
+                Back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useDispatch } from 'react-redux';
-import { FiZoomIn, FiChevronLeft, FiChevronRight, FiStar } from 'react-icons/fi';
+import { FiZoomIn, FiChevronLeft, FiChevronRight, FiStar, FiShare2 } from 'react-icons/fi';
 import SEO from '../components/SEO';
 import { SEO_CONFIG } from '../utils/seoConstants';
 import { getProductSchema, getBreadcrumbSchema } from '../utils/schemaMarkup';
@@ -21,11 +21,18 @@ function ProductDetail() {
   const [zoomActive, setZoomActive] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
   const [newReview, setNewReview] = useState({ rating: 5, title: '', comment: '' });
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const dispatch  = useDispatch();
   const navigate  = useNavigate();
 
   useEffect(() => { fetchProduct(); }, [slug]);
   useEffect(() => { setSelectedImage(0); }, [selectedVariant]);
+  useEffect(() => {
+    if (product?.category && product?._id) {
+      fetch(`/api/products/related?category=${encodeURIComponent(product.category)}&excludeId=${product._id}`)
+        .then(r => r.json()).then(d => setRelatedProducts(d.products || [])).catch(() => {});
+    }
+  }, [product?.category, product?._id]);
 
   const fetchProduct = async () => {
     try {
@@ -365,6 +372,13 @@ function ProductDetail() {
                 Add to Cart
               </button>
 
+              {/* WhatsApp Share */}
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`Check out this ${product.name} from RAVARI — handcrafted luxury leather!\n₹${(activeSalePrice || activePrice)?.toLocaleString('en-IN')}\nhttps://ravari.in/products/${slug}`)}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{ width: '100%', padding: '0.85rem', backgroundColor: '#25D366', color: '#fff', fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', border: 'none', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxSizing: 'border-box' }}>
+                <FiShare2 size={15} /> Share on WhatsApp
+              </a>
             </div>
 
             {/* Product Info */}
@@ -390,6 +404,30 @@ function ProductDetail() {
             )}
           </div>
         </div>
+
+        {/* You May Also Like */}
+        {relatedProducts.length > 0 && (
+          <div style={{ borderTop: '1px solid #E8E4DE', paddingTop: '3rem', marginBottom: '3rem' }}>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.5rem', textAlign: 'center' }}>Continue Exploring</p>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 400, color: '#0D0B08', textAlign: 'center', marginBottom: '2rem' }}>You May Also Like</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.25rem' }}>
+              {relatedProducts.map(p => (
+                <Link key={p._id || p.id} to={`/products/${p.slug}`} style={{ textDecoration: 'none', border: '1px solid #E8E4DE', backgroundColor: '#FAFAF8', display: 'flex', flexDirection: 'column' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#C9A84C'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#E8E4DE'}>
+                  <div style={{ backgroundColor: '#F5F3EE', height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    <img src={p.thumbnail} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '8px' }} />
+                  </div>
+                  <div style={{ padding: '0.85rem 1rem' }}>
+                    <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8C8680', marginBottom: '0.25rem' }}>{p.category}</p>
+                    <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 600, color: '#0D0B08', lineHeight: 1.3, marginBottom: '0.4rem' }}>{p.name}</p>
+                    <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 600, color: '#C9A84C' }}>₹{(p.salePrice || p.price)?.toLocaleString('en-IN')}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Reviews Section */}
         <div className="border-t-4 border-amber-200 pt-12">

@@ -414,13 +414,29 @@ const CREATE_ORDERS_SQL = `
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
+const CREATE_NOTIFICATIONS_SQL = `
+  CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type VARCHAR(40) DEFAULT 'info',
+    title VARCHAR(255),
+    message TEXT,
+    orderId VARCHAR(60),
+    isRead TINYINT(1) DEFAULT 0,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
+
 async function setupSchemaAndSeed() {
   await query(CREATE_TABLE_SQL);
   await query(CREATE_COUPONS_SQL);
   await query(CREATE_ORDERS_SQL);
   await query(CREATE_RETURNS_SQL);
+  await query(CREATE_NOTIFICATIONS_SQL);
   // Add paymentMethod column if it doesn't exist (for existing deployments)
   try { await query("ALTER TABLE orders ADD COLUMN paymentMethod VARCHAR(20) DEFAULT 'cod'"); } catch (_) {}
+  // Add trackingNumber column
+  try { await query("ALTER TABLE orders ADD COLUMN trackingNumber VARCHAR(120) DEFAULT NULL"); } catch (_) {}
+  // Add cancelMessage column
+  try { await query("ALTER TABLE orders ADD COLUMN cancelMessage TEXT DEFAULT NULL"); } catch (_) {}
 
   // Seed a couple of sample coupons if none exist
   try {
@@ -567,6 +583,14 @@ fastify.get('/api/products/new', async () => {
   const all = await getAllProducts();
   const n = all.filter(p => p.isNew);
   return { products: n.length ? n : all.slice(0, 4) };
+});
+
+// Related products by category
+fastify.get('/api/products/related', async (request) => {
+  const { category, excludeId } = request.query || {};
+  const all = await getAllProducts();
+  const related = all.filter(p => p.category === category && String(p.id) !== String(excludeId)).slice(0, 4);
+  return { products: related };
 });
 
 fastify.get('/api/products/categories/list', async () => {
@@ -738,6 +762,22 @@ fastify.get('/api/admin/orders', async (request, reply) => {
   } catch (e) { return { orders: [] }; }
 });
 
+// Public: track order by ID + email
+fastify.post('/api/orders/track', async (request, reply) => {
+  const { orderId, email } = request.body || {};
+  if (!orderId) { reply.code(400); return { error: 'Order ID required' }; }
+  if (!dbReady || !pool) { reply.code(503); return { error: 'Service unavailable' }; }
+  try {
+    const id = parseInt(String(orderId).replace(/^RAV/i, ''), 10);
+    if (isNaN(id)) return { found: false };
+    const rows = await query('SELECT * FROM orders WHERE id=?', [id]);
+    if (!rows.length) return { found: false };
+    const o = rows[0];
+    if (email && o.customerEmail && o.customerEmail.toLowerCase() !== String(email).toLowerCase()) return { found: false };
+    return { found: true, order: { ...o, items: (() => { try { return JSON.parse(o.items || '[]'); } catch(_) { return []; } })() } };
+  } catch (e) { reply.code(500); return { error: e.message }; }
+});
+
 // Public: place an order (checkout)
 fastify.post('/api/orders', async (request, reply) => {
   const b = request.body || {};
@@ -745,6 +785,11 @@ fastify.post('/api/orders', async (request, reply) => {
     try {
       const r = await query('INSERT INTO orders (customerName,customerEmail,customerPhone,address,items,subtotal,discount,total,couponCode,paymentMethod,status) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
         [b.customerName, b.customerEmail, b.customerPhone, b.address, JSON.stringify(b.items || []), b.subtotal || 0, b.discount || 0, b.total || 0, b.couponCode || null, b.paymentMethod || 'razorpay', 'pending']);
+      // Auto-create notification for new order
+      try {
+        await query("INSERT INTO notifications (type,title,message,orderId) VALUES (?,?,?,?)",
+          ['new_order', 'New Order Received', `Order #${r.insertId} from ${b.customerName} — ₹${b.total}`, String(r.insertId)]);
+      } catch(_) {}
       return { success: true, orderId: r.insertId };
     } catch (e) { reply.code(500); return { error: e.message }; }
   }
@@ -756,6 +801,69 @@ fastify.put('/api/admin/orders/:id/status', async (request, reply) => {
   if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
   try { await query('UPDATE orders SET status=? WHERE id=?', [(request.body || {}).status || 'pending', parseInt(request.params.id, 10)]); return { success: true }; }
   catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// Admin: update tracking number
+fastify.put('/api/admin/orders/:id/tracking', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
+  const { trackingNumber } = request.body || {};
+  try {
+    await query('UPDATE orders SET trackingNumber=? WHERE id=?', [trackingNumber || null, parseInt(request.params.id, 10)]);
+    return { success: true };
+  } catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// Admin: cancel order with customer message
+fastify.post('/api/admin/orders/:id/cancel', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
+  const { message } = request.body || {};
+  const id = parseInt(request.params.id, 10);
+  try {
+    await query('UPDATE orders SET status=?, cancelMessage=? WHERE id=?', ['cancelled', message || null, id]);
+    // Create notification
+    await query("INSERT INTO notifications (type,title,message,orderId) VALUES (?,?,?,?)",
+      ['order_cancelled', 'Order Cancelled', `Order #${id} has been cancelled. Message: ${message || 'No message'}`, String(id)]);
+    return { success: true };
+  } catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// Admin: notifications GET
+fastify.get('/api/admin/notifications', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) return { notifications: [], unreadCount: 0 };
+  try {
+    const rows = await query('SELECT * FROM notifications ORDER BY createdAt DESC LIMIT 50');
+    const unread = rows.filter(n => !n.isRead).length;
+    return { notifications: rows, unreadCount: unread };
+  } catch (e) { return { notifications: [], unreadCount: 0 }; }
+});
+
+// Admin: mark notification read
+fastify.put('/api/admin/notifications/:id/read', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) return { success: false };
+  try { await query('UPDATE notifications SET isRead=1 WHERE id=?', [parseInt(request.params.id, 10)]); return { success: true }; }
+  catch (e) { return { success: false }; }
+});
+
+// Admin: mark all notifications read
+fastify.put('/api/admin/notifications/read-all', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) return { success: false };
+  try { await query('UPDATE notifications SET isRead=1'); return { success: true }; }
+  catch (e) { return { success: false }; }
+});
+
+// Admin: payments list
+fastify.get('/api/admin/payments', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) return { payments: [] };
+  try {
+    const rows = await query('SELECT id, customerName, customerEmail, customerPhone, paymentMethod, total, status, couponCode, discount, createdAt FROM orders ORDER BY id DESC LIMIT 200');
+    return { payments: rows };
+  } catch (e) { return { payments: [] }; }
 });
 
 // Admin: analytics / chart data
@@ -803,6 +911,11 @@ fastify.post('/api/returns', async (request, reply) => {
     try {
       const r = await query('INSERT INTO returns (orderId,customerName,customerEmail,customerPhone,reason,description,status) VALUES (?,?,?,?,?,?,?)',
         [b.orderId, b.customerName, b.customerEmail, b.customerPhone, b.reason, b.description || '', 'pending']);
+      // Notify admin of return request
+      try {
+        await query("INSERT INTO notifications (type,title,message,orderId) VALUES (?,?,?,?)",
+          ['return_request', 'Return Request Received', `Return request for Order #${b.orderId} from ${b.customerName} — Reason: ${b.reason}`, String(b.orderId)]);
+      } catch(_) {}
       return { success: true, returnId: r.insertId };
     } catch (e) { reply.code(500); return { error: e.message }; }
   }

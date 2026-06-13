@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { FiSearch, FiHeart, FiShoppingBag, FiMenu, FiX, FiPhone, FiMail } from 'react-icons/fi';
+import { FiSearch, FiHeart, FiShoppingBag, FiMenu, FiX, FiPhone, FiMail, FiHome } from 'react-icons/fi';
 
 const NAV = [
+  { label: 'Home',       to: '/'         },
   { label: 'About Us',   to: '/about'    },
   { label: 'Shop',       to: '/products' },
   { label: 'Contact',    to: '/contact'  },
@@ -130,6 +131,9 @@ export default function Header() {
 
           {/* Right — icons */}
           <div className="hdr-icons">
+            <Link to="/" aria-label="Home" style={iconStyle} onMouseEnter={iconHover} onMouseLeave={iconLeave}>
+              <FiHome size={18} />
+            </Link>
             <button aria-label="Search" className="hdr-search" style={iconStyle} onMouseEnter={iconHover} onMouseLeave={iconLeave}
               onClick={() => setSearchOpen(o => !o)}>
               {searchOpen ? <FiX size={19} /> : <FiSearch size={19} />}
@@ -208,7 +212,8 @@ export default function Header() {
           <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 600, letterSpacing: '0.5em', color: GOLD, paddingLeft: '0.5em' }}>RAVARI</span>
           <div style={{ height: '1px', width: '40px', background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
           {NAV.map(item => (
-            <Link key={item.label} to={item.to} style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.9rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.88)', textDecoration: 'none' }}>
+            <Link key={item.label} to={item.to}
+              style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.9rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: location.pathname === item.to ? GOLD : 'rgba(255,255,255,0.88)', textDecoration: 'none' }}>
               {item.label}
             </Link>
           ))}
