@@ -47,6 +47,9 @@ const NAV_ITEMS = [
   { key: 'customers', label: 'Customers',  Icon: FiUsers },
   { key: 'products',  label: 'Products',   Icon: FiPackage },
   { key: 'coupons',   label: 'Coupons',    Icon: FiTag },
+  { key: 'returns',   label: 'Returns',    Icon: FiAlertCircle },
+  { key: 'invoices',  label: 'Invoices',   Icon: FiCreditCard },
+  { key: 'charts',    label: 'Analytics',  Icon: FiRefreshCw },
 ];
 
 function Sidebar({ active, setActive, onLogout, mobileOpen, setMobileOpen }) {
@@ -151,6 +154,17 @@ export default function AdminDashboard() {
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [orderFilter, setOrderFilter]     = useState('');
 
+  /* analytics */
+  const [analytics, setAnalytics] = useState(null);
+
+  /* returns */
+  const [returns, setReturns]           = useState([]);
+  const [returnNote, setReturnNote]     = useState({});
+
+  /* invoice */
+  const [invoiceOrder, setInvoiceOrder] = useState(null);
+  const [invoicePrint, setInvoicePrint] = useState(false);
+
   /* coupon form */
   const emptyCoupon = { code: '', type: 'percent', value: '', minOrder: '', expiresAt: '', active: true };
   const [couponForm, setCouponForm] = useState(emptyCoupon);
@@ -168,12 +182,14 @@ export default function AdminDashboard() {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [dash, ord, cust, prod, coup] = await Promise.all([
+      const [dash, ord, cust, prod, coup, anal, ret] = await Promise.all([
         apiFetch('/admin/dashboard'),
         apiFetch('/admin/orders'),
         apiFetch('/admin/customers'),
         fetch('/api/products?limit=100').then(r => r.json()),
         apiFetch('/coupons'),
+        apiFetch('/admin/analytics'),
+        apiFetch('/admin/returns'),
       ]);
       setDashStats(dash.stats || null);
       setRecentOrders(dash.recentOrders || []);
@@ -181,6 +197,8 @@ export default function AdminDashboard() {
       setCustomers(cust.customers || []);
       setProducts(prod.products || prod || []);
       setCoupons(coup.coupons || []);
+      setAnalytics(anal);
+      setReturns(ret.returns || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   }, []);
@@ -691,6 +709,336 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
+
+          {/* ══════════ RETURNS ══════════ */}
+          {active === 'returns' && (
+            <div>
+              <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE' }}>
+                <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #E8E4DE', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', fontWeight: 600 }}>Return Requests ({returns.length})</p>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {['pending','approved','rejected','completed'].map(s => (
+                      <span key={s} style={{ fontSize: '0.58rem', padding: '2px 8px', backgroundColor: s==='pending'?'#FEF3C7':s==='approved'?'#D1FAE5':s==='rejected'?'#FEE2E2':'#F3F4F6', color: s==='pending'?'#92400E':s==='approved'?'#065F46':s==='rejected'?'#991B1B':'#374151', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                        {s}: {returns.filter(r=>r.status===s).length}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead><tr><TH>#</TH><TH>Order ID</TH><TH>Customer</TH><TH>Reason</TH><TH>Description</TH><TH>Date</TH><TH>Status</TH><TH>Admin Note</TH><TH>Action</TH></tr></thead>
+                    <tbody>
+                      {returns.length === 0 && (
+                        <tr><td colSpan="9" style={{ textAlign: 'center', color: '#8C8680', padding: '3rem', fontFamily: 'Jost, sans-serif', fontSize: '0.8rem' }}>No return requests yet</td></tr>
+                      )}
+                      {returns.map(r => (
+                        <tr key={r.id} className="admin-row">
+                          <TD style={{ color: '#8C8680' }}>{r.id}</TD>
+                          <TD><span style={{ fontWeight: 600, color: '#1A0F0A' }}>#{r.orderId}</span></TD>
+                          <TD>
+                            <span style={{ fontWeight: 500 }}>{r.customerName || '—'}</span><br />
+                            <span style={{ fontSize: '0.62rem', color: '#8C8680' }}>{r.customerEmail}</span><br />
+                            {r.customerPhone && <span style={{ fontSize: '0.62rem', color: '#8C8680' }}>{r.customerPhone}</span>}
+                          </TD>
+                          <TD style={{ fontSize: '0.75rem', maxWidth: '160px' }}>{r.reason}</TD>
+                          <TD style={{ fontSize: '0.72rem', color: '#6B6560', maxWidth: '200px' }}>{r.description || '—'}</TD>
+                          <TD style={{ fontSize: '0.65rem', color: '#8C8680', whiteSpace: 'nowrap' }}>{r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN') : '—'}</TD>
+                          <TD>
+                            <select value={r.status} onChange={async e => {
+                              const status = e.target.value;
+                              await apiFetch(`/admin/returns/${r.id}/status`, { method: 'PUT', body: JSON.stringify({ status, adminNote: returnNote[r.id] || r.adminNote || '' }) });
+                              setReturns(prev => prev.map(x => x.id === r.id ? { ...x, status } : x));
+                            }} style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', padding: '0.3rem 0.5rem', border: '1px solid #D4CFC8', backgroundColor: '#FAFAF8', cursor: 'pointer', outline: 'none' }}>
+                              <option value="pending">Pending</option>
+                              <option value="approved">Approved</option>
+                              <option value="rejected">Rejected</option>
+                              <option value="completed">Completed</option>
+                            </select>
+                          </TD>
+                          <TD>
+                            <input type="text" placeholder="Add note…" value={returnNote[r.id] ?? (r.adminNote || '')}
+                              onChange={e => setReturnNote(prev => ({ ...prev, [r.id]: e.target.value }))}
+                              style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', padding: '0.3rem 0.5rem', border: '1px solid #D4CFC8', width: '130px', outline: 'none' }} />
+                          </TD>
+                          <TD>
+                            <button onClick={async () => {
+                              await apiFetch(`/admin/returns/${r.id}/status`, { method: 'PUT', body: JSON.stringify({ status: r.status, adminNote: returnNote[r.id] || r.adminNote || '' }) });
+                              setReturns(prev => prev.map(x => x.id === r.id ? { ...x, adminNote: returnNote[r.id] || x.adminNote } : x));
+                            }} style={{ background: 'none', border: '1px solid #C9A84C', color: '#C9A84C', padding: '0.25rem 0.6rem', cursor: 'pointer', fontSize: '0.65rem', fontFamily: 'Jost, sans-serif' }}>Save</button>
+                          </TD>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ══════════ INVOICES ══════════ */}
+          {active === 'invoices' && (
+            <div>
+              <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE', padding: '1.5rem', marginBottom: '1.5rem' }}>
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', fontWeight: 600, marginBottom: '1rem' }}>Generate Invoice</p>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <select onChange={e => { const o = orders.find(x => String(x.id) === e.target.value); setInvoiceOrder(o || null); setInvoicePrint(false); }}
+                    style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.8rem', padding: '0.65rem 1rem', border: '1px solid #D4CFC8', backgroundColor: '#FAFAF8', cursor: 'pointer', outline: 'none', minWidth: '220px' }}>
+                    <option value="">Select an Order…</option>
+                    {orders.map(o => <option key={o.id} value={o.id}>#{o.id} — {o.customerName || '—'} — ₹{Number(o.total).toLocaleString('en-IN')}</option>)}
+                  </select>
+                  {invoiceOrder && (
+                    <button onClick={() => { setInvoicePrint(true); setTimeout(() => window.print(), 400); }}
+                      style={{ backgroundColor: GOLD, color: DARK, padding: '0.65rem 1.5rem', border: 'none', cursor: 'pointer', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 700 }}>
+                      Print / Save as PDF
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {invoiceOrder && (() => {
+                const o = invoiceOrder;
+                const invNum = `RAV-${new Date(o.createdAt || Date.now()).getFullYear()}-${String(o.id).padStart(4,'0')}`;
+                const items = Array.isArray(o.items) ? o.items : [];
+                const qrData = encodeURIComponent(`RAVARI Invoice ${invNum} | Order #${o.id} | ${o.customerName} | ₹${o.total}`);
+                return (
+                  <div id="invoice-print-area">
+                    <style>{`
+                      @media print {
+                        body > * { display: none !important; }
+                        #invoice-print-area { display: block !important; }
+                        #invoice-print-area .no-print { display: none !important; }
+                      }
+                    `}</style>
+
+                    {/* CUSTOMER COPY */}
+                    {['Customer Copy', 'Company Copy'].map((copyLabel, ci) => (
+                      <div key={ci} style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE', padding: '2.5rem', marginBottom: '1.5rem', maxWidth: '780px', fontFamily: 'Jost, sans-serif', position: 'relative' }}>
+                        {/* Watermark copy label */}
+                        <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: ci === 0 ? '#C9A84C' : '#8C8680', fontWeight: 700, border: `1px solid ${ci===0?'#C9A84C':'#D4CFC8'}`, padding: '3px 10px' }}>{copyLabel}</div>
+
+                        {/* Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '2px solid #0D0B08' }}>
+                          <div>
+                            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 600, letterSpacing: '0.3em', color: '#0D0B08' }}>RAVARI</div>
+                            <div style={{ fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#C9A84C', marginTop: '2px' }}>Handcrafted Leather Goods</div>
+                            <div style={{ fontSize: '0.68rem', color: '#6B6560', marginTop: '0.75rem', lineHeight: 1.7 }}>
+                              ravari.store@gmail.com<br />
+                              +91 90842 60869<br />
+                              ravari.in
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.58rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8C8680', marginBottom: '0.3rem' }}>Tax Invoice</div>
+                            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', fontWeight: 600, color: '#0D0B08' }}>{invNum}</div>
+                            <div style={{ fontSize: '0.68rem', color: '#6B6560', marginTop: '0.4rem' }}>
+                              Date: {o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}<br />
+                              Payment: <span style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>{o.paymentMethod || 'COD'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bill To */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '1.75rem' }}>
+                          <div>
+                            <div style={{ fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#8C8680', marginBottom: '0.5rem', fontWeight: 600 }}>Bill To</div>
+                            <div style={{ fontWeight: 600, color: '#0D0B08', fontSize: '0.88rem' }}>{o.customerName || '—'}</div>
+                            <div style={{ fontSize: '0.72rem', color: '#4A4642', marginTop: '0.3rem', lineHeight: 1.7 }}>
+                              {o.customerEmail && <div>{o.customerEmail}</div>}
+                              {o.customerPhone && <div>{o.customerPhone}</div>}
+                            </div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#8C8680', marginBottom: '0.5rem', fontWeight: 600 }}>Ship To</div>
+                            <div style={{ fontSize: '0.72rem', color: '#4A4642', lineHeight: 1.7 }}>{o.address || '—'}</div>
+                          </div>
+                        </div>
+
+                        {/* Items table */}
+                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1.5rem', fontSize: '0.78rem' }}>
+                          <thead>
+                            <tr style={{ backgroundColor: '#0D0B08', color: '#C9A84C' }}>
+                              <th style={{ padding: '0.6rem 0.75rem', textAlign: 'left', fontSize: '0.55rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>Item</th>
+                              <th style={{ padding: '0.6rem 0.75rem', textAlign: 'center', fontSize: '0.55rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>Qty</th>
+                              <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right', fontSize: '0.55rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>Unit Price</th>
+                              <th style={{ padding: '0.6rem 0.75rem', textAlign: 'right', fontSize: '0.55rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {items.length === 0 && (
+                              <tr><td colSpan="4" style={{ padding: '1rem', textAlign: 'center', color: '#8C8680', fontSize: '0.75rem' }}>No items</td></tr>
+                            )}
+                            {items.map((item, i) => (
+                              <tr key={i} style={{ borderBottom: '1px solid #F0EDE8' }}>
+                                <td style={{ padding: '0.65rem 0.75rem', color: '#2A2320' }}>
+                                  {item.name || item.productId}
+                                  {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
+                                    <span style={{ fontSize: '0.65rem', color: '#8C8680', marginLeft: '0.5rem' }}>({Object.entries(item.selectedOptions).map(([k,v])=>`${k}: ${v}`).join(', ')})</span>
+                                  )}
+                                </td>
+                                <td style={{ padding: '0.65rem 0.75rem', textAlign: 'center', color: '#4A4642' }}>{item.quantity || 1}</td>
+                                <td style={{ padding: '0.65rem 0.75rem', textAlign: 'right', color: '#4A4642' }}>₹{Number(item.price || 0).toLocaleString('en-IN')}</td>
+                                <td style={{ padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 600, color: '#0D0B08' }}>₹{(Number(item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+
+                        {/* Totals + QR */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '2rem' }}>
+                          {/* QR code */}
+                          <div style={{ textAlign: 'center' }}>
+                            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${qrData}`} alt="QR" style={{ width: '90px', height: '90px', display: 'block' }} />
+                            <div style={{ fontSize: '0.5rem', color: '#8C8680', marginTop: '0.3rem', letterSpacing: '0.08em' }}>Scan to verify</div>
+                          </div>
+
+                          {/* Totals */}
+                          <div style={{ minWidth: '220px' }}>
+                            {[
+                              { label: 'Subtotal', val: `₹${Number(o.subtotal||0).toLocaleString('en-IN')}` },
+                              ...(Number(o.discount)>0 ? [{ label: `Discount${o.couponCode?` (${o.couponCode})`:''}`, val: `−₹${Number(o.discount).toLocaleString('en-IN')}`, red: true }] : []),
+                              { label: 'Shipping', val: Number(o.subtotal||0)>=5000?'FREE':'₹200' },
+                            ].map(({ label, val, red }) => (
+                              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: red?'#DC2626':'#6B6560', padding: '0.25rem 0', borderBottom: '1px solid #F0EDE8' }}>
+                                <span>{label}</span><span>{val}</span>
+                              </div>
+                            ))}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#0D0B08', color: '#C9A84C', padding: '0.6rem 0.75rem', marginTop: '0.5rem', fontWeight: 700 }}>
+                              <span style={{ fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Total</span>
+                              <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem' }}>₹{Number(o.total).toLocaleString('en-IN')}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #E8E4DE', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ fontSize: '0.62rem', color: '#8C8680', lineHeight: 1.7 }}>
+                            <strong style={{ color: '#4A4642' }}>Return Policy:</strong> 7 days from delivery. Visit ravari.in/return-policy<br />
+                            This is a computer-generated invoice. No signature required.
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.55rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8C8680' }}>Status</div>
+                            <StatusBadge status={o.status} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* ══════════ CHARTS / ANALYTICS ══════════ */}
+          {active === 'charts' && (() => {
+            const daily = analytics?.daily || [];
+            const monthly = analytics?.monthly || [];
+            const statusBD = analytics?.statusBreakdown || [];
+            const topP = analytics?.topProducts || [];
+            const maxRev = Math.max(...daily.map(d => Number(d.revenue)), 1);
+            const maxMon = Math.max(...monthly.map(d => Number(d.revenue)), 1);
+
+            return (
+              <div>
+                {/* Revenue bar chart - daily */}
+                <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE', padding: '1.75rem', marginBottom: '1.5rem' }}>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', fontWeight: 600, marginBottom: '0.4rem' }}>Daily Revenue — Last 30 Days</p>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', color: '#8C8680', marginBottom: '1.5rem' }}>Total: ₹{daily.reduce((s,d)=>s+Number(d.revenue),0).toLocaleString('en-IN')}</p>
+                  {daily.length === 0 ? (
+                    <p style={{ color: '#8C8680', fontSize: '0.8rem', fontFamily: 'Jost, sans-serif', textAlign: 'center', padding: '2rem' }}>No order data yet</p>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '140px', overflowX: 'auto' }}>
+                      {daily.map((d, i) => {
+                        const h = Math.max((Number(d.revenue) / maxRev) * 120, 2);
+                        return (
+                          <div key={i} title={`${d.date}: ₹${Number(d.revenue).toLocaleString('en-IN')} (${d.orders} orders)`}
+                            style={{ flex: '0 0 auto', width: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'default' }}>
+                            <div style={{ width: '100%', backgroundColor: GOLD, height: `${h}px`, opacity: 0.85, transition: 'opacity 0.15s' }} onMouseEnter={e=>e.target.style.opacity=1} onMouseLeave={e=>e.target.style.opacity=0.85} />
+                            <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.45rem', color: '#8C8680', transform: 'rotate(-45deg)', whiteSpace: 'nowrap', transformOrigin: 'top left', marginLeft: '8px' }}>
+                              {new Date(d.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Monthly revenue */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                  <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE', padding: '1.75rem' }}>
+                    <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', fontWeight: 600, marginBottom: '1.25rem' }}>Monthly Revenue</p>
+                    {monthly.length === 0 ? <p style={{ color: '#8C8680', fontSize: '0.8rem', fontFamily: 'Jost, sans-serif' }}>No data yet</p> : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {monthly.map((m, i) => (
+                          <div key={i}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                              <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', color: '#4A4642' }}>{m.month}</span>
+                              <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '0.95rem', fontWeight: 600, color: '#1A0F0A' }}>₹{Number(m.revenue).toLocaleString('en-IN')}</span>
+                            </div>
+                            <div style={{ height: '6px', backgroundColor: '#F0EDE8', width: '100%' }}>
+                              <div style={{ height: '100%', backgroundColor: GOLD, width: `${(Number(m.revenue)/maxMon)*100}%`, transition: 'width 0.5s' }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Orders by status */}
+                  <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE', padding: '1.75rem' }}>
+                    <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', fontWeight: 600, marginBottom: '1.25rem' }}>Orders by Status</p>
+                    {statusBD.length === 0 ? <p style={{ color: '#8C8680', fontSize: '0.8rem', fontFamily: 'Jost, sans-serif' }}>No data yet</p> : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {statusBD.map((s, i) => {
+                          const maxC = Math.max(...statusBD.map(x=>Number(x.count)),1);
+                          const cfg = STATUS_CFG[s.status] || { label: s.status, bg: '#F3F4F6', color: '#374151' };
+                          return (
+                            <div key={i}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                                <StatusBadge status={s.status} />
+                                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontWeight: 600, color: '#1A0F0A' }}>{s.count}</span>
+                              </div>
+                              <div style={{ height: '6px', backgroundColor: '#F0EDE8' }}>
+                                <div style={{ height: '100%', backgroundColor: cfg.bg, border: `1px solid ${cfg.color}20`, width: `${(Number(s.count)/maxC)*100}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Top products */}
+                <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE', padding: '1.75rem' }}>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', fontWeight: 600, marginBottom: '1.25rem' }}>Top Ordered Products</p>
+                  {topP.length === 0 ? (
+                    <p style={{ color: '#8C8680', fontSize: '0.8rem', fontFamily: 'Jost, sans-serif' }}>No order data yet — top products will appear here once orders are placed.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                      {topP.map((p, i) => {
+                        const maxC = Math.max(...topP.map(x=>x.count),1);
+                        return (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', fontWeight: 600, color: GOLD, width: '20px', textAlign: 'center', flexShrink: 0 }}>{i+1}</span>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                                <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', color: '#2A2320', fontWeight: 500 }}>{p.name.length>50?p.name.slice(0,50)+'…':p.name}</span>
+                                <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', color: '#6B6560' }}>{p.count} units</span>
+                              </div>
+                              <div style={{ height: '6px', backgroundColor: '#F0EDE8' }}>
+                                <div style={{ height: '100%', backgroundColor: GOLD, width: `${(p.count/maxC)*100}%`, opacity: 0.7 }} />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
         </div>
       </div>

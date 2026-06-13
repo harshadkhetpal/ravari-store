@@ -61,9 +61,10 @@ function Footer() {
             <h4 className="label" style={{ color: '#C9A84C', marginBottom: '1.5rem' }}>Company</h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
               {[
-                { to: '/about',   label: 'Our Story' },
-                { to: '/contact', label: 'Contact Us' },
-                { to: '/products', label: 'Collections' },
+                { to: '/about',         label: 'Our Story' },
+                { to: '/contact',       label: 'Contact Us' },
+                { to: '/return-policy', label: 'Return Policy' },
+                { to: '/products',      label: 'Collections' },
               ].map(({ to, label }) => (
                 <li key={label}>
                   <Link to={to} style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.05em', transition: 'color 0.2s' }}
@@ -112,6 +113,10 @@ function Footer() {
             &copy; {new Date().getFullYear()} RAVARI. All rights reserved. Handcrafted in India.
           </p>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
+            <Link to="/return-policy"
+              style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.08em', transition: 'color 0.2s', textDecoration: 'none' }}
+              onMouseEnter={e => e.currentTarget.style.color='rgba(255,255,255,0.6)'}
+              onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.25)'}>Return Policy</Link>
             {['Privacy Policy', 'Terms of Service'].map(label => (
               <a key={label} href="#"
                 style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.08em', transition: 'color 0.2s' }}

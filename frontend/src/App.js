@@ -14,6 +14,7 @@ import Account from './pages/Account';
 import Wishlist from './pages/Wishlist';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import ReturnPolicy from './pages/ReturnPolicy';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -35,6 +36,7 @@ function MainLayout() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/return-policy" element={<ReturnPolicy />} />
         </Routes>
       </main>
       <Footer />

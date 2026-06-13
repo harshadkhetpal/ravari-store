@@ -383,6 +383,20 @@ const CREATE_COUPONS_SQL = `
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
 
+const CREATE_RETURNS_SQL = `
+  CREATE TABLE IF NOT EXISTS returns (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    orderId VARCHAR(60),
+    customerName VARCHAR(255),
+    customerEmail VARCHAR(255),
+    customerPhone VARCHAR(60),
+    reason VARCHAR(100),
+    description TEXT,
+    status VARCHAR(40) DEFAULT 'pending',
+    adminNote TEXT,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
+
 const CREATE_ORDERS_SQL = `
   CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -404,6 +418,7 @@ async function setupSchemaAndSeed() {
   await query(CREATE_TABLE_SQL);
   await query(CREATE_COUPONS_SQL);
   await query(CREATE_ORDERS_SQL);
+  await query(CREATE_RETURNS_SQL);
   // Add paymentMethod column if it doesn't exist (for existing deployments)
   try { await query("ALTER TABLE orders ADD COLUMN paymentMethod VARCHAR(20) DEFAULT 'cod'"); } catch (_) {}
 
@@ -741,6 +756,79 @@ fastify.put('/api/admin/orders/:id/status', async (request, reply) => {
   if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
   try { await query('UPDATE orders SET status=? WHERE id=?', [(request.body || {}).status || 'pending', parseInt(request.params.id, 10)]); return { success: true }; }
   catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// Admin: analytics / chart data
+fastify.get('/api/admin/analytics', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) return { daily: [], monthly: [], statusBreakdown: [] };
+  try {
+    const daily = await query(`
+      SELECT DATE(createdAt) as date, COUNT(*) as orders, COALESCE(SUM(total),0) as revenue
+      FROM orders WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      GROUP BY DATE(createdAt) ORDER BY date ASC`);
+    const monthly = await query(`
+      SELECT DATE_FORMAT(createdAt,'%b %Y') as month, COUNT(*) as orders, COALESCE(SUM(total),0) as revenue
+      FROM orders WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+      GROUP BY DATE_FORMAT(createdAt,'%b %Y'), YEAR(createdAt), MONTH(createdAt)
+      ORDER BY YEAR(createdAt), MONTH(createdAt) ASC`);
+    const statusBreakdown = await query(`
+      SELECT status, COUNT(*) as count, COALESCE(SUM(total),0) as revenue
+      FROM orders GROUP BY status ORDER BY count DESC`);
+    const topProducts = await query(`
+      SELECT items FROM orders WHERE items IS NOT NULL AND items != '[]' ORDER BY id DESC LIMIT 100`);
+    // Aggregate top products from JSON
+    const productCount = {};
+    topProducts.forEach(row => {
+      try {
+        const items = JSON.parse(row.items || '[]');
+        items.forEach(i => {
+          const key = i.name || i.productId;
+          if (key) productCount[key] = (productCount[key] || 0) + (i.quantity || 1);
+        });
+      } catch(_) {}
+    });
+    const topProductsList = Object.entries(productCount)
+      .sort((a, b) => b[1] - a[1]).slice(0, 5)
+      .map(([name, count]) => ({ name, count }));
+    return { daily, monthly, statusBreakdown, topProducts: topProductsList };
+  } catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// Public: submit return request
+fastify.post('/api/returns', async (request, reply) => {
+  const b = request.body || {};
+  if (!b.orderId || !b.reason) { reply.code(400); return { error: 'Order ID and reason required' }; }
+  if (dbReady && pool) {
+    try {
+      const r = await query('INSERT INTO returns (orderId,customerName,customerEmail,customerPhone,reason,description,status) VALUES (?,?,?,?,?,?,?)',
+        [b.orderId, b.customerName, b.customerEmail, b.customerPhone, b.reason, b.description || '', 'pending']);
+      return { success: true, returnId: r.insertId };
+    } catch (e) { reply.code(500); return { error: e.message }; }
+  }
+  return { success: true, returnId: null };
+});
+
+// Admin: get all returns
+fastify.get('/api/admin/returns', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) return { returns: [] };
+  try {
+    const rows = await query('SELECT * FROM returns ORDER BY id DESC');
+    return { returns: rows };
+  } catch (e) { return { returns: [] }; }
+});
+
+// Admin: update return status
+fastify.put('/api/admin/returns/:id/status', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  const b = request.body || {};
+  if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
+  try {
+    await query('UPDATE returns SET status=?, adminNote=? WHERE id=?',
+      [b.status || 'pending', b.adminNote || '', parseInt(request.params.id, 10)]);
+    return { success: true };
+  } catch (e) { reply.code(500); return { error: e.message }; }
 });
 
 // ---------------------------------------------------------------------------
