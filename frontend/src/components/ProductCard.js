@@ -29,7 +29,7 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
             src={product.thumbnail || product.images?.[0]?.url || '/placeholder.jpg'}
             alt={product.name}
             className="w-full h-full transition-transform duration-700"
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'contain', padding: '8px' }}
             style={{ transform: hovered ? 'scale(1.06)' : 'scale(1)' }}
             onLoad={() => setImageLoading(false)}
             onError={e => {
