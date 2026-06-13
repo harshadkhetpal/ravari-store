@@ -395,6 +395,7 @@ const CREATE_ORDERS_SQL = `
     discount DECIMAL(10,2) DEFAULT 0,
     total DECIMAL(10,2) DEFAULT 0,
     couponCode VARCHAR(60),
+    paymentMethod VARCHAR(20) DEFAULT 'cod',
     status VARCHAR(40) DEFAULT 'pending',
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`;
@@ -403,6 +404,9 @@ async function setupSchemaAndSeed() {
   await query(CREATE_TABLE_SQL);
   await query(CREATE_COUPONS_SQL);
   await query(CREATE_ORDERS_SQL);
+  // Add paymentMethod column if it doesn't exist (for existing deployments)
+  try { await query("ALTER TABLE orders ADD COLUMN paymentMethod VARCHAR(20) DEFAULT 'cod'"); } catch (_) {}
+
   // Seed a couple of sample coupons if none exist
   try {
     const cc = await query('SELECT COUNT(*) AS c FROM coupons');
@@ -724,8 +728,8 @@ fastify.post('/api/orders', async (request, reply) => {
   const b = request.body || {};
   if (dbReady && pool) {
     try {
-      const r = await query('INSERT INTO orders (customerName,customerEmail,customerPhone,address,items,subtotal,discount,total,couponCode,status) VALUES (?,?,?,?,?,?,?,?,?,?)',
-        [b.customerName, b.customerEmail, b.customerPhone, b.address, JSON.stringify(b.items || []), b.subtotal || 0, b.discount || 0, b.total || 0, b.couponCode || null, 'pending']);
+      const r = await query('INSERT INTO orders (customerName,customerEmail,customerPhone,address,items,subtotal,discount,total,couponCode,paymentMethod,status) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+        [b.customerName, b.customerEmail, b.customerPhone, b.address, JSON.stringify(b.items || []), b.subtotal || 0, b.discount || 0, b.total || 0, b.couponCode || null, b.paymentMethod || 'razorpay', 'pending']);
       return { success: true, orderId: r.insertId };
     } catch (e) { reply.code(500); return { error: e.message }; }
   }
@@ -780,14 +784,68 @@ fastify.post('/api/orders/cod', async (request, reply) => {
   if (dbReady && pool) {
     try {
       const r = await query(
-        'INSERT INTO orders (customerName,customerEmail,customerPhone,address,items,subtotal,discount,total,couponCode,status) VALUES (?,?,?,?,?,?,?,?,?,?)',
+        'INSERT INTO orders (customerName,customerEmail,customerPhone,address,items,subtotal,discount,total,couponCode,paymentMethod,status) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
         [b.customerName, b.customerEmail, b.customerPhone, b.address,
          JSON.stringify(b.items || []), b.subtotal || 0, b.discount || 0, b.total || 0,
-         b.couponCode || null, 'cod_pending']);
+         b.couponCode || null, 'cod', 'cod_pending']);
       return { success: true, orderId: `RAV${r.insertId}`, method: 'cod' };
     } catch (e) { reply.code(500); return { error: e.message }; }
   }
   return { success: true, orderId: `RAV${Date.now()}`, method: 'cod' };
+});
+
+// Admin: dashboard stats
+fastify.get('/api/admin/dashboard', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) return { stats: { orders: 0, revenue: 0, customers: 0, products: 0 }, recentOrders: [] };
+  try {
+    const totals = await query('SELECT COUNT(*) as total, COALESCE(SUM(total),0) as revenue FROM orders');
+    const custQ = await query("SELECT COUNT(DISTINCT customerEmail) as total FROM orders WHERE customerEmail IS NOT NULL AND customerEmail != ''");
+    const statusQ = await query('SELECT status, COUNT(*) as cnt FROM orders GROUP BY status');
+    const products = await getAllProducts();
+    const recent = await query('SELECT * FROM orders ORDER BY id DESC LIMIT 10');
+    const statusMap = {};
+    statusQ.forEach(s => { statusMap[s.status] = Number(s.cnt); });
+    return {
+      stats: {
+        orders: Number(totals[0].total) || 0,
+        revenue: Number(totals[0].revenue) || 0,
+        customers: Number(custQ[0].total) || 0,
+        products: products.length,
+        statusMap,
+      },
+      recentOrders: recent.map(o => ({ ...o, items: (() => { try { return JSON.parse(o.items || '[]'); } catch(_) { return []; } })() })),
+    };
+  } catch (e) { reply.code(500); return { error: e.message }; }
+});
+
+// Admin: customers (aggregated from orders)
+fastify.get('/api/admin/customers', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) return { customers: [] };
+  try {
+    const rows = await query(`
+      SELECT customerEmail as email, customerName as name, customerPhone as phone,
+        COUNT(*) as orderCount, COALESCE(SUM(total),0) as totalSpent, MAX(createdAt) as lastOrder
+      FROM orders
+      WHERE customerEmail IS NOT NULL AND customerEmail != ''
+      GROUP BY customerEmail, customerName, customerPhone
+      ORDER BY totalSpent DESC
+    `);
+    return { customers: rows };
+  } catch (e) { return { customers: [] }; }
+});
+
+// Admin: single order detail
+fastify.get('/api/admin/orders/:id', async (request, reply) => {
+  if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
+  if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
+  try {
+    const rows = await query('SELECT * FROM orders WHERE id=?', [parseInt(request.params.id, 10)]);
+    if (!rows.length) { reply.code(404); return { error: 'Order not found' }; }
+    const o = rows[0];
+    return { order: { ...o, items: (() => { try { return JSON.parse(o.items || '[]'); } catch(_) { return []; } })() } };
+  } catch (e) { reply.code(500); return { error: e.message }; }
 });
 
 // Kill-switch service worker: neutralizes any stale SW from the old site
