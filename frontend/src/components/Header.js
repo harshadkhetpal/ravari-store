@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { FiSearch, FiHeart, FiShoppingBag, FiMenu, FiX, FiPhone, FiMail } from 'react-icons/fi';
 
@@ -15,12 +15,22 @@ const NAV_BG = '#1A1510';
 const BORDER = 'rgba(201,168,76,0.18)';
 
 export default function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen]     = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef(null);
   const location  = useLocation();
+  const navigate  = useNavigate();
   const cartItems = useSelector(s => s.cart?.items || []);
   const cartCount = cartItems.reduce((n, i) => n + (i.quantity || 1), 0);
 
-  useEffect(() => { setMenuOpen(false); }, [location]);
+  useEffect(() => { setMenuOpen(false); setSearchOpen(false); setSearchQuery(''); }, [location]);
+  useEffect(() => { if (searchOpen && searchRef.current) searchRef.current.focus(); }, [searchOpen]);
+
+  const doSearch = () => {
+    const q = searchQuery.trim();
+    if (q) { navigate(`/products?search=${encodeURIComponent(q)}`); setSearchOpen(false); setSearchQuery(''); }
+  };
 
   const iconStyle = { color: 'rgba(255,255,255,0.88)', display: 'flex', transition: 'color 0.2s', cursor: 'pointer', background: 'none', border: 'none' };
   const iconHover = e => e.currentTarget.style.color = GOLD;
@@ -120,8 +130,9 @@ export default function Header() {
 
           {/* Right — icons */}
           <div className="hdr-icons">
-            <button aria-label="Search" className="hdr-search" style={iconStyle} onMouseEnter={iconHover} onMouseLeave={iconLeave}>
-              <FiSearch size={19} />
+            <button aria-label="Search" className="hdr-search" style={iconStyle} onMouseEnter={iconHover} onMouseLeave={iconLeave}
+              onClick={() => setSearchOpen(o => !o)}>
+              {searchOpen ? <FiX size={19} /> : <FiSearch size={19} />}
             </button>
             <Link to="/wishlist" aria-label="Wishlist" className="hdr-wish" style={iconStyle} onMouseEnter={iconHover} onMouseLeave={iconLeave}>
               <FiHeart size={19} />
@@ -159,6 +170,34 @@ export default function Header() {
           ))}
         </div>
       </div>
+
+      {/* ── SEARCH OVERLAY ─────────────────────────────── */}
+      {searchOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(13,11,8,0.92)', zIndex: 400, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '10vh' }}
+          onClick={e => { if (e.target === e.currentTarget) setSearchOpen(false); }}>
+          <div style={{ width: '100%', maxWidth: '600px', padding: '0 1.5rem' }}>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: '1.5rem' }}>Search RAVARI</p>
+            <div style={{ display: 'flex', border: `1px solid ${GOLD}`, backgroundColor: 'rgba(255,255,255,0.05)' }}>
+              <input
+                ref={searchRef}
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && doSearch()}
+                placeholder="Search bags, wallets, accessories…"
+                style={{ flex: 1, padding: '1rem 1.25rem', background: 'none', border: 'none', fontFamily: 'Jost, sans-serif', fontSize: '1rem', color: '#FFFFFF', outline: 'none' }}
+              />
+              <button onClick={doSearch}
+                style={{ padding: '0 1.25rem', background: 'none', border: 'none', cursor: 'pointer', color: GOLD }}>
+                <FiSearch size={20} />
+              </button>
+            </div>
+            <p style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.25)', textAlign: 'center', marginTop: '0.75rem', fontFamily: 'Jost, sans-serif' }}>
+              Press Enter to search · Esc to close
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── MOBILE FULLSCREEN MENU ──────────────────────── */}
       {menuOpen && (

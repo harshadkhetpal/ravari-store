@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import ProductCard from '../components/ProductCard';
 import { useDispatch } from 'react-redux';
@@ -16,8 +16,15 @@ function Products() {
   const [filters,    setFilters]    = useState({ category: '', sort: 'newest', search: '' });
   const [loading,    setLoading]    = useState(true);
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => { trackPageView('/products', 'Shop — RAVARI'); }, []);
+
+  useEffect(() => {
+    const urlSearch   = searchParams.get('search')   || '';
+    const urlCategory = searchParams.get('category') || '';
+    setFilters(f => ({ ...f, search: urlSearch, category: urlCategory }));
+  }, [searchParams]);
 
   useEffect(() => {
     setLoading(true);
