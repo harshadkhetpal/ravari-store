@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiHeart, FiShoppingCart } from 'react-icons/fi';
+import { FiShoppingCart } from 'react-icons/fi';
 
 function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
   const [imageLoading, setImageLoading] = useState(true);
@@ -49,27 +49,31 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
               </span>
             )}
           </div>
-          {/* Wishlist button */}
-          <button
-            onClick={e => { e.preventDefault(); onToggleWishlist(product._id); }}
-            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center transition-opacity duration-200"
-            style={{ backgroundColor: 'rgba(255,255,255,0.9)', opacity: hovered || isInWishlist ? 1 : 0 }}
-            aria-label="Add to wishlist"
-          >
-            <FiHeart size={15} style={{ color: isInWishlist ? '#6B3A2A' : '#1C1C1C', fill: isInWishlist ? '#6B3A2A' : 'none' }} />
-          </button>
         </div>
       </Link>
 
       {/* Info */}
       <div className="pt-4 pb-5 px-3">
         <p className="section-eyebrow mb-1" style={{ color: '#C9A84C' }}>{product.category}</p>
-        <Link to={`/products/${product.slug}`}>
-          <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1rem', fontWeight: 500, color: '#1A0F0A', marginBottom: '0.5rem', lineHeight: 1.3 }}
-            className="line-clamp-2 hover:opacity-70 transition-opacity">
-            {product.name}
-          </h3>
-        </Link>
+        {/* Product name row with wishlist icon */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          <Link to={`/products/${product.slug}`} style={{ flex: 1, textDecoration: 'none' }}>
+            <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1rem', fontWeight: 500, color: '#1A0F0A', lineHeight: 1.3 }}
+              className="line-clamp-2 hover:opacity-70 transition-opacity">
+              {product.name}
+            </h3>
+          </Link>
+          <button
+            onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleWishlist && onToggleWishlist(product._id); }}
+            aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            title={isInWishlist ? 'Remove from wishlist' : 'Save to wishlist'}
+            style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0 0 4px', display: 'flex', alignItems: 'center' }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill={isInWishlist ? '#C9A84C' : 'none'} stroke={isInWishlist ? '#C9A84C' : '#B0A090'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
+        </div>
 
         {product.rating > 0 && (
           <div className="flex items-center gap-1.5 mb-3">
