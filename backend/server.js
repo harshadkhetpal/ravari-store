@@ -258,6 +258,23 @@ const PRODUCTS = [
     ],
     stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
+  {
+    id: 10, _id: '10',
+    name: 'RAVARI Premium Leather Key Holder with Zipper Pouch & Metal Keychain | Compact Key Organizer for Car & Home Keys',
+    slug: 'ravari-premium-leather-key-holder',
+    price: 599, salePrice: 499, category: 'Accessories',
+    thumbnail: '/static/products/key-holder/img1.jpg',
+    images: [
+      img('/static/products/key-holder/img1.jpg', 'RAVARI Key Holder — Front'),
+      img('/static/products/key-holder/img2.jpg', 'RAVARI Key Holder — Open'),
+      img('/static/products/key-holder/img3.jpg', 'RAVARI Key Holder — Detail'),
+      img('/static/products/key-holder/img4.jpg', 'RAVARI Key Holder — Keychain'),
+      img('/static/products/key-holder/img5.jpg', 'RAVARI Key Holder — Lifestyle'),
+    ],
+    description: 'Compact leather key holder with zippered pouch and sturdy metal keychain. Keeps car and home keys organized, scratch-free and always within reach. Premium leather finish with reinforced stitching.',
+    material: ['Genuine Leather', 'Metal Keychain', 'YKK Zipper'],
+    stock: 50, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
