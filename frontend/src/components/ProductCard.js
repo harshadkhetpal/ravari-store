@@ -36,6 +36,33 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
               setImageLoading(false);
             }}
           />
+          {/* Wishlist button — always visible */}
+          <button
+            onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleWishlist && onToggleWishlist(product._id); }}
+            aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            style={{
+              position: 'absolute', top: '10px', right: '10px',
+              width: '34px', height: '34px',
+              borderRadius: '50%',
+              backgroundColor: isInWishlist ? '#C9A84C' : 'rgba(255,255,255,0.95)',
+              border: isInWishlist ? '1.5px solid #C9A84C' : '1.5px solid #E0D8CE',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'background 0.2s, border-color 0.2s, transform 0.15s',
+              zIndex: 2,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.12)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24"
+              fill={isInWishlist ? '#fff' : 'none'}
+              stroke={isInWishlist ? '#fff' : '#C9A84C'}
+              strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
+
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             {product.isNew && (
@@ -55,25 +82,12 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
       {/* Info */}
       <div className="pt-4 pb-5 px-3">
         <p className="section-eyebrow mb-1" style={{ color: '#C9A84C' }}>{product.category}</p>
-        {/* Product name row with wishlist icon */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <Link to={`/products/${product.slug}`} style={{ flex: 1, textDecoration: 'none' }}>
-            <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1rem', fontWeight: 500, color: '#1A0F0A', lineHeight: 1.3 }}
-              className="line-clamp-2 hover:opacity-70 transition-opacity">
-              {product.name}
-            </h3>
-          </Link>
-          <button
-            onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleWishlist && onToggleWishlist(product._id); }}
-            aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-            title={isInWishlist ? 'Remove from wishlist' : 'Save to wishlist'}
-            style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0 0 4px', display: 'flex', alignItems: 'center' }}
-          >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill={isInWishlist ? '#C9A84C' : 'none'} stroke={isInWishlist ? '#C9A84C' : '#B0A090'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </button>
-        </div>
+        <Link to={`/products/${product.slug}`}>
+          <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1rem', fontWeight: 500, color: '#1A0F0A', marginBottom: '0.5rem', lineHeight: 1.3 }}
+            className="line-clamp-2 hover:opacity-70 transition-opacity">
+            {product.name}
+          </h3>
+        </Link>
 
         {product.rating > 0 && (
           <div className="flex items-center gap-1.5 mb-3">
