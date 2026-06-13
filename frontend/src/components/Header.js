@@ -74,8 +74,12 @@ export default function Header() {
           .hdr-nav-bar { top: 60px !important; }
           .hdr-nav { display: none !important; }
         }
+        @media (max-width: 768px) {
+          .ravari-logo-icon { height: 28px !important; }
+        }
         @media (max-width: 480px) {
           .ravari-wordmark { font-size: 1.3rem !important; letter-spacing: 0.3em !important; padding-left: 0.3em !important; }
+          .ravari-logo-icon { height: 24px !important; }
         }
       `}</style>
 
@@ -112,13 +116,21 @@ export default function Header() {
           </div>
 
           {/* Center — RAVARI */}
-          <Link to="/" style={{ textAlign: 'center', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-            <span className="ravari-wordmark" style={{
-              fontFamily: 'Cormorant Garamond, Georgia, serif',
-              fontSize: '2.5rem', fontWeight: 600,
-              letterSpacing: '0.55em', color: GOLD,
-              lineHeight: 1, paddingLeft: '0.55em',
-            }}>RAVARI</span>
+          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ textAlign: 'center', textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}>
+              <img
+                src="/logo.png"
+                alt="RAVARI Logo"
+                className="ravari-logo-icon"
+                style={{ height: '38px', width: 'auto', opacity: 0.92, filter: 'drop-shadow(0 0 6px rgba(201,168,76,0.35))' }}
+              />
+              <span className="ravari-wordmark" style={{
+                fontFamily: 'Cormorant Garamond, Georgia, serif',
+                fontSize: '2.5rem', fontWeight: 600,
+                letterSpacing: '0.55em', color: GOLD,
+                lineHeight: 1, paddingLeft: '0.55em',
+              }}>RAVARI</span>
+            </div>
             <span className="ravari-tagline" style={{
               fontFamily: 'Jost, sans-serif', fontSize: '0.5rem',
               fontWeight: 500, letterSpacing: '0.2em',
