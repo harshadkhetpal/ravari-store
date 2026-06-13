@@ -15,6 +15,7 @@ function Products() {
   const [categories, setCategories] = useState([]);
   const [filters,    setFilters]    = useState({ category: '', sort: 'newest', search: '' });
   const [loading,    setLoading]    = useState(true);
+  const [wishlist,   setWishlist]   = useState(() => { try { return JSON.parse(localStorage.getItem('ravari_wishlist') || '[]'); } catch { return []; } });
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
 
@@ -45,6 +46,14 @@ function Products() {
     type: 'ADD_TO_CART',
     payload: { productId: p._id, name: p.name, price: p.salePrice || p.price, image: p.thumbnail, quantity: 1, selectedOptions: {} },
   });
+
+  const toggleWishlist = (id) => {
+    setWishlist(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+      localStorage.setItem('ravari_wishlist', JSON.stringify(next));
+      return next;
+    });
+  };
 
   const selectStyle = {
     appearance: 'none', WebkitAppearance: 'none',
@@ -110,7 +119,7 @@ function Products() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
             {products.map(p => (
-              <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} />
+              <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} onToggleWishlist={toggleWishlist} isInWishlist={wishlist.includes(p._id)} />
             ))}
           </div>
         )}

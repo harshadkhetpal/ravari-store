@@ -29,8 +29,7 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
             src={product.thumbnail || product.images?.[0]?.url || '/placeholder.jpg'}
             alt={product.name}
             className="w-full h-full transition-transform duration-700"
-            style={{ objectFit: 'contain', padding: '8px' }}
-            style={{ transform: hovered ? 'scale(1.06)' : 'scale(1)' }}
+            style={{ objectFit: 'contain', padding: '8px', transform: hovered ? 'scale(1.06)' : 'scale(1)', transition: 'transform 0.7s' }}
             onLoad={() => setImageLoading(false)}
             onError={e => {
               e.target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%23F4EFE6' width='400' height='400'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='18' fill='%236B3A2A'%3ERAVARI%3C/text%3E%3C/svg%3E`;

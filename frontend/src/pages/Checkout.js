@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FiArrowLeft, FiCheckCircle, FiTruck, FiCreditCard, FiSmartphone } from 'react-icons/fi';
 import api from '../api/axiosConfig';
@@ -24,9 +24,9 @@ export default function Checkout() {
   const { user }   = useSelector(s => s.auth || {});
   const dispatch   = useDispatch();
 
-  const [step,    setStep]    = useState(1); // 1=address, 2=payment, 3=success
+  const navigate = useNavigate();
+  const [step,    setStep]    = useState(1); // 1=address, 2=payment
   const [loading, setLoading] = useState(false);
-  const [orderId, setOrderId] = useState('');
   const [error,   setError]   = useState('');
   const [form, setForm] = useState({
     firstName: '', lastName: '', email: user?.email || '',
@@ -59,7 +59,7 @@ export default function Checkout() {
   async function payWithRazorpay() {
     setLoading(true); setError('');
     try {
-      const { data } = await api.post('/api/payment/razorpay/create', { amount: total, receipt: `rcpt_${Date.now()}` });
+      const { data } = await api.post('/payment/razorpay/create', { amount: total, receipt: `rcpt_${Date.now()}` });
       if (!data.order) throw new Error(data.error || 'Could not create payment order');
 
       const options = {
@@ -73,7 +73,7 @@ export default function Checkout() {
         theme:       { color: GOLD },
         handler: async (response) => {
           try {
-            const v = await api.post('/api/payment/razorpay/verify', response);
+            const v = await api.post('/payment/razorpay/verify', response);
             if (v.data.success) await placeOrder('razorpay', response.razorpay_payment_id);
             else { setError('Payment verification failed. Please contact support.'); setLoading(false); }
           } catch { setError('Verification error. Please contact support.'); setLoading(false); }
@@ -93,11 +93,10 @@ export default function Checkout() {
     setLoading(true); setError('');
     try {
       const payload = buildPayload('cod');
-      const { data } = await api.post('/api/orders/cod', payload);
+      const { data } = await api.post('/orders/cod', payload);
       if (data.success) {
-        setOrderId(data.orderId);
         dispatch({ type: 'CLEAR_CART' });
-        setStep(3);
+        navigate(`/order-confirmation/${data.orderId}`);
       } else throw new Error(data.error);
     } catch (e) {
       setError(e.response?.data?.error || e.message || 'Order placement failed');
@@ -119,10 +118,9 @@ export default function Checkout() {
 
   async function placeOrder(method, txnId) {
     const payload = { ...buildPayload(method), transactionId: txnId };
-    await api.post('/api/orders', payload);
-    setOrderId(`RAV${Date.now()}`);
+    const { data } = await api.post('/orders', payload);
     dispatch({ type: 'CLEAR_CART' });
-    setStep(3);
+    navigate(`/order-confirmation/RAV${data.orderId || Date.now()}`);
     setLoading(false);
   }
 
@@ -137,28 +135,6 @@ export default function Checkout() {
       <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
         <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', color: '#0D0D0D' }}>Your cart is empty</p>
         <Link to="/products" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: GOLD, borderBottom: `1px solid ${GOLD}`, paddingBottom: '2px' }}>
-          Continue Shopping
-        </Link>
-      </div>
-    );
-  }
-
-  /* ── Success ── */
-  if (step === 3) {
-    return (
-      <div style={{ minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', padding: '4rem 2rem', textAlign: 'center' }}>
-        <FiCheckCircle size={52} style={{ color: GOLD }} />
-        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 400, color: '#0D0D0D' }}>Order Placed!</h1>
-        <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', color: '#4A4642', maxWidth: '400px', lineHeight: 1.8 }}>
-          Thank you for your order. We'll send a confirmation to <strong>{form.email}</strong>.
-          {orderId && <><br />Order ID: <strong>{orderId}</strong></>}
-        </p>
-        {form.paymentMethod === 'cod' && (
-          <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', color: '#8C8680', background: '#F5F3EE', padding: '0.75rem 1.5rem' }}>
-            Cash on Delivery — please keep ₹{total.toLocaleString('en-IN')} ready at delivery.
-          </p>
-        )}
-        <Link to="/products" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#0D0D0D', backgroundColor: GOLD, padding: '0.9rem 2.5rem', border: `1px solid ${GOLD}`, marginTop: '0.5rem' }}>
           Continue Shopping
         </Link>
       </div>
