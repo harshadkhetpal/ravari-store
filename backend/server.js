@@ -183,6 +183,23 @@ const PRODUCTS = [
     ],
     stock: 18, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
   },
+  {
+    id: 8, _id: '8',
+    name: 'Ravari Ember Travel Folio Leather Wallet with Card Slots & Passport Organizer',
+    slug: 'ravari-ember-travel-folio-leather-wallet',
+    price: 1000, salePrice: 799, category: 'Wallets',
+    thumbnail: '/static/products/travel-folio/img1.png',
+    images: [
+      img('/static/products/travel-folio/img1.png', 'Ravari Ember Travel Folio — Front'),
+      img('/static/products/travel-folio/img2.png', 'Ravari Ember Travel Folio — Open View'),
+      img('/static/products/travel-folio/img3.png', 'Ravari Ember Travel Folio — Card Slots'),
+      img('/static/products/travel-folio/img4.png', 'Ravari Ember Travel Folio — Passport'),
+      img('/static/products/travel-folio/img5.png', 'Ravari Ember Travel Folio — Lifestyle'),
+    ],
+    description: 'Compact leather travel folio with dedicated card slots and passport organizer. Keep your cards, cash, boarding pass and passport organized in one sleek leather wallet. Perfect travel companion.',
+    material: ['Genuine Leather', 'Card Slots', 'Passport Sleeve'],
+    stock: 30, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
