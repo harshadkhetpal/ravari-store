@@ -76,6 +76,7 @@ const PRODUCTS = [
       img('/static/products/watch-box/12slot/img5.png', 'RAVARI Watch Box 12 Slot — Lifestyle'),
     ],
     description: 'Premium PU Leather Watch Box with crocodile-embossed dark brown texture. Soft velvet-lined individual slots keep every watch scratch-free and securely displayed. Available in 8, 12 and 20 slot variants.',
+    variantLabel: 'Slots',
     variants: [
       {
         id: '12slot', label: '12 Slots',
@@ -153,6 +154,7 @@ const PRODUCTS = [
     ],
     description: 'Stylish crossbody chest bag in premium brown leather with zipper pocket and adjustable strap. Compact yet spacious — perfect for travel and daily use.',
     material: ['Genuine Leather', 'YKK Zipper', 'Adjustable Strap'],
+    variantLabel: 'Style',
     variants: [
       {
         id: 'premium', label: 'Premium',
@@ -215,7 +217,20 @@ const PRODUCTS = [
     ],
     description: 'Elegant crocodile-textured designer tote with signature braided flap closure. Spacious interior with structured silhouette — the perfect statement handbag for every occasion.',
     material: ['Crocodile-Textured Leather', 'Braided Closure', 'Structured Body'],
+    variantLabel: 'Colour',
     variants: [
+      {
+        id: 'black', label: 'Black',
+        price: 2799, salePrice: 1599, stock: 20,
+        thumbnail: '/static/products/croc-handbag/img1.png',
+        images: [
+          img('/static/products/croc-handbag/img1.png', 'Croc Handbag Black — Front'),
+          img('/static/products/croc-handbag/img2.png', 'Croc Handbag Black — Side'),
+          img('/static/products/croc-handbag/img3.png', 'Croc Handbag Black — Detail'),
+          img('/static/products/croc-handbag/img4.png', 'Croc Handbag Black — Interior'),
+          img('/static/products/croc-handbag/img5.png', 'Croc Handbag Black — Lifestyle'),
+        ],
+      },
       {
         id: 'brown', label: 'Brown',
         price: 2799, salePrice: 1599, stock: 20,
@@ -363,6 +378,7 @@ function shapeRow(r) {
     isNew: !!r.isNew, isFeatured: !!r.isFeatured,
     rating: r.rating != null ? Number(r.rating) : 0, reviewCount: r.reviewCount || 0,
     variants: source?.variants || null,
+    variantLabel: source?.variantLabel || null,
     material: source?.material || null,
     dimensions: source?.dimensions || null,
   };

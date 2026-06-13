@@ -224,7 +224,7 @@ function ProductDetail() {
             {product.variants && product.variants.length > 0 && (
               <div className="mb-6">
                 <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', marginBottom: '0.75rem' }}>
-                  Select Slots
+                  Select {product.variantLabel || 'Option'}
                 </p>
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                   {product.variants.map(v => (
