@@ -275,6 +275,23 @@ const PRODUCTS = [
     material: ['Genuine Leather', 'Metal Keychain', 'YKK Zipper'],
     stock: 50, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
   },
+  {
+    id: 11, _id: '11',
+    name: 'RAVARI Premium Leather Desk Organizer with Pen Stand, Card Holder & Utility Tray | Office Table Organizer for Home & Workspace',
+    slug: 'ravari-premium-leather-desk-organizer',
+    price: 1299, salePrice: 1199, category: 'Accessories',
+    thumbnail: '/static/products/desk-organizer/img1.jpg',
+    images: [
+      img('/static/products/desk-organizer/img1.jpg', 'RAVARI Desk Organizer — Front'),
+      img('/static/products/desk-organizer/img2.jpg', 'RAVARI Desk Organizer — Pen Stand'),
+      img('/static/products/desk-organizer/img3.jpg', 'RAVARI Desk Organizer — Card Holder'),
+      img('/static/products/desk-organizer/img4.jpg', 'RAVARI Desk Organizer — Utility Tray'),
+      img('/static/products/desk-organizer/img5.jpg', 'RAVARI Desk Organizer — Lifestyle'),
+    ],
+    description: 'Premium leather desk organizer with dedicated pen stand, card holder and utility tray. Keeps your workspace clean, organized and elegant. Crafted from genuine leather with reinforced base.',
+    material: ['Genuine Leather', 'Reinforced Base', 'Metal Accents'],
+    stock: 30, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
