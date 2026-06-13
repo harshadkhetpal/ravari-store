@@ -215,6 +215,32 @@ const PRODUCTS = [
     ],
     description: 'Elegant crocodile-textured designer tote with signature braided flap closure. Spacious interior with structured silhouette — the perfect statement handbag for every occasion.',
     material: ['Crocodile-Textured Leather', 'Braided Closure', 'Structured Body'],
+    variants: [
+      {
+        id: 'brown', label: 'Classic Brown',
+        price: 2799, salePrice: 1599, stock: 20,
+        thumbnail: '/static/products/croc-handbag/brown/img1.jpg',
+        images: [
+          img('/static/products/croc-handbag/brown/img1.jpg', 'Croc Handbag Brown — Front'),
+          img('/static/products/croc-handbag/brown/img2.jpg', 'Croc Handbag Brown — Side'),
+          img('/static/products/croc-handbag/brown/img3.jpg', 'Croc Handbag Brown — Detail'),
+          img('/static/products/croc-handbag/brown/img4.jpg', 'Croc Handbag Brown — Interior'),
+          img('/static/products/croc-handbag/brown/img5.jpg', 'Croc Handbag Brown — Lifestyle'),
+        ],
+      },
+      {
+        id: 'green', label: 'Emerald Green',
+        price: 2799, salePrice: 1599, stock: 20,
+        thumbnail: '/static/products/croc-handbag/green/img1.png',
+        images: [
+          img('/static/products/croc-handbag/green/img1.png', 'Croc Handbag Green — Front'),
+          img('/static/products/croc-handbag/green/img2.png', 'Croc Handbag Green — Side'),
+          img('/static/products/croc-handbag/green/img3.png', 'Croc Handbag Green — Detail'),
+          img('/static/products/croc-handbag/green/img4.png', 'Croc Handbag Green — Interior'),
+          img('/static/products/croc-handbag/green/img5.png', 'Croc Handbag Green — Lifestyle'),
+        ],
+      },
+    ],
     stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
 ];
