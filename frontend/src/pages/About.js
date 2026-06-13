@@ -46,27 +46,68 @@ function About() {
       <div className="divider-gold" />
 
       {/* ── Story ─────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div>
-            <p className="section-eyebrow mb-5">The Beginning</p>
-            <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.5rem', fontWeight: 600, color: '#1A0F0A', marginBottom: '1.5rem' }}>Our Story</h2>
-            <p style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.1rem', color: '#6B6560', lineHeight: 1.9, marginBottom: '1rem' }}>
-              Founded in 2023, RAVARI emerged from a passion for creating exceptional leather goods that transcend trends. We are dedicated to the art of handcraftsmanship, combining traditional techniques with modern design sensibilities.
-            </p>
-            <p style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.1rem', color: '#6B6560', lineHeight: 1.9, marginBottom: '1rem' }}>
-              Every piece in our collection is meticulously handcrafted by skilled artisans who understand that luxury is not just about aesthetics — it's about durability, functionality, and the story behind each creation.
-            </p>
-            <p style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.1rem', color: '#6B6560', lineHeight: 1.9 }}>
-              Our commitment to excellence has earned us a loyal following of discerning customers who appreciate the finer things in life and understand the value of authentic craftsmanship.
-            </p>
+      <section style={{ backgroundColor: '#FFFFFF', padding: '6rem 0' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2.5rem' }}>
+
+          {/* Section heading — centered */}
+          <div style={{ textAlign: 'center', marginBottom: '4.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
+              <div style={{ width: '40px', height: '1px', backgroundColor: '#C9A84C' }} />
+              <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.35em', textTransform: 'uppercase', color: '#C9A84C' }}>The Beginning</span>
+              <div style={{ width: '40px', height: '1px', backgroundColor: '#C9A84C' }} />
+            </div>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2.2rem, 4vw, 3.5rem)', fontWeight: 400, color: '#1A0F0A', lineHeight: 1.15, marginBottom: '0' }}>
+              Our Story
+            </h2>
           </div>
 
-          <div style={{ backgroundColor: '#FAF7F2', padding: '4rem', textAlign: 'center' }}>
-            <p className="section-eyebrow mb-3" style={{ color: '#C9A84C' }}>Est. 2023</p>
-            <div style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '5rem', fontWeight: 700, color: '#1A0F0A', lineHeight: 1, marginBottom: '1rem' }}>2023</div>
-            <div style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#6B3A2A', marginBottom: '0.5rem' }}>Year of Excellence</div>
-            <div className="divider-gold w-12 mx-auto mt-4" />
+          {/* Two-column layout */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 1fr', gap: '4rem', alignItems: 'start' }}>
+
+            {/* Left — story text */}
+            <div>
+              <p style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.18rem', color: '#2A2320', lineHeight: 2, marginBottom: '1.5rem', fontStyle: 'italic', borderLeft: '3px solid #C9A84C', paddingLeft: '1.25rem' }}>
+                "Founded in 2023, RAVARI emerged from a singular passion — to create leather goods worthy of a lifetime."
+              </p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', fontWeight: 300, color: '#5A5450', lineHeight: 2, marginBottom: '1.25rem' }}>
+                We began with a clear belief: that quality and craft should never be sacrificed for speed or cost. Every RAVARI piece is built with intention — designed to age beautifully, carry your stories, and outlast trends.
+              </p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', fontWeight: 300, color: '#5A5450', lineHeight: 2, marginBottom: '1.25rem' }}>
+                Our artisans combine time-honoured techniques with modern sensibility — hand-selecting full-grain hides, reinforcing every seam, and finishing every edge by hand. No shortcuts. No compromises.
+              </p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', fontWeight: 300, color: '#5A5450', lineHeight: 2 }}>
+                Today, RAVARI stands as a commitment to those who value authenticity — who choose pieces that speak quietly of quality, rather than loudly of labels.
+              </p>
+            </div>
+
+            {/* Vertical divider */}
+            <div style={{ backgroundColor: 'rgba(201,168,76,0.2)', alignSelf: 'stretch' }} />
+
+            {/* Right — Est. card + craft pillars */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              {/* Est. card */}
+              <div style={{ backgroundColor: '#0D0B08', padding: '2.5rem', textAlign: 'center' }}>
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.52rem', fontWeight: 600, letterSpacing: '0.35em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '1rem' }}>Est.</p>
+                <div style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '5rem', fontWeight: 600, color: '#C9A84C', lineHeight: 1, marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>2023</div>
+                <div style={{ width: '32px', height: '1px', backgroundColor: '#C9A84C', margin: '1rem auto', opacity: 0.5 }} />
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>Lucknow · India</p>
+              </div>
+
+              {/* Craft pillars */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', backgroundColor: 'rgba(201,168,76,0.15)' }}>
+                {[
+                  { label: 'Full-Grain Leather',    desc: 'Only the finest hides' },
+                  { label: 'Hand-Stitched',         desc: 'Every seam, reinforced' },
+                  { label: '100% Handcrafted',      desc: 'No shortcuts, ever' },
+                  { label: '7-Day Returns',         desc: 'Buy with confidence' },
+                ].map(({ label, desc }) => (
+                  <div key={label} style={{ backgroundColor: '#FAF7F2', padding: '1.25rem', textAlign: 'center' }}>
+                    <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#1A0F0A', marginBottom: '0.35rem' }}>{label}</p>
+                    <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', color: '#8C8680', letterSpacing: '0.04em' }}>{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -101,10 +142,10 @@ function About() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { num: '12+',    label: 'Years in Business' },
-              { num: '10,000+', label: 'Happy Customers' },
-              { num: '100%',   label: 'Handcrafted' },
-              { num: '50+',    label: 'Artisan Partners' },
+              { num: '2023',   label: 'Year of Founding'  },
+              { num: '500+',   label: 'Happy Customers'   },
+              { num: '100%',   label: 'Handcrafted'       },
+              { num: '20+',    label: 'Unique Designs'    },
             ].map(({ num, label }) => (
               <div key={label}>
                 <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '3rem', fontWeight: 700, color: '#C9A84C', lineHeight: 1 }}>{num}</div>

@@ -318,20 +318,58 @@ export default function Home() {
       {/* ── BRAND STORY ──────────────────────────────────── */}
       <section style={{ backgroundColor: '#F5F3EE' }}>
         <div className="brand-story-grid" style={{ maxWidth: '1300px', margin: '0 auto' }}>
-          <div style={{ backgroundColor: '#E8E4DE', overflow: 'hidden', minHeight: '420px' }}>
+          <div style={{ backgroundColor: '#E8E4DE', overflow: 'hidden', minHeight: '520px', position: 'relative' }}>
             <img src="/static/videos/model2.webp" alt="RAVARI craftsmanship"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            {/* Subtle overlay label */}
+            <div style={{ position: 'absolute', bottom: '2rem', left: '2rem', background: 'rgba(13,11,8,0.65)', padding: '0.6rem 1.25rem', backdropFilter: 'blur(4px)' }}>
+              <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.55rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: '#C9A84C', fontWeight: 600 }}>Est. 2023 · Lucknow, India</span>
+            </div>
           </div>
-          <div className="brand-story-text" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4rem 3.5rem' }}>
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '1.25rem' }}>Our Story</p>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 400, color: '#0D0D0D', lineHeight: 1.15, marginBottom: '1.5rem' }}>
-              Craftsmanship<br />with Purpose
+
+          <div className="brand-story-text" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '4.5rem 4rem', backgroundColor: '#F5F3EE' }}>
+            {/* Eyebrow */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <div style={{ width: '28px', height: '1px', backgroundColor: '#C9A84C' }} />
+              <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C' }}>Our Story</span>
+            </div>
+
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(2rem, 3.5vw, 3.2rem)', fontWeight: 400, color: '#0D0B08', lineHeight: 1.12, marginBottom: '0.5rem' }}>
+              Craftsmanship
             </h2>
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.83rem', fontWeight: 300, color: '#4A4642', lineHeight: 1.9, marginBottom: '2rem' }}>
-              Ravari stands for craftsmanship with purpose. Made from durable, textured full-grain leather and finished with reinforced stitching, our products are designed to accompany every journey with confidence, character, and enduring style.
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(2rem, 3.5vw, 3.2rem)', fontWeight: 600, fontStyle: 'italic', color: '#C9A84C', lineHeight: 1.12, marginBottom: '2rem' }}>
+              with Purpose
+            </h2>
+
+            {/* Body paragraphs */}
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', fontWeight: 300, color: '#4A4642', lineHeight: 2, marginBottom: '1.1rem' }}>
+              RAVARI was born from a simple conviction — that everyday objects deserve extraordinary care. We craft leather goods that are not merely purchased, but chosen for life.
             </p>
-            <Link to="/about" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#0D0D0D', display: 'inline-flex', alignItems: 'center', gap: '0.55rem', borderBottom: '1px solid #0D0D0D', paddingBottom: '3px', width: 'fit-content' }}>
-              Read More <FiArrowRight size={12} />
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', fontWeight: 300, color: '#4A4642', lineHeight: 2, marginBottom: '2.5rem' }}>
+              Every stitch, every edge, every grain of leather reflects our obsession with quality. Full-grain hides, reinforced seams, and hand-finished details — made to accompany you with confidence and enduring style.
+            </p>
+
+            {/* Divider */}
+            <div style={{ width: '40px', height: '1px', backgroundColor: '#C9A84C', marginBottom: '2rem', opacity: 0.6 }} />
+
+            {/* Three pillars */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
+              {[
+                { num: '100%',  label: 'Full-Grain\nLeather' },
+                { num: 'Hand',  label: 'Stitched\n& Finished' },
+                { num: '∞',     label: 'Built to\nLast' },
+              ].map(({ num, label }) => (
+                <div key={num} style={{ textAlign: 'left', paddingLeft: '1rem', borderLeft: '1px solid rgba(201,168,76,0.35)' }}>
+                  <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', fontWeight: 600, color: '#0D0B08', lineHeight: 1 }}>{num}</div>
+                  <div style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', color: '#8C8680', letterSpacing: '0.06em', lineHeight: 1.5, marginTop: '4px', whiteSpace: 'pre-line' }}>{label}</div>
+                </div>
+              ))}
+            </div>
+
+            <Link to="/about" style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#0D0B08', display: 'inline-flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid #0D0B08', paddingBottom: '4px', width: 'fit-content', transition: 'color 0.2s, border-color 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.color='#C9A84C'; e.currentTarget.style.borderColor='#C9A84C'; }}
+              onMouseLeave={e => { e.currentTarget.style.color='#0D0B08'; e.currentTarget.style.borderColor='#0D0B08'; }}>
+              Discover Our Story <FiArrowRight size={12} />
             </Link>
           </div>
         </div>
