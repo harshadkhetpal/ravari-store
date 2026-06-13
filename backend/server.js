@@ -292,6 +292,24 @@ const PRODUCTS = [
     material: ['Genuine Leather', 'Reinforced Base', 'Metal Accents'],
     stock: 30, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
+  {
+    id: 12, _id: '12',
+    name: 'RAVARI Premium Textured Leather Handbag with Top Handle | Structured Flap Closure Satchel | Multi-Compartment Organizer with Zipper Pocket | Elegant Carry Bag for Work, Travel & Daily Use',
+    slug: 'ravari-premium-textured-leather-handbag',
+    price: 2999, salePrice: 2499, category: 'Handbags',
+    thumbnail: '/static/products/textured-handbag/img1.png',
+    images: [
+      img('/static/products/textured-handbag/img1.png', 'RAVARI Textured Handbag — Front'),
+      img('/static/products/textured-handbag/img2.png', 'RAVARI Textured Handbag — Side'),
+      img('/static/products/textured-handbag/img3.jpg', 'RAVARI Textured Handbag — Detail'),
+      img('/static/products/textured-handbag/img4.png', 'RAVARI Textured Handbag — Interior'),
+      img('/static/products/textured-handbag/img5.png', 'RAVARI Textured Handbag — Compartments'),
+      img('/static/products/textured-handbag/img6.jpg', 'RAVARI Textured Handbag — Lifestyle'),
+    ],
+    description: 'Structured satchel with premium textured leather, top handle and flap closure. Multi-compartment interior with zipper pocket keeps everything organized. Perfect for work, travel and daily use.',
+    material: ['Premium Textured Leather', 'Top Handle', 'Flap Closure', 'Zipper Pocket'],
+    stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
