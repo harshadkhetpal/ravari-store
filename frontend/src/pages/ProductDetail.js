@@ -364,6 +364,29 @@ function ProductDetail() {
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#0D0D0D'; }}>
                 Add to Cart
               </button>
+
+              {/* Trust badges */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '0.5rem' }}>
+                {[
+                  { icon: '↩', label: '7-Day Returns', sub: 'Easy return policy' },
+                  { icon: '✦', label: 'Genuine Leather', sub: 'Certified quality' },
+                  { icon: '🚚', label: 'Free Shipping', sub: 'On orders above ₹5000' },
+                  { icon: '🔒', label: 'Secure Payment', sub: 'COD & Razorpay' },
+                ].map(({ icon, label, sub }) => (
+                  <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.75rem', backgroundColor: '#FAFAF8', border: '1px solid #E8E4DE' }}>
+                    <span style={{ fontSize: '1rem', lineHeight: 1 }}>{icon}</span>
+                    <div>
+                      <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 700, color: '#1A0F0A', letterSpacing: '0.04em' }}>{label}</p>
+                      <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', color: '#8C8680', marginTop: '1px' }}>{sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Return policy link */}
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: '#8C8680', textAlign: 'center', marginTop: '0.25rem' }}>
+                Not satisfied? <a href="/return-policy" style={{ color: '#C9A84C', textDecoration: 'underline' }}>Read our 7-day return policy →</a>
+              </p>
             </div>
 
             {/* Product Info */}
