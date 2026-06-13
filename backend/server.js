@@ -136,6 +136,53 @@ const PRODUCTS = [
     material: ['Genuine Leather', 'Reinforced Stitching', 'Adjustable Straps'],
     stock: 25, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
+  {
+    id: 7, _id: '7',
+    name: 'RAVARI Leather Sling Bag for Men & Women | Stylish Crossbody Chest Bag | Travel & Daily Use',
+    slug: 'ravari-leather-sling-bag',
+    price: 4599, salePrice: 2599, category: 'Sling Bags',
+    thumbnail: '/static/products/sling-bag/premium/img1.png',
+    images: [
+      img('/static/products/sling-bag/premium/img1.png', 'RAVARI Premium Sling Bag — Front'),
+      img('/static/products/sling-bag/premium/img2.png', 'RAVARI Premium Sling Bag — Side'),
+      img('/static/products/sling-bag/premium/img3.png', 'RAVARI Premium Sling Bag — Detail'),
+      img('/static/products/sling-bag/premium/img4.png', 'RAVARI Premium Sling Bag — Interior'),
+      img('/static/products/sling-bag/premium/img5.png', 'RAVARI Premium Sling Bag — Lifestyle'),
+      img('/static/products/sling-bag/premium/img6.png', 'RAVARI Premium Sling Bag — Features'),
+      img('/static/products/sling-bag/premium/img7.png', 'RAVARI Premium Sling Bag — Model'),
+    ],
+    description: 'Stylish crossbody chest bag in premium brown leather with zipper pocket and adjustable strap. Compact yet spacious — perfect for travel and daily use.',
+    material: ['Genuine Leather', 'YKK Zipper', 'Adjustable Strap'],
+    variants: [
+      {
+        id: 'premium', label: 'Premium',
+        price: 4599, salePrice: 2599, stock: 18,
+        thumbnail: '/static/products/sling-bag/premium/img1.png',
+        images: [
+          img('/static/products/sling-bag/premium/img1.png', 'Premium Sling Bag — Front'),
+          img('/static/products/sling-bag/premium/img2.png', 'Premium Sling Bag — Side'),
+          img('/static/products/sling-bag/premium/img3.png', 'Premium Sling Bag — Detail'),
+          img('/static/products/sling-bag/premium/img4.png', 'Premium Sling Bag — Interior'),
+          img('/static/products/sling-bag/premium/img5.png', 'Premium Sling Bag — Lifestyle'),
+          img('/static/products/sling-bag/premium/img6.png', 'Premium Sling Bag — Features'),
+          img('/static/products/sling-bag/premium/img7.png', 'Premium Sling Bag — Model'),
+        ],
+      },
+      {
+        id: 'vintage', label: 'Vintage',
+        price: 4599, salePrice: 2599, stock: 18,
+        thumbnail: '/static/products/sling-bag/vintage/img1.png',
+        images: [
+          img('/static/products/sling-bag/vintage/img1.png', 'Vintage Sling Bag — Front'),
+          img('/static/products/sling-bag/vintage/img2.png', 'Vintage Sling Bag — Side'),
+          img('/static/products/sling-bag/vintage/img3.png', 'Vintage Sling Bag — Detail'),
+          img('/static/products/sling-bag/vintage/img4.png', 'Vintage Sling Bag — Interior'),
+          img('/static/products/sling-bag/vintage/img5.png', 'Vintage Sling Bag — Lifestyle'),
+        ],
+      },
+    ],
+    stock: 18, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
