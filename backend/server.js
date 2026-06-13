@@ -62,6 +62,61 @@ const PRODUCTS = [
     dimensions: { length: '8"', width: '6"', height: '5.5"' },
     stock: 15, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
   },
+  {
+    id: 5, _id: '5',
+    name: 'RAVARI Watch Box Holder Organizer for Men & Women | PU Leather with Crocodile-Embossed Dark Brown Texture',
+    slug: 'ravari-watch-box-holder-organizer',
+    price: 3299, salePrice: 2799, category: 'Watch Box',
+    thumbnail: '/static/products/watch-box/12slot/img1.png',
+    images: [
+      img('/static/products/watch-box/12slot/img1.png', 'RAVARI Watch Box 12 Slot — Front'),
+      img('/static/products/watch-box/12slot/img2.png', 'RAVARI Watch Box 12 Slot — Open'),
+      img('/static/products/watch-box/12slot/img3.png', 'RAVARI Watch Box 12 Slot — Detail'),
+      img('/static/products/watch-box/12slot/img4.png', 'RAVARI Watch Box 12 Slot — Interior'),
+      img('/static/products/watch-box/12slot/img5.png', 'RAVARI Watch Box 12 Slot — Lifestyle'),
+    ],
+    description: 'Premium PU Leather Watch Box with crocodile-embossed dark brown texture. Soft velvet-lined individual slots keep every watch scratch-free and securely displayed. Available in 8, 12 and 20 slot variants.',
+    variants: [
+      {
+        id: '12slot', label: '12 Slots',
+        price: 3299, salePrice: 2799, stock: 15,
+        thumbnail: '/static/products/watch-box/12slot/img1.png',
+        images: [
+          img('/static/products/watch-box/12slot/img1.png', 'Watch Box 12 Slot — Front'),
+          img('/static/products/watch-box/12slot/img2.png', 'Watch Box 12 Slot — Open'),
+          img('/static/products/watch-box/12slot/img3.png', 'Watch Box 12 Slot — Detail'),
+          img('/static/products/watch-box/12slot/img4.png', 'Watch Box 12 Slot — Interior'),
+          img('/static/products/watch-box/12slot/img5.png', 'Watch Box 12 Slot — Lifestyle'),
+        ],
+      },
+      {
+        id: '8slot', label: '8 Slots',
+        price: 3999, salePrice: 2299, stock: 15,
+        thumbnail: '/static/products/watch-box/8slot/img1.png',
+        images: [
+          img('/static/products/watch-box/8slot/img1.png', 'Watch Box 8 Slot — Front'),
+          img('/static/products/watch-box/8slot/img2.png', 'Watch Box 8 Slot — Open'),
+          img('/static/products/watch-box/8slot/img3.png', 'Watch Box 8 Slot — Detail'),
+          img('/static/products/watch-box/8slot/img4.png', 'Watch Box 8 Slot — Interior'),
+          img('/static/products/watch-box/8slot/img5.png', 'Watch Box 8 Slot — Lifestyle'),
+          img('/static/products/watch-box/8slot/img6.png', 'Watch Box 8 Slot — Features'),
+        ],
+      },
+      {
+        id: '20slot', label: '20 Slots',
+        price: 7999, salePrice: 5999, stock: 10,
+        thumbnail: '/static/products/watch-box/20slot/img1.jpg',
+        images: [
+          img('/static/products/watch-box/20slot/img1.jpg', 'Watch Box 20 Slot — Front'),
+          img('/static/products/watch-box/20slot/img2.jpg', 'Watch Box 20 Slot — Open'),
+          img('/static/products/watch-box/20slot/img3.jpg', 'Watch Box 20 Slot — Detail'),
+          img('/static/products/watch-box/20slot/img4.jpg', 'Watch Box 20 Slot — Interior'),
+          img('/static/products/watch-box/20slot/img5.jpg', 'Watch Box 20 Slot — Lifestyle'),
+        ],
+      },
+    ],
+    stock: 15, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.

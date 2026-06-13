@@ -15,6 +15,7 @@ function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [zoomActive, setZoomActive] = useState(false);
@@ -22,20 +23,19 @@ function ProductDetail() {
   const [newReview, setNewReview] = useState({ rating: 5, title: '', comment: '' });
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    fetchProduct();
-  }, [slug]);
+  useEffect(() => { fetchProduct(); }, [slug]);
+  useEffect(() => { setSelectedImage(0); }, [selectedVariant]);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
       const res = await api.get(`/products/slug/${slug}`);
-      setProduct(res.data.product);
+      const p = res.data.product;
+      setProduct(p);
       setReviews(res.data.reviews || []);
-      // Track product view
-      if (res.data.product) {
-        trackProductView(res.data.product);
-      }
+      // Set default variant if product has variants
+      if (p?.variants?.length) setSelectedVariant(p.variants[0]);
+      if (p) trackProductView(p);
     } catch (error) {
       console.error('Error fetching product:', error);
     } finally {
@@ -44,26 +44,22 @@ function ProductDetail() {
   };
 
   const handleAddToCart = () => {
-    if (product) {
-      const getImageUrl = (url) => {
-        if (!url) return '';
-        if (url.startsWith('http')) return url;
-        return `${url}`;
-      };
-
-      dispatch({
-        type: 'ADD_TO_CART',
-        payload: {
-          productId: product._id,
-          name: product.name,
-          price: product.salePrice || product.price,
-          image: getImageUrl(product.thumbnail),
-          quantity,
-          selectedOptions
-        }
-      });
-      alert('✅ Added to cart!');
-    }
+    if (!product) return;
+    const activeVariant = selectedVariant;
+    const price = activeVariant ? (activeVariant.salePrice || activeVariant.price) : (product.salePrice || product.price);
+    const thumb = activeVariant ? activeVariant.thumbnail : product.thumbnail;
+    dispatch({
+      type: 'ADD_TO_CART',
+      payload: {
+        productId: product._id,
+        name: product.name + (activeVariant ? ` — ${activeVariant.label}` : ''),
+        price,
+        image: thumb || product.thumbnail,
+        quantity,
+        selectedOptions: activeVariant ? { ...selectedOptions, variant: activeVariant.label } : selectedOptions,
+      }
+    });
+    alert('✅ Added to cart!');
   };
 
   const handleZoom = (e) => {
@@ -101,12 +97,13 @@ function ProductDetail() {
     return `${url}`;
   };
 
-  const images = product.images && product.images.length > 0
-    ? product.images.map(img => ({
-        ...img,
-        url: getImageUrl(img.url)
-      }))
-    : [{ url: getImageUrl(product.thumbnail), alt: product.name }];
+  const activeVariant = selectedVariant;
+  const activeImages = (activeVariant ? activeVariant.images : product.images) || [];
+  const images = activeImages.length > 0
+    ? activeImages.map(i => ({ ...i, url: getImageUrl(i.url) }))
+    : [{ url: getImageUrl(activeVariant?.thumbnail || product.thumbnail), alt: product.name }];
+  const activePrice    = activeVariant ? activeVariant.price    : product.price;
+  const activeSalePrice = activeVariant ? activeVariant.salePrice : product.salePrice;
 
   // Generate SEO data and schema
   const productTitle = `${product.name} | Premium ${product.category} | RAVARI`;
@@ -223,22 +220,47 @@ function ProductDetail() {
               </div>
             )}
 
+            {/* Variant Selector */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="mb-6">
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', marginBottom: '0.75rem' }}>
+                  Select Slots
+                </p>
+                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                  {product.variants.map(v => (
+                    <button key={v.id} onClick={() => { setSelectedVariant(v); setSelectedImage(0); }}
+                      style={{
+                        fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', fontWeight: 600,
+                        padding: '0.6rem 1.4rem', cursor: 'pointer', transition: 'all 0.2s',
+                        border: `1.5px solid ${activeVariant?.id === v.id ? '#C9A84C' : '#D4CFC8'}`,
+                        backgroundColor: activeVariant?.id === v.id ? '#0D0D0D' : '#FAFAF8',
+                        color: activeVariant?.id === v.id ? '#C9A84C' : '#4A4642',
+                      }}>
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Price */}
-            <div className="mb-8 p-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200">
-              <div className="flex items-baseline gap-4 mb-2">
-                <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-700 to-orange-600">
-                  ₹{product.salePrice || product.price}
+            <div className="mb-8" style={{ padding: '1.25rem 1.5rem', backgroundColor: '#F5F3EE', borderLeft: '3px solid #C9A84C' }}>
+              <div className="flex items-baseline gap-4 mb-1">
+                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 600, color: '#0D0D0D' }}>
+                  ₹{(activeSalePrice || activePrice)?.toLocaleString('en-IN')}
                 </span>
-                {product.salePrice && product.salePrice < product.price && (
+                {activeSalePrice && activeSalePrice < activePrice && (
                   <>
-                    <span className="text-2xl text-gray-400 line-through">₹{product.price}</span>
-                    <span className="text-lg font-black text-green-600">
-                      Save ₹{product.price - product.salePrice}
+                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '1rem', color: '#B8A89A', textDecoration: 'line-through' }}>
+                      ₹{activePrice?.toLocaleString('en-IN')}
+                    </span>
+                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', fontWeight: 600, color: '#2E7D32' }}>
+                      Save ₹{(activePrice - activeSalePrice)?.toLocaleString('en-IN')}
                     </span>
                   </>
                 )}
               </div>
-              <p className="text-gray-600 font-semibold">Inclusive of all taxes</p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: '#8C8680' }}>Inclusive of all taxes</p>
             </div>
 
             {/* Description */}
@@ -314,7 +336,7 @@ function ProductDetail() {
               onClick={handleAddToCart}
               className="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-4 rounded-xl font-black text-lg hover:shadow-2xl transition transform hover:scale-105 mb-4"
             >
-              🛒 ADD TO CART - ₹{(product.salePrice || product.price) * quantity}
+              ADD TO CART — ₹{((activeSalePrice || activePrice) * quantity)?.toLocaleString('en-IN')}
             </button>
 
             {/* Product Info */}
