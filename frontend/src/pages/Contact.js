@@ -48,7 +48,7 @@ function Contact() {
         keywords={seoConfig.keywords}
         canonical={`${SEO_CONFIG.site.url}${seoConfig.path}`}
         ogTitle="Contact RAVARI - Luxury Leather Goods Support"
-        ogDescription="Get in touch with RAVARI for inquiries, custom orders, or customer support. Available 24/7 online or contact our Delhi studio."
+        ogDescription="Get in touch with RAVARI for inquiries, custom orders, or customer support. Available 24/7 online or visit us in Lucknow."
         ogImage="https://ravari.in/og-contact.jpg"
         schemaMarkup={pageSchema}
       />
@@ -168,9 +168,9 @@ function Contact() {
                   <div>
                     <h3 className="font-bold text-gray-900 text-lg mb-2">Address</h3>
                     <p className="text-gray-700 font-semibold mb-2">
-                      RAVARI Studios<br />
-                      Artisan District<br />
-                      New Delhi - 110001, India
+                      RAVARI<br />
+                      4A Prakash Apartment, 44A Cantt Road<br />
+                      Lucknow - 226001, Uttar Pradesh, India
                     </p>
                   </div>
                 </div>

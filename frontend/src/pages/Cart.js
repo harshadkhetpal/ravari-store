@@ -8,7 +8,7 @@ import { trackPageView } from '../utils/ga4Tracking';
 const GOLD = '#C9A84C';
 const DARK = '#0D0B08';
 const FREE_SHIP_THRESHOLD = 5000;
-const SHIP_COST = 200;
+const SHIP_COST = 100;
 
 export default function Cart() {
   const cartItems = useSelector(s => s.cart.items);
@@ -230,7 +230,7 @@ export default function Cart() {
 
             {/* Trust signals */}
             <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
-              {['Secure Payment', '7-Day Return', 'Free Ship ₹5000+'].map(t => (
+              {['Secure Payment', '7-Day Return', 'Free Ship above ₹5000'].map(t => (
                 <span key={t} style={{ fontSize: '0.55rem', color: '#8C8680', letterSpacing: '0.08em', textTransform: 'uppercase' }}>✓ {t}</span>
               ))}
             </div>

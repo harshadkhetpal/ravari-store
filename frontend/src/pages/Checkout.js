@@ -47,7 +47,7 @@ export default function Checkout() {
 
   const subtotal = cartItems.reduce((a, i) => a + i.price * i.quantity, 0);
   const discount = 0;
-  const shipping = subtotal > 5000 ? 0 : 200;
+  const shipping = subtotal > 5000 ? 0 : 100;
   const total    = subtotal - discount + shipping;
 
   const set = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));

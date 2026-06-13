@@ -17,7 +17,7 @@ const SECTIONS = [
     title: 'Shipping Methods & Timeframes',
     content: [
       'Standard Delivery (5–7 Business Days): Available across India. Orders are processed within 1–2 business days of payment confirmation.',
-      'Express Delivery (2–3 Business Days): Available in select metro cities — Mumbai, Delhi, Bengaluru, Chennai, Hyderabad, Pune, Kolkata. Additional charges may apply.',
+      'Standard Delivery (4–7 Business Days): Available pan-India via trusted courier partners.',
       'Same-Day / Next-Day Delivery: Not currently available. We are working to offer this in select locations.',
       'Business days exclude Sundays and public holidays.',
     ],
@@ -26,8 +26,7 @@ const SECTIONS = [
     title: 'Shipping Charges',
     content: [
       'Orders above ₹5,000: FREE standard shipping.',
-      'Orders below ₹5,000: ₹200 flat shipping charge.',
-      'Express Delivery (where available): ₹350 additional charge regardless of order value.',
+      'Orders below ₹5,000: ₹100 flat shipping charge.',
       'Remote or difficult-to-access areas (as defined by our courier partner) may incur additional charges. We will notify you if this applies to your order.',
     ],
   },

@@ -5,12 +5,12 @@ export const SEO_CONFIG = {
     url: 'https://ravari.in',
     description: 'Premium handcrafted luxury leather bags and accessories from India',
     logo: 'https://ravari.in/logo.png',
-    foundingDate: '2018',
+    foundingDate: '2023',
     address: {
-      streetAddress: 'Delhi, India',
-      addressLocality: 'Delhi',
-      addressRegion: 'Delhi',
-      postalCode: 'Delhi',
+      streetAddress: '4A Prakash Apartment, 44A Cantt Road',
+      addressLocality: 'Lucknow',
+      addressRegion: 'Uttar Pradesh',
+      postalCode: '226001',
       addressCountry: 'IN'
     },
     contactPoint: {

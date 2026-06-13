@@ -38,7 +38,7 @@ function About() {
             <em style={{ fontStyle: 'italic', fontWeight: 400, color: '#C9A84C' }}>Built to Last.</em>
           </h1>
           <p style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.15rem', color: '#B8A89A', lineHeight: 1.85, maxWidth: '540px', margin: '0 auto' }}>
-            Since 2012, RAVARI has been creating handcrafted leather goods that transcend trends — rooted in artisan tradition, refined for modern living.
+            Since 2023, RAVARI has been creating handcrafted leather goods that transcend trends — rooted in artisan tradition, refined for modern living.
           </p>
         </div>
       </section>
@@ -52,7 +52,7 @@ function About() {
             <p className="section-eyebrow mb-5">The Beginning</p>
             <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.5rem', fontWeight: 600, color: '#1A0F0A', marginBottom: '1.5rem' }}>Our Story</h2>
             <p style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.1rem', color: '#6B6560', lineHeight: 1.9, marginBottom: '1rem' }}>
-              Founded in 2012, RAVARI emerged from a passion for creating exceptional leather goods that transcend trends. We are dedicated to the art of handcraftsmanship, combining traditional techniques with modern design sensibilities.
+              Founded in 2023, RAVARI emerged from a passion for creating exceptional leather goods that transcend trends. We are dedicated to the art of handcraftsmanship, combining traditional techniques with modern design sensibilities.
             </p>
             <p style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.1rem', color: '#6B6560', lineHeight: 1.9, marginBottom: '1rem' }}>
               Every piece in our collection is meticulously handcrafted by skilled artisans who understand that luxury is not just about aesthetics — it's about durability, functionality, and the story behind each creation.
@@ -63,9 +63,9 @@ function About() {
           </div>
 
           <div style={{ backgroundColor: '#FAF7F2', padding: '4rem', textAlign: 'center' }}>
-            <p className="section-eyebrow mb-3" style={{ color: '#C9A84C' }}>Est. 2012</p>
-            <div style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '5rem', fontWeight: 700, color: '#1A0F0A', lineHeight: 1, marginBottom: '1rem' }}>12</div>
-            <div style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#6B3A2A', marginBottom: '0.5rem' }}>Years of Excellence</div>
+            <p className="section-eyebrow mb-3" style={{ color: '#C9A84C' }}>Est. 2023</p>
+            <div style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '5rem', fontWeight: 700, color: '#1A0F0A', lineHeight: 1, marginBottom: '1rem' }}>2023</div>
+            <div style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontWeight: 400, color: '#6B3A2A', marginBottom: '0.5rem' }}>Year of Excellence</div>
             <div className="divider-gold w-12 mx-auto mt-4" />
           </div>
         </div>
