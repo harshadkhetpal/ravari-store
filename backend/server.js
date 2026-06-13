@@ -228,12 +228,17 @@ function shapeRow(r) {
   let images = [];
   try { images = r.images ? JSON.parse(r.images) : []; } catch (_) { images = []; }
   if (!Array.isArray(images) || images.length === 0) images = [{ url: r.thumbnail, alt: r.name }];
+  // Merge variants from in-memory PRODUCTS array (variants are not stored in MySQL)
+  const source = PRODUCTS.find(p => p.id === r.id);
   return {
     id: r.id, _id: String(r.id), name: r.name, slug: r.slug, description: r.description,
     price: Number(r.price), salePrice: r.salePrice != null ? Number(r.salePrice) : null,
     stock: r.stock, category: r.category, thumbnail: r.thumbnail, images,
     isNew: !!r.isNew, isFeatured: !!r.isFeatured,
-    rating: r.rating != null ? Number(r.rating) : 0, reviewCount: r.reviewCount || 0
+    rating: r.rating != null ? Number(r.rating) : 0, reviewCount: r.reviewCount || 0,
+    variants: source?.variants || null,
+    material: source?.material || null,
+    dimensions: source?.dimensions || null,
   };
 }
 
