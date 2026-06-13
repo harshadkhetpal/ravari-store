@@ -217,7 +217,7 @@ const PRODUCTS = [
     material: ['Crocodile-Textured Leather', 'Braided Closure', 'Structured Body'],
     variants: [
       {
-        id: 'brown', label: 'Classic Brown',
+        id: 'brown', label: 'Brown',
         price: 2799, salePrice: 1599, stock: 20,
         thumbnail: '/static/products/croc-handbag/brown/img1.jpg',
         images: [
