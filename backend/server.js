@@ -42,6 +42,26 @@ const PRODUCTS = [
     dimensions: { length: '16"', width: '5"', height: '14"' },
     stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
+  {
+    id: 4, _id: '4',
+    name: 'RAVARI Leather Jewellery Box Organizer for Women with Mirror & Drawers | Multi Layer Jewelry Storage Case for Rings Earrings Necklace | Travel Friendly',
+    slug: 'ravari-leather-jewellery-box-organizer',
+    price: 5499, salePrice: 4199, category: 'Jewellery Box',
+    thumbnail: '/static/products/jewellery-box/img1.png',
+    images: [
+      img('/static/products/jewellery-box/img1.png', 'RAVARI Jewellery Box — Dimensions'),
+      img('/static/products/jewellery-box/img2.png', 'RAVARI Jewellery Box — Lifestyle'),
+      img('/static/products/jewellery-box/img3.png', 'RAVARI Jewellery Box — Open View'),
+      img('/static/products/jewellery-box/img4.png', 'RAVARI Jewellery Box — Features'),
+      img('/static/products/jewellery-box/img5.png', 'RAVARI Jewellery Box — Interior'),
+      img('/static/products/jewellery-box/img6.png', 'RAVARI Jewellery Box — Engineered for Elegance'),
+    ],
+    description: '3-Tier Jewellery Box with built-in mirror, secure lock & key, and plush velvet interior. Stores rings, earrings, necklaces, bracelets & watches. Premium crocodile-pattern leather exterior with silver hardware. Dimensions: 8" × 6" × 5.5". Perfect for home & travel.',
+    longDescription: 'Engineered for secure elegance. The RAVARI Jewellery Box features 3 pull-out tiers with a built-in mirror in the lid, a lockable clasp, and soft velvet-lined compartments. Premium crocodile-embossed leather with sturdy metallic handle and silver hardware accents.',
+    material: ['Crocodile-Pattern Leather', 'Velvet Lining', 'Silver Hardware'],
+    dimensions: { length: '8"', width: '6"', height: '5.5"' },
+    stock: 15, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
