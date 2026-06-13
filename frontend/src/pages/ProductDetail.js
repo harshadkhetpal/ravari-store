@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { FiZoomIn, FiChevronLeft, FiChevronRight, FiStar } from 'react-icons/fi';
@@ -21,7 +21,8 @@ function ProductDetail() {
   const [zoomActive, setZoomActive] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
   const [newReview, setNewReview] = useState({ rating: 5, title: '', comment: '' });
-  const dispatch = useDispatch();
+  const dispatch  = useDispatch();
+  const navigate  = useNavigate();
 
   useEffect(() => { fetchProduct(); }, [slug]);
   useEffect(() => { setSelectedImage(0); }, [selectedVariant]);
@@ -43,9 +44,8 @@ function ProductDetail() {
     }
   };
 
-  const handleAddToCart = () => {
+  const handleShopNow = () => {
     if (!product) return;
-    const activeVariant = selectedVariant;
     const price = activeVariant ? (activeVariant.salePrice || activeVariant.price) : (product.salePrice || product.price);
     const thumb = activeVariant ? activeVariant.thumbnail : product.thumbnail;
     dispatch({
@@ -59,7 +59,24 @@ function ProductDetail() {
         selectedOptions: activeVariant ? { ...selectedOptions, variant: activeVariant.label } : selectedOptions,
       }
     });
-    alert('✅ Added to cart!');
+    navigate('/checkout');
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    const price = activeVariant ? (activeVariant.salePrice || activeVariant.price) : (product.salePrice || product.price);
+    const thumb = activeVariant ? activeVariant.thumbnail : product.thumbnail;
+    dispatch({
+      type: 'ADD_TO_CART',
+      payload: {
+        productId: product._id,
+        name: product.name + (activeVariant ? ` — ${activeVariant.label}` : ''),
+        price,
+        image: thumb || product.thumbnail,
+        quantity,
+        selectedOptions: activeVariant ? { ...selectedOptions, variant: activeVariant.label } : selectedOptions,
+      }
+    });
   };
 
   const handleZoom = (e) => {
@@ -331,13 +348,23 @@ function ProductDetail() {
               </div>
             </div>
 
-            {/* Add to Cart Button */}
-            <button
-              onClick={handleAddToCart}
-              className="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-4 rounded-xl font-black text-lg hover:shadow-2xl transition transform hover:scale-105 mb-4"
-            >
-              ADD TO CART — ₹{((activeSalePrice || activePrice) * quantity)?.toLocaleString('en-IN')}
-            </button>
+            {/* Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              {/* SHOP NOW — primary */}
+              <button onClick={handleShopNow}
+                style={{ width: '100%', padding: '1rem', backgroundColor: '#C9A84C', color: '#0D0D0D', fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#B8962A'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#C9A84C'}>
+                SHOP NOW — ₹{((activeSalePrice || activePrice) * quantity)?.toLocaleString('en-IN')}
+              </button>
+              {/* Add to Cart — secondary */}
+              <button onClick={handleAddToCart}
+                style={{ width: '100%', padding: '1rem', backgroundColor: 'transparent', color: '#0D0D0D', fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', border: '1.5px solid #0D0D0D', cursor: 'pointer', transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#0D0D0D'; e.currentTarget.style.color = '#FFF'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#0D0D0D'; }}>
+                Add to Cart
+              </button>
+            </div>
 
             {/* Product Info */}
             {product.material && product.material.length > 0 && (
