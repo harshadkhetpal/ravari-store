@@ -200,6 +200,23 @@ const PRODUCTS = [
     material: ['Genuine Leather', 'Card Slots', 'Passport Sleeve'],
     stock: 30, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
   },
+  {
+    id: 9, _id: '9',
+    name: 'Ravari Leather Women Handbag – Crocodile-Textured Designer Tote with Braided Flap Closure',
+    slug: 'ravari-croc-textured-women-handbag',
+    price: 2799, salePrice: 1599, category: 'Handbags',
+    thumbnail: '/static/products/croc-handbag/img1.png',
+    images: [
+      img('/static/products/croc-handbag/img1.png', 'Ravari Croc Handbag — Front'),
+      img('/static/products/croc-handbag/img2.png', 'Ravari Croc Handbag — Side'),
+      img('/static/products/croc-handbag/img3.png', 'Ravari Croc Handbag — Flap Detail'),
+      img('/static/products/croc-handbag/img4.png', 'Ravari Croc Handbag — Interior'),
+      img('/static/products/croc-handbag/img5.png', 'Ravari Croc Handbag — Lifestyle'),
+    ],
+    description: 'Elegant crocodile-textured designer tote with signature braided flap closure. Spacious interior with structured silhouette — the perfect statement handbag for every occasion.',
+    material: ['Crocodile-Textured Leather', 'Braided Closure', 'Structured Body'],
+    stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
