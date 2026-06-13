@@ -131,7 +131,8 @@ export default function Header() {
 
           {/* Right — icons */}
           <div className="hdr-icons">
-            <Link to="/" aria-label="Home" style={iconStyle} onMouseEnter={iconHover} onMouseLeave={iconLeave}>
+            <Link to="/" aria-label="Home" style={iconStyle} onMouseEnter={iconHover} onMouseLeave={iconLeave}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <FiHome size={18} />
             </Link>
             <button aria-label="Search" className="hdr-search" style={iconStyle} onMouseEnter={iconHover} onMouseLeave={iconLeave}
@@ -165,6 +166,7 @@ export default function Header() {
                 padding: '0 1.4rem', whiteSpace: 'nowrap',
                 transition: 'color 0.2s', textDecoration: 'none',
               }}
+                onClick={() => item.to === '/' && window.scrollTo({ top: 0, behavior: 'smooth' })}
                 onMouseEnter={e => e.currentTarget.style.color = GOLD}
                 onMouseLeave={e => e.currentTarget.style.color = location.pathname === item.to ? GOLD : 'rgba(255,255,255,0.82)'}>
                 {item.label}
@@ -213,6 +215,7 @@ export default function Header() {
           <div style={{ height: '1px', width: '40px', background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
           {NAV.map(item => (
             <Link key={item.label} to={item.to}
+              onClick={() => item.to === '/' && window.scrollTo({ top: 0, behavior: 'smooth' })}
               style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.9rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: location.pathname === item.to ? GOLD : 'rgba(255,255,255,0.88)', textDecoration: 'none' }}>
               {item.label}
             </Link>
