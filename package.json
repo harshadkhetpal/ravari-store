@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node backend/server.js",
-    "build": "echo Build complete"
+    "build": "cd frontend && npm install && npm run build && cd .."
   },
   "dependencies": {
     "@fastify/multipart": "^9.0.3",
