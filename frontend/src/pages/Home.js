@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { FiArrowRight, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import api from '../api/axiosConfig';
@@ -221,6 +221,12 @@ export default function Home() {
   const [newArr,   setNewArr]   = useState([]);
   const [loading,  setLoading]  = useState(true);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleProductNavigate = (slug) => {
+    navigate('/products');
+    navigate('/products/' + slug);
+  };
 
   useEffect(() => {
     trackPageView('/', 'Home - RAVARI');
@@ -302,7 +308,7 @@ export default function Home() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
             {featured.length === 0 && !loading ? null : featured.map(p => (
-              <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} />
+              <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} onNavigate={handleProductNavigate} />
             ))}
           </div>
           <div style={{ textAlign: 'center', marginTop: '3rem' }}>
@@ -325,7 +331,7 @@ export default function Home() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
               {newArr.map(p => (
-                <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} />
+                <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} onNavigate={handleProductNavigate} />
               ))}
             </div>
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>

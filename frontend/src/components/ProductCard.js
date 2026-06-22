@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart } from 'react-icons/fi';
 
-function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
+function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist, onNavigate }) {
   const [imageLoading, setImageLoading] = useState(true);
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
 
   const hasDiscount = product.salePrice && product.salePrice < product.price;
+
+  const handleCardClick = (e) => {
+    if (onNavigate) {
+      e.preventDefault();
+      onNavigate(product.slug);
+    }
+  };
 
   return (
     <div
@@ -22,7 +30,7 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Image */}
-      <Link to={`/products/${product.slug}`}>
+      <Link to={`/products/${product.slug}`} onClick={handleCardClick}>
         <div className="relative overflow-hidden" style={{ height: '320px', backgroundColor: '#F4EFE6' }}>
           {imageLoading && <div className="absolute inset-0 skeleton" />}
           <img
@@ -92,7 +100,7 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }) {
       {/* Info */}
       <div className="pt-4 pb-5 px-3">
         <p className="section-eyebrow mb-1" style={{ color: '#C9A84C' }}>{product.category}</p>
-        <Link to={`/products/${product.slug}`}>
+        <Link to={`/products/${product.slug}`} onClick={handleCardClick}>
           <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1rem', fontWeight: 500, color: '#1A0F0A', marginBottom: '0.5rem', lineHeight: 1.3 }}
             className="line-clamp-2 hover:opacity-70 transition-opacity">
             {product.name}
