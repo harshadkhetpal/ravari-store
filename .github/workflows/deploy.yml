@@ -1,4 +1,4 @@
-name: Build Frontend and Deploy
+name: Build Frontend and Deploy to Hostinger
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.DEPLOY_PAT }}
         fetch-depth: 0
 
     - name: Setup Node.js
@@ -28,10 +28,11 @@ jobs:
         CI=false npm run build
         cd ..
 
-    - name: Commit and push new frontend build
+    - name: Commit and push build to both repos
       run: |
         git config user.email "ravari.store@gmail.com"
         git config user.name "RAVARI CI"
         git add frontend/build -f
-        git diff --staged --quiet && echo "No build changes" || git commit -m "CI: rebuild frontend [skip ci]"
-        git push origin HEAD:main
+        git diff --staged --quiet && echo "No build changes" || git commit -m "CI: rebuild luxury frontend [skip ci]"
+        git push https://ravaristore-ux:${{ secrets.DEPLOY_PAT }}@github.com/ravaristore-ux/ravari_store.git HEAD:main
+        git push https://ravaristore-ux:${{ secrets.DEPLOY_PAT }}@github.com/harshadkhetpal/ravari-store.git HEAD:main --force
