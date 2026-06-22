@@ -230,7 +230,20 @@ const PRODUCTS = [
     ],
     description: 'Elegant crocodile-textured designer tote with signature braided flap closure. Spacious interior with structured silhouette — the perfect statement handbag for every occasion.',
     material: ['Crocodile-Textured Leather', 'Braided Closure', 'Structured Body'],
+    variantLabel: 'Colour',
     variants: [
+      {
+        id: 'brown', label: 'Brown',
+        price: 2799, salePrice: 1599, stock: 20,
+        thumbnail: '/static/products/croc-handbag/brown/img1.jpg',
+        images: [
+          img('/static/products/croc-handbag/brown/img1.jpg', 'Croc Handbag Brown — Front'),
+          img('/static/products/croc-handbag/brown/img2.jpg', 'Croc Handbag Brown — Side'),
+          img('/static/products/croc-handbag/brown/img3.jpg', 'Croc Handbag Brown — Detail'),
+          img('/static/products/croc-handbag/brown/img4.jpg', 'Croc Handbag Brown — Interior'),
+          img('/static/products/croc-handbag/brown/img5.jpg', 'Croc Handbag Brown — Lifestyle'),
+        ],
+      },
       {
         id: 'black', label: 'Black',
         price: 2799, salePrice: 1599, stock: 20,
@@ -241,6 +254,18 @@ const PRODUCTS = [
           img('/static/images/Ravari Croc-Textured Black Handbag - Features.png', 'Croc Handbag Black — Features'),
           img('/static/images/Ravari Croc-Textured Black Handbag - Lifestyle.png', 'Croc Handbag Black — Lifestyle'),
           img('/static/images/Ravari Croc-Textured Black Handbag - Model Shot.png', 'Croc Handbag Black — Model Shot'),
+        ],
+      },
+      {
+        id: 'green', label: 'Emerald Green',
+        price: 2799, salePrice: 1599, stock: 20,
+        thumbnail: '/static/products/croc-handbag/green/img1.png',
+        images: [
+          img('/static/products/croc-handbag/green/img1.png', 'Croc Handbag Green — Front'),
+          img('/static/products/croc-handbag/green/img2.png', 'Croc Handbag Green — Side'),
+          img('/static/products/croc-handbag/green/img3.png', 'Croc Handbag Green — Detail'),
+          img('/static/products/croc-handbag/green/img4.png', 'Croc Handbag Green — Interior'),
+          img('/static/products/croc-handbag/green/img5.png', 'Croc Handbag Green — Lifestyle'),
         ],
       },
     ],
@@ -272,6 +297,9 @@ const PRODUCTS = [
     images: [
       img('/static/images/Ravari Leather Desk Organizer - Product Shot.jpeg', 'RAVARI Desk Organizer — Product Shot'),
       img('/static/images/Ravari Leather Desk Organizer - Lifestyle.jpeg', 'RAVARI Desk Organizer — Lifestyle'),
+      img('/static/products/desk-organizer/img3.jpg', 'RAVARI Desk Organizer — View 3'),
+      img('/static/products/desk-organizer/img4.jpg', 'RAVARI Desk Organizer — View 4'),
+      img('/static/products/desk-organizer/img5.jpg', 'RAVARI Desk Organizer — View 5'),
     ],
     description: 'Premium leather desk organizer with dedicated pen stand, card holder and utility tray. Keeps your workspace clean, organized and elegant. Crafted from genuine leather with reinforced base.',
     material: ['Genuine Leather', 'Reinforced Base', 'Metal Accents'],
