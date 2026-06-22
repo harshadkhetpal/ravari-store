@@ -38,14 +38,19 @@ const PRODUCTS = [
     name: 'RAVARI Boho-Chic Leather-Trim Tote Bag for Women | Boho Tribal Canvas Handbag | Stylish Everyday Fashion Carry for Office, Travel & Casual Use',
     slug: 'ravari-boho-chic-leather-trim-tote-bag',
     price: 4499, salePrice: 2499, category: 'Tote Bags',
-    thumbnail: '/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 1.png',
+    thumbnail: '/static/products/tote-boho/img1.png',
     images: [
-      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 1.png', 'RAVARI Boho Tote Bag — Front View'),
-      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 2.png', 'RAVARI Boho Tote — Features'),
-      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 3.png', 'RAVARI Boho Tote — Designed To Carry All'),
-      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 4.png', 'RAVARI Boho Tote — Spacious Compartments'),
-      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 5.png', 'RAVARI Boho Tote — Model Shot'),
-      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 6.png', 'RAVARI Boho Tote — Detail'),
+      img('/static/products/tote-boho/img1.png', 'RAVARI Boho Tote Bag — Front View'),
+      img('/static/products/tote-boho/img2.png', 'RAVARI Boho Tote — Features'),
+      img('/static/products/tote-boho/img3.png', 'RAVARI Boho Tote — Designed To Carry All'),
+      img('/static/products/tote-boho/img4.png', 'RAVARI Boho Tote — Spacious Compartments'),
+      img('/static/products/tote-boho/img5.png', 'RAVARI Boho Tote — Model Shot'),
+      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 1.png', 'RAVARI Boho Tote Bag — View 1'),
+      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 2.png', 'RAVARI Boho Tote Bag — View 2'),
+      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 3.png', 'RAVARI Boho Tote Bag — View 3'),
+      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 4.png', 'RAVARI Boho Tote Bag — View 4'),
+      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 5.png', 'RAVARI Boho Tote Bag — View 5'),
+      img('/static/images/Ravari Boho-Chic Leather-Trim Tote Bag for Women - View 6.png', 'RAVARI Boho Tote Bag — View 6'),
     ],
     description: 'Boho Tribal Canvas Handbag with genuine leather trim and braided detailing. Spacious enough for a 16" laptop, water bottle, wallet & more. 3 main compartments with centre zippered divider. Dimensions: 16" × 14" × 5". Top Zip Closure | Comfortable Leather Handles | Durable Reinforced Stitching.',
     longDescription: 'A statement piece that blends artisan craft with everyday utility. Handwoven tribal canvas body with genuine leather trim. Perfect for office, travel and casual use.',
@@ -79,7 +84,12 @@ const PRODUCTS = [
     price: 3299, salePrice: 2799, category: 'Watch Box',
     thumbnail: '/static/images/Ravari 12-Slot Leather Watch Box - New Style Ad.jpeg',
     images: [
-      img('/static/images/Ravari 12-Slot Leather Watch Box - New Style Ad.jpeg', 'RAVARI Watch Box 12 Slot — Front'),
+      img('/static/images/Ravari 12-Slot Leather Watch Box - New Style Ad.jpeg', 'RAVARI Watch Box — Front'),
+      img('/static/products/watch-box/12slot/img1.png', 'RAVARI Watch Box 12 Slot — View 1'),
+      img('/static/products/watch-box/12slot/img2.png', 'RAVARI Watch Box 12 Slot — View 2'),
+      img('/static/products/watch-box/12slot/img3.png', 'RAVARI Watch Box 12 Slot — View 3'),
+      img('/static/products/watch-box/12slot/img4.png', 'RAVARI Watch Box 12 Slot — View 4'),
+      img('/static/products/watch-box/12slot/img5.png', 'RAVARI Watch Box 12 Slot — View 5'),
     ],
     description: 'Premium PU Leather Watch Box with crocodile-embossed dark brown texture. Soft velvet-lined individual slots keep every watch scratch-free and securely displayed. Available in 8, 12 and 20 slot variants.',
     variantLabel: 'Slots',
@@ -87,25 +97,38 @@ const PRODUCTS = [
       {
         id: '12slot', label: '12 Slots',
         price: 3299, salePrice: 2799, stock: 15,
-        thumbnail: '/static/images/Ravari 12-Slot Leather Watch Box - New Style Ad.jpeg',
+        thumbnail: '/static/products/watch-box/12slot/img1.png',
         images: [
-          img('/static/images/Ravari 12-Slot Leather Watch Box - New Style Ad.jpeg', 'Watch Box 12 Slot — Front'),
+          img('/static/products/watch-box/12slot/img1.png', 'Watch Box 12 Slot — Front'),
+          img('/static/products/watch-box/12slot/img2.png', 'Watch Box 12 Slot — Open'),
+          img('/static/products/watch-box/12slot/img3.png', 'Watch Box 12 Slot — Detail'),
+          img('/static/products/watch-box/12slot/img4.png', 'Watch Box 12 Slot — Interior'),
+          img('/static/products/watch-box/12slot/img5.png', 'Watch Box 12 Slot — Lifestyle'),
         ],
       },
       {
         id: '8slot', label: '8 Slots',
         price: 3999, salePrice: 2299, stock: 15,
-        thumbnail: '/static/images/Ravari 12-Slot Leather Watch Box - New Style Ad.jpeg',
+        thumbnail: '/static/products/watch-box/8slot/img1.png',
         images: [
-          img('/static/images/Ravari 12-Slot Leather Watch Box - New Style Ad.jpeg', 'Watch Box 8 Slot'),
+          img('/static/products/watch-box/8slot/img1.png', 'Watch Box 8 Slot — Front'),
+          img('/static/products/watch-box/8slot/img2.png', 'Watch Box 8 Slot — Open'),
+          img('/static/products/watch-box/8slot/img3.png', 'Watch Box 8 Slot — Detail'),
+          img('/static/products/watch-box/8slot/img4.png', 'Watch Box 8 Slot — Interior'),
+          img('/static/products/watch-box/8slot/img5.png', 'Watch Box 8 Slot — Lifestyle'),
+          img('/static/products/watch-box/8slot/img6.png', 'Watch Box 8 Slot — Features'),
         ],
       },
       {
         id: '20slot', label: '20 Slots',
         price: 7999, salePrice: 5999, stock: 10,
-        thumbnail: '/static/images/Ravari 12-Slot Leather Watch Box - New Style Ad.jpeg',
+        thumbnail: '/static/products/watch-box/20slot/img1.jpg',
         images: [
-          img('/static/images/Ravari 12-Slot Leather Watch Box - New Style Ad.jpeg', 'Watch Box 20 Slot'),
+          img('/static/products/watch-box/20slot/img1.jpg', 'Watch Box 20 Slot — Front'),
+          img('/static/products/watch-box/20slot/img2.jpg', 'Watch Box 20 Slot — Open'),
+          img('/static/products/watch-box/20slot/img3.jpg', 'Watch Box 20 Slot — Detail'),
+          img('/static/products/watch-box/20slot/img4.jpg', 'Watch Box 20 Slot — Interior'),
+          img('/static/products/watch-box/20slot/img5.jpg', 'Watch Box 20 Slot — Lifestyle'),
         ],
       },
     ],
@@ -212,15 +235,39 @@ const PRODUCTS = [
     variantLabel: 'Colour',
     variants: [
       {
+        id: 'brown', label: 'Brown',
+        price: 2799, salePrice: 1599, stock: 20,
+        thumbnail: '/static/products/croc-handbag/brown/img1.jpg',
+        images: [
+          img('/static/products/croc-handbag/brown/img1.jpg', 'Croc Handbag Brown — Front'),
+          img('/static/products/croc-handbag/brown/img2.jpg', 'Croc Handbag Brown — Side'),
+          img('/static/products/croc-handbag/brown/img3.jpg', 'Croc Handbag Brown — Detail'),
+          img('/static/products/croc-handbag/brown/img4.jpg', 'Croc Handbag Brown — Interior'),
+          img('/static/products/croc-handbag/brown/img5.jpg', 'Croc Handbag Brown — Lifestyle'),
+        ],
+      },
+      {
         id: 'black', label: 'Black',
         price: 2799, salePrice: 1599, stock: 20,
         thumbnail: '/static/images/Ravari Croc-Textured Black Handbag - Product Shot.png',
         images: [
-          img('/static/images/Ravari Croc-Textured Black Handbag - Product Shot.png', 'Croc Handbag — Product Shot'),
-          img('/static/images/Ravari Croc-Textured Black Handbag - Dimensions.png', 'Croc Handbag — Dimensions'),
-          img('/static/images/Ravari Croc-Textured Black Handbag - Features.png', 'Croc Handbag — Features'),
-          img('/static/images/Ravari Croc-Textured Black Handbag - Lifestyle.png', 'Croc Handbag — Lifestyle'),
-          img('/static/images/Ravari Croc-Textured Black Handbag - Model Shot.png', 'Croc Handbag — Model Shot'),
+          img('/static/images/Ravari Croc-Textured Black Handbag - Product Shot.png', 'Croc Handbag Black — Product Shot'),
+          img('/static/images/Ravari Croc-Textured Black Handbag - Dimensions.png', 'Croc Handbag Black — Dimensions'),
+          img('/static/images/Ravari Croc-Textured Black Handbag - Features.png', 'Croc Handbag Black — Features'),
+          img('/static/images/Ravari Croc-Textured Black Handbag - Lifestyle.png', 'Croc Handbag Black — Lifestyle'),
+          img('/static/images/Ravari Croc-Textured Black Handbag - Model Shot.png', 'Croc Handbag Black — Model Shot'),
+        ],
+      },
+      {
+        id: 'green', label: 'Emerald Green',
+        price: 2799, salePrice: 1599, stock: 20,
+        thumbnail: '/static/products/croc-handbag/green/img1.png',
+        images: [
+          img('/static/products/croc-handbag/green/img1.png', 'Croc Handbag Green — Front'),
+          img('/static/products/croc-handbag/green/img2.png', 'Croc Handbag Green — Side'),
+          img('/static/products/croc-handbag/green/img3.png', 'Croc Handbag Green — Detail'),
+          img('/static/products/croc-handbag/green/img4.png', 'Croc Handbag Green — Interior'),
+          img('/static/products/croc-handbag/green/img5.png', 'Croc Handbag Green — Lifestyle'),
         ],
       },
     ],
@@ -252,6 +299,11 @@ const PRODUCTS = [
     images: [
       img('/static/images/Ravari Leather Desk Organizer - Product Shot.jpeg', 'RAVARI Desk Organizer — Product Shot'),
       img('/static/images/Ravari Leather Desk Organizer - Lifestyle.jpeg', 'RAVARI Desk Organizer — Lifestyle'),
+      img('/static/products/desk-organizer/img1.jpg', 'RAVARI Desk Organizer — View 1'),
+      img('/static/products/desk-organizer/img2.jpg', 'RAVARI Desk Organizer — Pen Stand'),
+      img('/static/products/desk-organizer/img3.jpg', 'RAVARI Desk Organizer — Card Holder'),
+      img('/static/products/desk-organizer/img4.jpg', 'RAVARI Desk Organizer — Utility Tray'),
+      img('/static/products/desk-organizer/img5.jpg', 'RAVARI Desk Organizer — Detail'),
     ],
     description: 'Premium leather desk organizer with dedicated pen stand, card holder and utility tray. Keeps your workspace clean, organized and elegant. Crafted from genuine leather with reinforced base.',
     material: ['Genuine Leather', 'Reinforced Base', 'Metal Accents'],
@@ -499,8 +551,12 @@ if (fs.existsSync(backendPublic)) {
   fastify.register(require('@fastify/static'), { root: backendPublic, prefix: '/assets/', decorateReply: false });
   // Direct /videos and /images passthrough to backend/public
   fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'videos'), prefix: '/videos/', decorateReply: false });
-  // Product images at /static/images/ (matches thumbnail paths in PRODUCTS array)
+  // Product images at /static/images/ (named files)
   fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'images'), prefix: '/static/images/', decorateReply: false });
+  // Product images at /static/products/ (organized subdirs - user-uploaded on server)
+  const productsDir = path.join(backendPublic, 'products');
+  try { fs.mkdirSync(productsDir, { recursive: true }); } catch (_) {}
+  fastify.register(require('@fastify/static'), { root: productsDir, prefix: '/static/products/', decorateReply: false });
   fastify.register(require('@fastify/static'), { root: uploadsDir, prefix: '/uploads/', decorateReply: false });
   console.log(`[RAVARI] Serving videos + uploads from ${backendPublic}`);
 }
