@@ -1,150 +1,105 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
-function AdminLogin() {
+const GOLD = '#C9A84C';
+const DARK = '#0D0B08';
+
+export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (localStorage.getItem('adminToken')) navigate('/admin');
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
-      // Simple hardcoded admin credentials
-      if (email === 'admin@ravari.in' && password === 'admin123') {
-        // Save to localStorage FIRST
-        localStorage.setItem('user', JSON.stringify({
-          _id: 'admin123',
-          email: 'admin@ravari.in',
-          firstName: 'Admin',
-          lastName: 'RAVARI',
-          role: 'admin'
-        }));
-        localStorage.setItem('token', 'admin-token-12345');
-
-        // Set admin user in Redux
-        dispatch({
-          type: 'LOGIN_SUCCESS',
-          payload: {
-            user: {
-              _id: 'admin123',
-              email: 'admin@ravari.in',
-              firstName: 'Admin',
-              lastName: 'RAVARI',
-              role: 'admin'
-            },
-            token: 'admin-token-12345'
-          }
-        });
-
-        // Small delay to ensure state updates, then redirect
-        setTimeout(() => {
-          navigate('/admin');
-        }, 500);
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (data.success && data.token) {
+        localStorage.setItem('adminToken', data.token);
+        localStorage.setItem('adminUser', JSON.stringify(data.user));
+        navigate('/admin');
       } else {
-        setError('❌ Invalid email or password');
+        setError(data.error || 'Invalid credentials');
       }
     } catch (err) {
-      setError('Login failed: ' + err.message);
+      setError('Connection error. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-md">
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl border-4 border-amber-200 p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-700 to-orange-600 mb-2">
-              RAVARI
-            </h1>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Admin Login</h2>
-            <p className="text-sm text-gray-600">Access your product management dashboard</p>
-          </div>
+    <div style={{ minHeight: '100vh', backgroundColor: DARK, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', fontFamily: 'Jost, sans-serif' }}>
+      <div style={{ width: '100%', maxWidth: '400px' }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.8rem', fontWeight: 600, letterSpacing: '0.5em', color: GOLD, paddingLeft: '0.5em', lineHeight: 1 }}>RAVARI</div>
+          <div style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', letterSpacing: '0.3em', color: 'rgba(201,168,76,0.6)', textTransform: 'uppercase', marginTop: '0.4rem' }}>Admin Panel</div>
+        </div>
 
-          {/* Error Message */}
+        {/* Card */}
+        <div style={{ backgroundColor: '#1A1510', border: '1px solid rgba(201,168,76,0.2)', padding: '2.5rem', borderRadius: '2px' }}>
+          <h2 style={{ color: '#E8D5A3', fontSize: '1.1rem', fontWeight: 500, letterSpacing: '0.1em', marginBottom: '2rem', textTransform: 'uppercase' }}>Sign In</h2>
+
           {error && (
-            <div className="bg-red-100 border-2 border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 font-semibold">
+            <div style={{ backgroundColor: 'rgba(180,50,50,0.15)', border: '1px solid rgba(180,50,50,0.4)', color: '#F87171', padding: '0.75rem 1rem', fontSize: '0.8rem', marginBottom: '1.5rem', letterSpacing: '0.03em' }}>
               {error}
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-6">
-            {/* Email Input */}
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wider">
-                Email Address
-              </label>
+          <form onSubmit={handleLogin}>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={{ display: 'block', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.8)', marginBottom: '0.5rem' }}>Email</label>
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@ravari.in"
-                className="w-full px-4 py-3 border-2 border-amber-200 rounded-lg focus:outline-none focus:border-amber-600 bg-white font-semibold"
+                onChange={e => setEmail(e.target.value)}
                 required
+                style={{ width: '100%', backgroundColor: '#0D0B08', border: '1px solid rgba(201,168,76,0.25)', color: '#E8D5A3', padding: '0.75rem 1rem', fontSize: '0.85rem', outline: 'none', fontFamily: 'Jost, sans-serif', boxSizing: 'border-box' }}
+                onFocus={e => e.target.style.borderColor = GOLD}
+                onBlur={e => e.target.style.borderColor = 'rgba(201,168,76,0.25)'}
               />
             </div>
 
-            {/* Password Input */}
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wider">
-                Password
-              </label>
+            <div style={{ marginBottom: '2rem' }}>
+              <label style={{ display: 'block', fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.8)', marginBottom: '0.5rem' }}>Password</label>
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 border-2 border-amber-200 rounded-lg focus:outline-none focus:border-amber-600 bg-white font-semibold"
+                onChange={e => setPassword(e.target.value)}
                 required
+                style={{ width: '100%', backgroundColor: '#0D0B08', border: '1px solid rgba(201,168,76,0.25)', color: '#E8D5A3', padding: '0.75rem 1rem', fontSize: '0.85rem', outline: 'none', fontFamily: 'Jost, sans-serif', boxSizing: 'border-box' }}
+                onFocus={e => e.target.style.borderColor = GOLD}
+                onBlur={e => e.target.style.borderColor = 'rgba(201,168,76,0.25)'}
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-4 rounded-lg font-black text-lg hover:shadow-2xl transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ width: '100%', backgroundColor: GOLD, color: DARK, padding: '0.875rem', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, fontFamily: 'Jost, sans-serif', transition: 'opacity 0.2s' }}
             >
-              {loading ? '🔄 Logging in...' : '🔐 Login to Dashboard'}
+              {loading ? 'Signing in...' : 'Enter Dashboard'}
             </button>
           </form>
+        </div>
 
-          {/* Credentials Info */}
-          <div className="mt-8 bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-lg p-6">
-            <p className="text-sm font-bold text-gray-900 mb-3">📝 Demo Credentials:</p>
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-bold text-gray-900">Email:</span>
-                <span className="text-amber-700 font-semibold ml-2">admin@ravari.in</span>
-              </p>
-              <p>
-                <span className="font-bold text-gray-900">Password:</span>
-                <span className="text-amber-700 font-semibold ml-2">admin123</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Back Link */}
-          <div className="mt-6 text-center">
-            <a href="/" className="text-amber-700 hover:text-orange-600 font-semibold transition">
-              ← Back to Home
-            </a>
-          </div>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+          <a href="/" style={{ color: 'rgba(201,168,76,0.5)', fontSize: '0.7rem', letterSpacing: '0.1em', textDecoration: 'none', fontFamily: 'Jost, sans-serif' }}>← Back to Store</a>
         </div>
       </div>
     </div>
   );
 }
-
-export default AdminLogin;

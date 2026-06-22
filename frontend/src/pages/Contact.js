@@ -4,10 +4,13 @@ import SEO from '../components/SEO';
 import { SEO_CONFIG } from '../utils/seoConstants';
 import { getOrganizationSchema, getLocalBusinessSchema } from '../utils/schemaMarkup';
 import { trackPageView, trackFormSubmission } from '../utils/ga4Tracking';
+import api from '../api/axiosConfig';
 
 function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [sending,   setSending]   = useState(false);
+  const [sendError, setSendError] = useState('');
 
   // Track page view
   useEffect(() => {
@@ -29,15 +32,23 @@ function Contact() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    trackFormSubmission('contact');
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
-    setFormData({ name: '', email: '', phone: '', message: '' });
+    setSending(true); setSendError('');
+    try {
+      await api.post('/contact', formData);
+      trackFormSubmission('contact');
+      setSubmitted(true);
+      setFormData({ name: '', email: '', phone: '', message: '' });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch {
+      setSendError('Could not send message. Please WhatsApp or email us directly.');
+    } finally {
+      setSending(false);
+    }
   };
 
-  const whatsappNumber = '+919999999999'; // Replace with actual number
+  const whatsappNumber = '+919084260869';
   const whatsappMessage = encodeURIComponent('Hi RAVARI! I would like to know more about your products.');
 
   return (
@@ -48,7 +59,7 @@ function Contact() {
         keywords={seoConfig.keywords}
         canonical={`${SEO_CONFIG.site.url}${seoConfig.path}`}
         ogTitle="Contact RAVARI - Luxury Leather Goods Support"
-        ogDescription="Get in touch with RAVARI for inquiries, custom orders, or customer support. Available 24/7 online or contact our Delhi studio."
+        ogDescription="Get in touch with RAVARI for inquiries, custom orders, or customer support. Available 24/7 online or visit us in Lucknow."
         ogImage="https://ravari.in/og-contact.jpg"
         schemaMarkup={pageSchema}
       />
@@ -119,11 +130,15 @@ function Contact() {
                   required
                 ></textarea>
               </div>
+              {sendError && (
+                <div className="bg-red-50 border-2 border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm font-semibold">{sendError}</div>
+              )}
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-4 rounded-lg font-black text-lg hover:shadow-2xl transition transform hover:scale-105"
+                disabled={sending}
+                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-4 rounded-lg font-black text-lg hover:shadow-2xl transition transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                ✉️ Send Message
+                {sending ? 'Sending…' : '✉️ Send Message'}
               </button>
             </form>
           </div>
@@ -153,8 +168,8 @@ function Contact() {
                   <FiPhone className="text-4xl text-amber-700 flex-shrink-0 mt-2" />
                   <div>
                     <h3 className="font-bold text-gray-900 text-lg mb-2">Phone</h3>
-                    <a href="tel:+919876543210" className="text-lg font-semibold text-amber-700 hover:text-orange-600">
-                      +91 9876 543 210
+                    <a href="tel:+919084260869" className="text-lg font-semibold text-amber-700 hover:text-orange-600">
+                      +91 90842 60869
                     </a>
                     <p className="text-sm text-gray-600 mt-2">Monday to Saturday, 10 AM - 6 PM</p>
                   </div>
@@ -168,9 +183,9 @@ function Contact() {
                   <div>
                     <h3 className="font-bold text-gray-900 text-lg mb-2">Address</h3>
                     <p className="text-gray-700 font-semibold mb-2">
-                      RAVARI Studios<br />
-                      Artisan District<br />
-                      New Delhi - 110001, India
+                      RAVARI<br />
+                      4A Prakash Apartment, 44A Cantt Road<br />
+                      Lucknow - 226001, Uttar Pradesh, India
                     </p>
                   </div>
                 </div>
@@ -209,7 +224,7 @@ function Contact() {
           <h2 className="text-4xl font-black text-gray-900 mb-8 text-center">Frequently Asked Questions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[
-              { q: 'What is your return policy?', a: 'We offer 10-day returns on all products in original condition with all tags attached.' },
+              { q: 'What is your return policy?', a: 'We offer 7-day hassle-free returns on all products in original condition with all tags and packaging intact.' },
               { q: 'Do you ship internationally?', a: 'Yes, we ship to most countries worldwide. Shipping rates vary by location.' },
               { q: 'How do I care for my RAVARI product?', a: 'Each product comes with detailed care instructions. Generally, condition leather regularly and store in dust bag.' },
               { q: 'Can I customize my order?', a: 'Yes! We offer custom personalization services. Please contact us for details.' }

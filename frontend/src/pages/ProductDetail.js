@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useDispatch } from 'react-redux';
-import { FiZoomIn, FiChevronLeft, FiChevronRight, FiStar } from 'react-icons/fi';
+import { FiZoomIn, FiChevronLeft, FiChevronRight, FiStar, FiShare2 } from 'react-icons/fi';
 import SEO from '../components/SEO';
 import { SEO_CONFIG } from '../utils/seoConstants';
 import { getProductSchema, getBreadcrumbSchema } from '../utils/schemaMarkup';
@@ -15,27 +15,35 @@ function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [zoomActive, setZoomActive] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 0, y: 0 });
   const [newReview, setNewReview] = useState({ rating: 5, title: '', comment: '' });
-  const dispatch = useDispatch();
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const dispatch  = useDispatch();
+  const navigate  = useNavigate();
 
+  useEffect(() => { fetchProduct(); }, [slug]);
+  useEffect(() => { setSelectedImage(0); }, [selectedVariant]);
   useEffect(() => {
-    fetchProduct();
-  }, [slug]);
+    if (product?.category && product?._id) {
+      fetch(`/api/products/related?category=${encodeURIComponent(product.category)}&excludeId=${product._id}`)
+        .then(r => r.json()).then(d => setRelatedProducts(d.products || [])).catch(() => {});
+    }
+  }, [product?.category, product?._id]);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
       const res = await api.get(`/products/slug/${slug}`);
-      setProduct(res.data.product);
+      const p = res.data.product;
+      setProduct(p);
       setReviews(res.data.reviews || []);
-      // Track product view
-      if (res.data.product) {
-        trackProductView(res.data.product);
-      }
+      // Set default variant if product has variants
+      if (p?.variants?.length) setSelectedVariant(p.variants[0]);
+      if (p) trackProductView(p);
     } catch (error) {
       console.error('Error fetching product:', error);
     } finally {
@@ -43,27 +51,39 @@ function ProductDetail() {
     }
   };
 
-  const handleAddToCart = () => {
-    if (product) {
-      const getImageUrl = (url) => {
-        if (!url) return '';
-        if (url.startsWith('http')) return url;
-        return `${url}`;
-      };
+  const handleShopNow = () => {
+    if (!product) return;
+    const price = activeVariant ? (activeVariant.salePrice || activeVariant.price) : (product.salePrice || product.price);
+    const thumb = activeVariant ? activeVariant.thumbnail : product.thumbnail;
+    dispatch({
+      type: 'ADD_TO_CART',
+      payload: {
+        productId: product._id,
+        name: product.name + (activeVariant ? ` — ${activeVariant.label}` : ''),
+        price,
+        image: thumb || product.thumbnail,
+        quantity,
+        selectedOptions: activeVariant ? { ...selectedOptions, variant: activeVariant.label } : selectedOptions,
+      }
+    });
+    navigate('/checkout');
+  };
 
-      dispatch({
-        type: 'ADD_TO_CART',
-        payload: {
-          productId: product._id,
-          name: product.name,
-          price: product.salePrice || product.price,
-          image: getImageUrl(product.thumbnail),
-          quantity,
-          selectedOptions
-        }
-      });
-      alert('✅ Added to cart!');
-    }
+  const handleAddToCart = () => {
+    if (!product) return;
+    const price = activeVariant ? (activeVariant.salePrice || activeVariant.price) : (product.salePrice || product.price);
+    const thumb = activeVariant ? activeVariant.thumbnail : product.thumbnail;
+    dispatch({
+      type: 'ADD_TO_CART',
+      payload: {
+        productId: product._id,
+        name: product.name + (activeVariant ? ` — ${activeVariant.label}` : ''),
+        price,
+        image: thumb || product.thumbnail,
+        quantity,
+        selectedOptions: activeVariant ? { ...selectedOptions, variant: activeVariant.label } : selectedOptions,
+      }
+    });
   };
 
   const handleZoom = (e) => {
@@ -101,12 +121,13 @@ function ProductDetail() {
     return `${url}`;
   };
 
-  const images = product.images && product.images.length > 0
-    ? product.images.map(img => ({
-        ...img,
-        url: getImageUrl(img.url)
-      }))
-    : [{ url: getImageUrl(product.thumbnail), alt: product.name }];
+  const activeVariant = selectedVariant;
+  const activeImages = (activeVariant ? activeVariant.images : product.images) || [];
+  const images = activeImages.length > 0
+    ? activeImages.map(i => ({ ...i, url: getImageUrl(i.url) }))
+    : [{ url: getImageUrl(activeVariant?.thumbnail || product.thumbnail), alt: product.name }];
+  const activePrice    = activeVariant ? activeVariant.price    : product.price;
+  const activeSalePrice = activeVariant ? activeVariant.salePrice : product.salePrice;
 
   // Generate SEO data and schema
   const productTitle = `${product.name} | Premium ${product.category} | RAVARI`;
@@ -140,14 +161,28 @@ function ProductDetail() {
           ]
         }}
       />
+      {/* Breadcrumb */}
+      <div style={{ backgroundColor: '#F8F7F5', borderBottom: '1px solid #E8E4DE', padding: '0.55rem 1.5rem', marginBottom: '0.5rem' }}>
+        <div style={{ maxWidth: '80rem', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', color: '#8C8680' }}>
+          <Link to="/" style={{ color: '#8C8680', textDecoration: 'none' }}>Home</Link>
+          <span>›</span>
+          <Link to="/products" style={{ color: '#8C8680', textDecoration: 'none' }}>Shop</Link>
+          <span>›</span>
+          <Link to={`/products?category=${encodeURIComponent(product.category)}`} style={{ color: '#8C8680', textDecoration: 'none' }}>{product.category}</Link>
+          <span>›</span>
+          <span style={{ color: '#0D0D0D', fontWeight: 500 }}>{product.name}</span>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Product Images Section */}
           <div>
-            {/* Main Image with Zoom */}
-            <div className="mb-6 relative bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl overflow-hidden border-4 border-amber-200">
+            {/* Main Image */}
+            <div className="mb-4" style={{ border: '1px solid #E8E4DE', backgroundColor: '#FAFAF8' }}>
               <div
-                className="relative w-full h-96 md:h-[500px] cursor-zoom-in overflow-hidden group"
+                className="relative w-full cursor-zoom-in overflow-hidden"
+                style={{ height: '520px' }}
                 onMouseEnter={() => setZoomActive(true)}
                 onMouseLeave={() => setZoomActive(false)}
                 onMouseMove={handleZoom}
@@ -155,17 +190,13 @@ function ProductDetail() {
                 <img
                   src={images[selectedImage]?.url || product.thumbnail}
                   alt={product.name}
-                  style={zoomActive ? {
-                    transform: `scale(2)`,
-                    transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`
-                  } : {}}
-                  className="w-full h-full object-cover transition-transform duration-300"
+                  style={{
+                    width: '100%', height: '100%',
+                    objectFit: 'contain', display: 'block',
+                    ...(zoomActive ? { transform: `scale(2)`, transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` } : {})
+                  }}
+                  className="transition-transform duration-300"
                 />
-                {zoomActive && (
-                  <div className="absolute top-4 right-4 bg-amber-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2">
-                    <FiZoomIn /> Zoomed
-                  </div>
-                )}
               </div>
 
               {/* Navigation Arrows */}
@@ -198,7 +229,7 @@ function ProductDetail() {
                       idx === selectedImage ? 'border-amber-600 shadow-lg' : 'border-amber-200'
                     }`}
                   >
-                    <img src={img.url} alt={`View ${idx + 1}`} className="w-full h-20 object-cover" />
+                    <img src={img.url} alt={`View ${idx + 1}`} style={{ width: '100%', height: '80px', objectFit: 'contain', backgroundColor: '#FAFAF8' }} />
                   </button>
                 ))}
               </div>
@@ -226,22 +257,55 @@ function ProductDetail() {
               </div>
             )}
 
+            {/* Variant Selector */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="mb-6">
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', marginBottom: '0.75rem' }}>
+                  Select {product.variantLabel || 'Option'}
+                </p>
+                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                  {product.variants.map(v => (
+                    <button key={v.id} onClick={() => { setSelectedVariant(v); setSelectedImage(0); }}
+                      style={{
+                        fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', fontWeight: 600,
+                        padding: '0.6rem 1.4rem', cursor: 'pointer', transition: 'all 0.2s',
+                        border: `1.5px solid ${activeVariant?.id === v.id ? '#C9A84C' : '#D4CFC8'}`,
+                        backgroundColor: activeVariant?.id === v.id ? '#0D0D0D' : '#FAFAF8',
+                        color: activeVariant?.id === v.id ? '#C9A84C' : '#4A4642',
+                      }}>
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Price */}
-            <div className="mb-8 p-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200">
-              <div className="flex items-baseline gap-4 mb-2">
-                <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-700 to-orange-600">
-                  ₹{product.salePrice || product.price}
+            <div className="mb-8" style={{ padding: '1.25rem 1.5rem', backgroundColor: '#F5F3EE', borderLeft: '3px solid #C9A84C' }}>
+              <div className="flex items-baseline gap-4 mb-1">
+                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 600, color: '#0D0D0D' }}>
+                  ₹{(activeSalePrice || activePrice)?.toLocaleString('en-IN')}
                 </span>
-                {product.salePrice && product.salePrice < product.price && (
+                {activeSalePrice && activeSalePrice < activePrice && (
                   <>
-                    <span className="text-2xl text-gray-400 line-through">₹{product.price}</span>
-                    <span className="text-lg font-black text-green-600">
-                      Save ₹{product.price - product.salePrice}
+                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '1rem', color: '#B8A89A', textDecoration: 'line-through' }}>
+                      ₹{activePrice?.toLocaleString('en-IN')}
+                    </span>
+                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', fontWeight: 600, color: '#2E7D32' }}>
+                      Save ₹{(activePrice - activeSalePrice)?.toLocaleString('en-IN')}
                     </span>
                   </>
                 )}
               </div>
-              <p className="text-gray-600 font-semibold">Inclusive of all taxes</p>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: '#8C8680' }}>Inclusive of all taxes</p>
+              {product.stock > 0 && product.stock <= 5 && (
+                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 600, color: '#C0392B', marginTop: '0.4rem' }}>
+                  ⚡ Only {product.stock} left in stock — order soon!
+                </p>
+              )}
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', color: '#2E7D32', marginTop: '0.35rem' }}>
+                🚚 Estimated delivery: {(() => { const d = new Date(); d.setDate(d.getDate() + 7); return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }); })()}
+              </p>
             </div>
 
             {/* Description */}
@@ -312,13 +376,39 @@ function ProductDetail() {
               </div>
             </div>
 
-            {/* Add to Cart Button */}
-            <button
-              onClick={handleAddToCart}
-              className="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-4 rounded-xl font-black text-lg hover:shadow-2xl transition transform hover:scale-105 mb-4"
-            >
-              🛒 ADD TO CART - ₹{(product.salePrice || product.price) * quantity}
-            </button>
+            {/* Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              {product.stock === 0 ? (
+                <div style={{ width: '100%', padding: '1rem', backgroundColor: '#F0EDE8', color: '#8C8680', fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', textAlign: 'center', border: '1px solid #E8E4DE' }}>
+                  Out of Stock — Notify me when available via WhatsApp
+                </div>
+              ) : (
+                <>
+                  {/* SHOP NOW — primary */}
+                  <button onClick={handleShopNow}
+                    style={{ width: '100%', padding: '1rem', backgroundColor: '#C9A84C', color: '#0D0D0D', fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#B8962A'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#C9A84C'}>
+                    SHOP NOW — ₹{((activeSalePrice || activePrice) * quantity)?.toLocaleString('en-IN')}
+                  </button>
+                  {/* Add to Cart — secondary */}
+                  <button onClick={handleAddToCart}
+                    style={{ width: '100%', padding: '1rem', backgroundColor: 'transparent', color: '#0D0D0D', fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', border: '1.5px solid #0D0D0D', cursor: 'pointer', transition: 'all 0.2s' }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#0D0D0D'; e.currentTarget.style.color = '#FFF'; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#0D0D0D'; }}>
+                    Add to Cart
+                  </button>
+                </>
+              )}
+
+              {/* WhatsApp Share */}
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`Check out this ${product.name} from RAVARI — handcrafted luxury leather!\n₹${(activeSalePrice || activePrice)?.toLocaleString('en-IN')}\nhttps://ravari.in/products/${slug}`)}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{ width: '100%', padding: '0.85rem', backgroundColor: '#25D366', color: '#fff', fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', border: 'none', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxSizing: 'border-box' }}>
+                <FiShare2 size={15} /> Share on WhatsApp
+              </a>
+            </div>
 
             {/* Product Info */}
             {product.material && product.material.length > 0 && (
@@ -343,6 +433,30 @@ function ProductDetail() {
             )}
           </div>
         </div>
+
+        {/* You May Also Like */}
+        {relatedProducts.length > 0 && (
+          <div style={{ borderTop: '1px solid #E8E4DE', paddingTop: '3rem', marginBottom: '3rem' }}>
+            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.5rem', textAlign: 'center' }}>Continue Exploring</p>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 400, color: '#0D0B08', textAlign: 'center', marginBottom: '2rem' }}>You May Also Like</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.25rem' }}>
+              {relatedProducts.map(p => (
+                <Link key={p._id || p.id} to={`/products/${p.slug}`} style={{ textDecoration: 'none', border: '1px solid #E8E4DE', backgroundColor: '#FAFAF8', display: 'flex', flexDirection: 'column' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#C9A84C'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#E8E4DE'}>
+                  <div style={{ backgroundColor: '#F5F3EE', height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                    <img src={p.thumbnail} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '8px' }} />
+                  </div>
+                  <div style={{ padding: '0.85rem 1rem' }}>
+                    <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8C8680', marginBottom: '0.25rem' }}>{p.category}</p>
+                    <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 600, color: '#0D0B08', lineHeight: 1.3, marginBottom: '0.4rem' }}>{p.name}</p>
+                    <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 600, color: '#C9A84C' }}>₹{(p.salePrice || p.price)?.toLocaleString('en-IN')}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Reviews Section */}
         <div className="border-t-4 border-amber-200 pt-12">
@@ -417,9 +531,14 @@ function ProductDetail() {
                 <div key={review._id} className="bg-white border-2 border-amber-100 p-6 rounded-xl">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <p className="font-bold text-gray-900">
-                        {review.userId?.firstName} {review.userId?.lastName}
-                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2px' }}>
+                        <p className="font-bold text-gray-900">
+                          {review.userId?.firstName} {review.userId?.lastName}
+                        </p>
+                        <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#1B6C2F', backgroundColor: '#EAFBEF', border: '1px solid #A7D9B6', padding: '1px 6px' }}>
+                          ✓ Verified Purchase
+                        </span>
+                      </div>
                       <div className="flex text-yellow-400">
                         {'⭐'.repeat(review.rating)}
                       </div>
