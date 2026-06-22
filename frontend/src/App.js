@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import Header from './components/Header';
@@ -26,10 +26,14 @@ import './styles/globals.css';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
+  const navType = useNavigationType();
   useEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [pathname]);
+    // POP = back/forward button — preserve scroll position so user can keep browsing
+    if (navType !== 'POP') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, [pathname, navType]);
   return null;
 }
 
