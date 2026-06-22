@@ -547,6 +547,7 @@ if (fs.existsSync(backendPublic)) {
   fastify.register(require('@fastify/static'), { root: backendPublic, prefix: '/assets/', decorateReply: false });
   // Direct /videos and /images passthrough to backend/public
   fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'videos'), prefix: '/videos/', decorateReply: false });
+  fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'videos'), prefix: '/static/videos/', decorateReply: false });
   // Product images at /static/images/ (named files)
   fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'images'), prefix: '/static/images/', decorateReply: false });
   // Product images at /static/products/ (organized subdirs - user-uploaded on server)
