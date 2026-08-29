@@ -321,6 +321,24 @@ const PRODUCTS = [
     material: ['Premium Textured Leather', 'Top Handle', 'Flap Closure', 'Zipper Pocket'],
     stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
+  {
+  id: 13, _id: '13',
+  name: 'RAVARI Genuine Leather Card Holder | Slim Compact Wallet',
+  slug: 'ravari-leather-card-holder',
+  price: 549, salePrice: 1099, category: 'Card Holders',
+  thumbnail: '/static/products/Untitled design (1) (4).png',
+  images: [
+    img('/static/products/Untitled design (1) (4).png', 'RAVARI Card Holder – View 1'),
+    img('/static/products/Untitled design (2) (3).png', 'RAVARI Card Holder – View 2'),
+    img('/static/products/Untitled design (3) (3).png', 'RAVARI Card Holder – View 3'),
+    img('/static/products/Untitled design (4) (3).png', 'RAVARI Card Holder – View 4'),
+    img('/static/products/Untitled design (5) (2).png', 'RAVARI Card Holder – View 5'),
+    img('/static/products/Untitled design (89).png', 'RAVARI Card Holder – View 6'),
+  ],
+  description: 'Premium brown leather card holder featuring a vintage textured finish, slim and lightweight design, multiple card slots for organized storage, RFID protection, strong detailed stitching, and a timeless unisex style for everyday use.',
+  material: ['Genuine Leather'],
+  stock: 10, isNew: true, isFeatured: false, rating: 0, reviewCount: 0
+},
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
