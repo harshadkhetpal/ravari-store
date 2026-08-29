@@ -33,5 +33,4 @@ jobs:
         git config user.name "RAVARI CI"
         git add frontend/build -f
         git diff --staged --quiet && echo "No build changes" || git commit -m "CI: rebuild luxury frontend [skip ci]"
-        git push https://ravaristore-ux:${{ secrets.DEPLOY_PAT }}@github.com/ravaristore-ux/ravari_store.git HEAD:main--force
-        git push https://ravaristore-ux:${{ secrets.DEPLOY_PAT }}@github.com/harshadkhetpal/ravari-store.git HEAD:main --force
+        git push https://ravaristore-ux:${{ secrets.DEPLOY_PAT }}@github.com/ravaristore-ux/ravari_store.git HEAD:main --force        git push https://ravaristore-ux:${{ secrets.DEPLOY_PAT }}@github.com/harshadkhetpal/ravari-store.git HEAD:main --force
