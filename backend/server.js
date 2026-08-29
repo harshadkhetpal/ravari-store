@@ -325,7 +325,7 @@ const PRODUCTS = [
   id: 13, _id: '13',
   name: 'RAVARI Genuine Leather Card Holder | Slim Compact Wallet',
   slug: 'ravari-leather-card-holder',
-  price: 549, salePrice: 1099, category: 'Card Holders',
+  price: 1099, salePrice: 549, category: 'Card Holders',
   thumbnail: '/static/products/Untitled design (1) (4).png',
   images: [
     img('/static/products/Untitled design (1) (4).png', 'RAVARI Card Holder – View 1'),
