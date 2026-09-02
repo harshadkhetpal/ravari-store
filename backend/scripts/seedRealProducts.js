@@ -16,13 +16,13 @@ const newProduct = {
   size: ['Standard'],
   stock: 15,
   images: [
+    { url: "/images/RAVARI Women's Premium Leather Handbag7.png", alt: 'Lifestyle' }
     { url: "/images/RAVARI Women's Premium Leather Handbag.png", alt: 'Front View' },
     { url: "/images/RAVARI Women's Premium Leather Handbag2.png", alt: 'Side View' },
     { url: "/images/RAVARI Women's Premium Leather Handbag3.png", alt: 'Interior View' },
-    { url: "/images/RAVARI Women's Premium Leather Handbag4.png", alt: 'Detail View' },
     { url: "/images/RAVARI Women's Premium Leather Handbag5.png", alt: 'Handle & Strap' },
     { url: "/images/RAVARI Women's Premium Leather Handbag6.png", alt: 'Full View' },
-    { url: "/images/RAVARI Women's Premium Leather Handbag7.png", alt: 'Lifestyle' }
+    
   ],
   thumbnail: "/images/RAVARI Women's Premium Leather Handbag.png",
   isFeatured: true,
