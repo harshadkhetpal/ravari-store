@@ -339,6 +339,25 @@ const PRODUCTS = [
   material: ['Genuine Leather'],
   stock: 10, isNew: true, isFeatured: false, rating: 0, reviewCount: 0
 },
+    {
+    id: 14, _id: '14',
+    name: 'RAVARI Women\'s Premium Leather Handbag',
+    slug: 'ravari-womens-premium-leather-handbag',
+    price: 4999, salePrice: 2499, category: 'Handbags',
+    thumbnail: '/static/images/RAVARI Women\'s Premium Leather Handbag.png',
+    images: [
+      img('/static/images/RAVARI Women\'s Premium Leather Handbag.png', 'RAVARI Women\'s Handbag - View 1'),
+      img('/static/images/RAVARI Women\'s Premium Leather Handbag2.png', 'RAVARI Women\'s Handbag - View 2'),
+      img('/static/images/RAVARI Women\'s Premium Leather Handbag3.png', 'RAVARI Women\'s Handbag - View 3'),
+      img('/static/images/RAVARI Women\'s Premium Leather Handbag4.png', 'RAVARI Women\'s Handbag - View 4'),
+      img('/static/images/RAVARI Women\'s Premium Leather Handbag5.png', 'RAVARI Women\'s Handbag - View 5'),
+      img('/static/images/RAVARI Women\'s Premium Leather Handbag6.png', 'RAVARI Women\'s Handbag - View 6'),
+      img('/static/images/RAVARI Women\'s Premium Leather Handbag7.png', 'RAVARI Women\'s Handbag - View 7'),
+    ],
+    description: 'Elegant handcrafted leather handbag for everyday elegance. Spacious interior with premium finish, sturdy handles and adjustable strap.',
+    material: ['Premium Leather'],
+    stock: 15, isNew: true, isFeatured: true, rating: 0, reviewCount: 0,
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
