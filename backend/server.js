@@ -373,7 +373,7 @@ let pool = null;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 function makePool(host) {
-  const mysql = require('mysql');
+  const mysql = require('mysql2');
   return mysql.createPool({
     connectionLimit: 5, host, port: process.env.DB_PORT || 3306,
     user: process.env.DB_USER || 'u800235524_ravari_user',
