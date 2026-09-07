@@ -12,7 +12,7 @@ const NAV = [
 
 const GOLD   = '#C9A84C';
 const TOP_BG = '#0D0B08';
-const NAV_BG = '#1A1510';
+const NAV_BG = '#1A1510'; 
 const BORDER = 'rgba(201,168,76,0.18)';
 
 export default function Header() {
@@ -100,7 +100,7 @@ export default function Header() {
 
             {/* Logo icon — vertically centered with RAVARI text only */}
             <img
-              src="/logo.png"
+              src="/logo.png" 
               alt="RAVARI Logo"
               className="ravari-logo-icon"
               style={{ height: '38px', width: 'auto', opacity: 0.93, filter: 'drop-shadow(0 0 5px rgba(201,168,76,0.4))', flexShrink: 0 }}
