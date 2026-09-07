@@ -14,7 +14,7 @@ const REELS = [
   { type: 'video', src: '/static/videos/reel1.mp4'   },
   { type: 'img',   src: '/static/videos/model1.png'  },  
   { type: 'video', src: '/static/videos/reel2.mp4'   },
-  { type: 'img',   src: '/static/videos/model3.webp' },  
+  { type: 'img',   src: '/static/videos/model3.webp' },    
   { type: 'video', src: '/static/videos/reel3.mp4'   },
   { type: 'img',   src: '/static/videos/model2.webp' },  
 ];
