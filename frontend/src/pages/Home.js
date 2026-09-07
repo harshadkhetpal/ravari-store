@@ -12,11 +12,11 @@ import { trackPageView } from '../utils/ga4Tracking';
 /* ── Reel Carousel ─────────────────────────────────────── */
 const REELS = [
   { type: 'video', src: '/static/videos/reel1.mp4'   },
-  { type: 'img',   src: '/static/videos/model1.png'  }, 
+  { type: 'img',   src: '/static/videos/model1.png'  },  
   { type: 'video', src: '/static/videos/reel2.mp4'   },
-  { type: 'img',   src: '/static/videos/model3.webp' }, 
+  { type: 'img',   src: '/static/videos/model3.webp' },  
   { type: 'video', src: '/static/videos/reel3.mp4'   },
-  { type: 'img',   src: '/static/videos/model2.webp' }, 
+  { type: 'img',   src: '/static/videos/model2.webp' },  
 ];
 
 const TILE_W = 300; // px per tile
