@@ -12,11 +12,11 @@ import { trackPageView } from '../utils/ga4Tracking';
 /* ── Reel Carousel ─────────────────────────────────────── */
 const REELS = [
   { type: 'video', src: '/static/videos/reel1.mp4'   },
-  { type: 'img',   src: '/static/videos/model1.png'  },
+  { type: 'img',   src: '/static/videos/model1.png'  }, 
   { type: 'video', src: '/static/videos/reel2.mp4'   },
-  { type: 'img',   src: '/static/videos/model3.webp' },
+  { type: 'img',   src: '/static/videos/model3.webp' }, 
   { type: 'video', src: '/static/videos/reel3.mp4'   },
-  { type: 'img',   src: '/static/videos/model2.webp' },
+  { type: 'img',   src: '/static/videos/model2.webp' }, 
 ];
 
 const TILE_W = 300; // px per tile
@@ -101,11 +101,11 @@ function ReelCarousel() {
 
 /* ── Hero slides ───────────────────────────────────────── */
 const SLIDES = [
-  { img: '/static/videos/hero1.png', to: '/products?category=Jewellery+Box' },
-  { img: '/static/videos/hero2.png', to: '/products?category=Watch+Box'     },
-  { img: '/static/videos/hero3.png', to: '/products?category=Tote+Bags'     },
-  { img: '/static/videos/hero4.png', to: '/products'                        },
-  { img: '/static/videos/hero5.png', to: '/products'                        },
+  { img: '/static/videos/hero1.png', to: '/products?category=Jewellery+Box' }, 
+  { img: '/static/videos/hero2.png', to: '/products?category=Watch+Box'     }, 
+  { img: '/static/videos/hero3.png', to: '/products?category=Tote+Bags'     }, 
+  { img: '/static/videos/hero4.png', to: '/products'                        }, 
+  { img: '/static/videos/hero5.png', to: '/products'                        }, 
 ];
 
 /* ── Categories ────────────────────────────────────────── */
