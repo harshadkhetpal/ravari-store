@@ -358,6 +358,25 @@ const PRODUCTS = [
     material: ['Premium Leather'],
     stock: 15, isNew: true, isFeatured: true, rating: 0, reviewCount: 0,
   },
+  {
+    id: 15, _id: '15',
+    name: "RAVARI Women's Leather Handbag with Chain Strap | Stylish Crocodile Pattern Shoulder Bag | Spacious Multi-Compartment | Elegant Casual & Office",
+    slug: 'ravari-womens-leather-handbag-chain-strap',
+    price: 6999, salePrice: 3499, category: 'Handbags',
+    thumbnail: '/static/images/Brown Handbag 1.png',
+    images: [
+      img('/static/images/Brown Handbag 1.png', 'RAVARI Chain Strap Handbag — Front View'),
+      img('/static/images/Brown Handbag 3.png', 'RAVARI Chain Strap Handbag — Side View'),
+      img('/static/images/Brown Handbag 4.png', 'RAVARI Chain Strap Handbag — Detail View'),
+      img('/static/images/Untitled design (1).png', 'RAVARI Chain Strap Handbag — Lifestyle'),
+      img('/static/images/Untitled design (2).png', 'RAVARI Chain Strap Handbag — Interior'),
+      img('/static/images/Untitled design (3).png', 'RAVARI Chain Strap Handbag — Styled Shot'),
+    ],
+    description: 'Elegant crocodile-pattern shoulder bag with a stylish chain-and-leather strap. Spacious multi-compartment interior with zippered sections to organize your phone, wallet, keys, cosmetics & cards. Secure flap closure with a decorative metal clasp. Perfect for office, shopping, casual outings, dinners, travel & special occasions.',
+    longDescription: "The RAVARI Women's Leather Handbag with Chain Strap pairs a sophisticated textured crocodile pattern with a refined, structured silhouette. Detailed with a combination leather-and-chain strap for an elegant look and versatile carrying convenience, plus a flap closure secured by a decorative metal clasp. Multiple interior compartments keep everyday essentials organized, making it a practical yet polished addition to any handbag collection.",
+    material: ['Crocodile-Pattern Leather', 'Metal Chain Strap', 'Metal Hardware'],
+    stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
+  }, 
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
