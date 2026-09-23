@@ -377,6 +377,28 @@ const PRODUCTS = [
     material: ['Crocodile-Pattern Leather', 'Metal Chain Strap', 'Metal Hardware'],
     stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   }, 
+  {
+    id: 16, ...   ← new white handbag
+  },
+    {
+    id: 16, _id: '16',
+    name: "RAVARI Women's Premium Leather Shoulder Handbag | Elegant Hobo Bag with Gold Buckle | Spacious Multi-Compartment Design | Office, Casual & Everyday Use",
+    slug: 'ravari-womens-premium-leather-shoulder-handbag-gold-buckle',
+    price: 4999, salePrice: 2499, category: 'Handbags',
+    thumbnail: '/static/images/Ravari White Handbag1.png',
+    images: [
+      img('/static/images/Ravari White Handbag1.png', 'RAVARI Shoulder Handbag — Front View'),
+      img('/static/images/Ravari White Handbag2.png', 'RAVARI Shoulder Handbag — Side View'),
+      img('/static/images/Ravari White Handbag3.png', 'RAVARI Shoulder Handbag — Detail View'),
+      img('/static/images/Ravari White Handbag4.png', 'RAVARI Shoulder Handbag — Interior'),
+      img('/static/images/Ravari White Handbag5.png', 'RAVARI Shoulder Handbag — Lifestyle'),
+    ],
+    description: 'Elegant women\'s shoulder handbag with a soft textured finish and gold-tone buckle detailing. Spacious interior for your phone, wallet, cosmetics & keys. Comfortable shoulder handle, neat stitching and a structured silhouette. Dimensions: 28 × 23 × 7 cm | Weight: 550 g. Perfect for office, shopping, travel, brunch & everyday use.',
+    longDescription: "The RAVARI Women's Premium Leather Shoulder Handbag is designed for women who appreciate timeless style, everyday functionality, and elegant detailing. Featuring a soft textured leather-look finish, a refined gold-tone buckle, and a comfortable shoulder handle, it adds a sophisticated touch to both casual and professional outfits. Its spacious interior keeps your wallet, phone, cosmetics, keys and other essentials organized, and its versatile design complements both traditional and contemporary outfits, making it a great everyday bag and gift.",
+    material: ['Leather-Textured PU Exterior', 'Gold-Tone Buckle Hardware'],
+    dimensions: { length: '28 cm', width: '7 cm', height: '23 cm' },
+    stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
+  },
 ];
 
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
