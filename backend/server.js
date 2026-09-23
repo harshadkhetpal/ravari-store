@@ -378,9 +378,6 @@ const PRODUCTS = [
     stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   }, 
   {
-    id: 16, ...   ← new white handbag
-  },
-    {
     id: 16, _id: '16',
     name: "RAVARI Women's Premium Leather Shoulder Handbag | Elegant Hobo Bag with Gold Buckle | Spacious Multi-Compartment Design | Office, Casual & Everyday Use",
     slug: 'ravari-womens-premium-leather-shoulder-handbag-gold-buckle',
@@ -400,7 +397,6 @@ const PRODUCTS = [
     stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
 ];
-
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
 const REVIEWS = {};
 
