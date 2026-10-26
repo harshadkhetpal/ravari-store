@@ -396,6 +396,26 @@ const PRODUCTS = [
     dimensions: { length: '28 cm', width: '7 cm', height: '23 cm' },
     stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
+    {
+    id: 17, _id: '17',
+    name: "RAVARI Women's Brown Crossbody Handbag with Contrast Front Strap, Adjustable Shoulder Strap & Zip Pocket for Casual, Shopping and Everyday Use",
+    slug: 'ravari-womens-brown-crossbody-handbag-contrast-front-strap',
+    price: 4500, salePrice: 2099, category: 'Handbags',
+    thumbnail: '/static/images/Brown Sling Bag 1.png',
+    images: [
+      img('/static/images/Brown Sling Bag 1.png', 'RAVARI Brown Crossbody Handbag – View 1'),
+      img('/static/images/Brown Sling Bag 2.png', 'RAVARI Brown Crossbody Handbag – View 2'),
+      img('/static/images/Brown Sling Bag 3.png', 'RAVARI Brown Crossbody Handbag – View 3'),
+      img('/static/images/Brown Sling Bag 4.png', 'RAVARI Brown Crossbody Handbag – View 4'),
+      img('/static/images/Brown Sling Bag 5.png', 'RAVARI Brown Crossbody Handbag – View 5'),
+      img('/static/images/Brown Sling Bag 6.png', 'RAVARI Brown Crossbody Handbag – View 6'),
+    ],
+    description: "A brown crossbody handbag for women with a contrast front strap, an adjustable shoulder strap and a zip pocket. Easy to carry for casual outings, shopping and everyday use.",
+    longDescription: "The RAVARI Women's Brown Crossbody Handbag pairs a clean brown finish with a contrast front strap for a distinctive look. The adjustable shoulder strap lets you wear it crossbody or on the shoulder at the length that suits you, and the zip pocket keeps small essentials secure. A practical, stylish bag for casual days, shopping trips and everyday use.",
+    material: ['PU Leather Exterior', 'Adjustable Shoulder Strap', 'Zip Pocket'],
+    dimensions: { length: 'TODO cm', width: 'TODO cm', height: 'TODO cm' }, // replace with real measurements
+    stock: 20, isNew: true, isFeatured: false, rating: 0, reviewCount: 0
+  },
 ];
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
 const REVIEWS = {};
