@@ -337,7 +337,7 @@ const PRODUCTS = [
   ],
   description: 'Premium brown leather card holder featuring a vintage textured finish, slim and lightweight design, multiple card slots for organized storage, RFID protection, strong detailed stitching, and a timeless unisex style for everyday use.',
   material: ['Genuine Leather'],
-  stock: 10, isNew: true, isFeatured: false, rating: 0, reviewCount: 0
+  stock: 10, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
 },
     {
     id: 14, _id: '14',
@@ -414,7 +414,7 @@ const PRODUCTS = [
     longDescription: "The RAVARI Women's Brown Crossbody Handbag pairs a clean brown finish with a contrast front strap for a distinctive look. The adjustable shoulder strap lets you wear it crossbody or on the shoulder at the length that suits you, and the zip pocket keeps small essentials secure. A practical, stylish bag for casual days, shopping trips and everyday use.",
     material: ['PU Leather Exterior', 'Adjustable Shoulder Strap', 'Zip Pocket'],
     dimensions: { length: 'TODO cm', width: 'TODO cm', height: 'TODO cm' }, // replace with real measurements
-    stock: 20, isNew: true, isFeatured: false, rating: 0, reviewCount: 0
+    stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
 ];
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
