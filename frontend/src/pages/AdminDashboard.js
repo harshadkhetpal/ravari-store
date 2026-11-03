@@ -1138,7 +1138,7 @@ export default function AdminDashboard() {
                 {/* Revenue bar chart - daily */}
                 <div style={{ backgroundColor: '#fff', border: '1px solid #E8E4DE', padding: '1.75rem', marginBottom: '1.5rem' }}>
                   <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#4A4642', fontWeight: 600, marginBottom: '0.4rem' }}>Daily Revenue — Last 30 Days</p>
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', color: '#8C8680', marginBottom: '1.5rem' }}>Total: ₹{daily.reduce((s,d)=>s+Number(d.revenue),0).toLocaleString('en-IN')}</p>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', color: '#8C8680', marginBottom: '1.5rem' }}>Total: ₹{daily.reduce((s,d)=>s+Number(d.revenue),0).toLocaleString('en-IN')}</p> 
                   {daily.length === 0 ? (
                     <p style={{ color: '#8C8680', fontSize: '0.8rem', fontFamily: 'Jost, sans-serif', textAlign: 'center', padding: '2rem' }}>No order data yet</p>
                   ) : (
