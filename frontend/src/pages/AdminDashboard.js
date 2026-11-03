@@ -1270,7 +1270,7 @@ export default function AdminDashboard() {
               {cancelDialog.customerEmail && (
                 <a href={`mailto:${cancelDialog.customerEmail}?subject=Order%20RAV${cancelDialog.orderId}%20Cancellation%20%E2%80%94%20RAVARI&body=${encodeURIComponent(cancelMsg)}`}
                   style={{ backgroundColor: 'transparent', color: '#4A4642', padding: '0.65rem 1.5rem', border: '1px solid #D4CFC8', cursor: 'pointer', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <FiMail size={13} /> Send via Email
+                  <FiMail size={13} /> Send via Email 
                 </a>
               )}
               <button onClick={() => setCancelDialog(null)}
