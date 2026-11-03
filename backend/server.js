@@ -234,7 +234,7 @@ const PRODUCTS = [
     variants: [
       {
         id: 'brown', label: 'Brown',
-        price: 2799, salePrice: 1599, stock: 20,
+        price: 2799, salePrice: 1599, stock: 00,
         thumbnail: '/static/products/croc-handbag/brown/img1.jpg',
         images: [
           img('/static/products/croc-handbag/brown/img1.jpg', 'Croc Handbag Brown — Front'),
@@ -246,7 +246,7 @@ const PRODUCTS = [
       },
       {
         id: 'black', label: 'Black',
-        price: 2799, salePrice: 1599, stock: 20,
+        price: 2799, salePrice: 1599, stock: 01,
         thumbnail: '/static/images/Ravari Croc-Textured Black Handbag - Product Shot.png',
         images: [
           img('/static/images/Ravari Croc-Textured Black Handbag - Product Shot.png', 'Croc Handbag Black — Product Shot'),
@@ -258,7 +258,7 @@ const PRODUCTS = [
       },
       {
         id: 'green', label: 'Emerald Green',
-        price: 2799, salePrice: 1599, stock: 20,
+        price: 2799, salePrice: 1599, stock: 01,
         thumbnail: '/static/products/croc-handbag/green/img1.png',
         images: [
           img('/static/products/croc-handbag/green/img1.png', 'Croc Handbag Green — Front'),
