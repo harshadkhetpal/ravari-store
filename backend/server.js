@@ -416,6 +416,25 @@ const PRODUCTS = [
     dimensions: { length: 'TODO cm', width: 'TODO cm', height: 'TODO cm' }, // replace with real measurements
     stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
+    {
+    id: 18, _id: '18',
+    name: "RAVARI Premium Quilted Leather Key Holder with Zipper Pouch & Metal Keychain | Compact Organizer for Car & Home Keys for Men & Women",
+    slug: 'ravari-quilted-leather-car-key-holder-zipper-pouch',
+    price: 1499, salePrice: 499, category: 'Key Holders',
+    thumbnail: '/static/images/Car key Chain 1.png',
+    images: [
+      img('/static/images/Car key Chain 1.png', 'RAVARI Quilted Leather Car Key Holder - View 1'),
+      img('/static/images/Car key Chain 2.png', 'RAVARI Quilted Leather Car Key Holder - View 2'),
+      img('/static/images/Car key Chain 3.png', 'RAVARI Quilted Leather Car Key Holder - View 3'),
+      img('/static/images/Car key Chain 4.png', 'RAVARI Quilted Leather Car Key Holder - View 4'),
+      img('/static/images/Car key Chain 5.png', 'RAVARI Quilted Leather Car Key Holder - View 5'),
+    ],
+    description: "Stylish black quilted key holder with a zipper pouch, polished metal keychain and clip. Compact organizer for car keys, home keys and small essentials. Suitable for men and women, and a great gift.",
+    longDescription: "Upgrade your everyday key organization with the RAVARI Premium Quilted Leather Key Holder with Zipper Pouch and Metal Keychain. Designed with a stylish black quilted texture and polished silver-tone metal hardware, this compact key organizer combines elegance with everyday functionality. The secure zipper pouch provides convenient storage for small essentials, while the sturdy metal key ring and carabiner-style clip make it easy to attach your keys to a bag, belt loop, or backpack. Its sophisticated design makes it suitable for organizing car keys, home keys, and other everyday keys. Ideal for personal use or gifting, this RAVARI key holder offers a practical accessory with a premium look for both men and women.",
+    material: ['Leather-Textured PU Exterior', 'Quilted Finish', 'Silver-Tone Metal Keychain & Clip', 'Zipper Closure'],
+    dimensions: { length: '13.8 cm', width: '8.9 cm', height: '2.8 cm' },
+    stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
+  }
 ];
 // In-memory reviews (per productId). Persisted across requests, reset on restart.
 const REVIEWS = {};
