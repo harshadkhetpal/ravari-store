@@ -234,7 +234,7 @@ const PRODUCTS = [
     variants: [
       {
         id: 'brown', label: 'Brown',
-        price: 2799, salePrice: 1599, stock:00,
+        price: 2799, salePrice: 1599, stock: 0,
         thumbnail: '/static/products/croc-handbag/brown/img1.jpg',
         images: [
           img('/static/products/croc-handbag/brown/img1.jpg', 'Croc Handbag Brown — Front'),
@@ -269,7 +269,7 @@ const PRODUCTS = [
         ],
       },
     ],
-    stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+    stock: 02, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
   {
     id: 10, _id: '10',
