@@ -70,7 +70,7 @@ const PRODUCTS = [
     longDescription: 'Engineered for secure elegance. The RAVARI Jewellery Box features 3 pull-out tiers with a built-in mirror in the lid, a lockable clasp, and soft velvet-lined compartments. Premium crocodile-embossed leather with sturdy metallic handle and silver hardware accents.',
     material: ['Crocodile-Pattern Leather', 'Velvet Lining', 'Silver Hardware'],
     dimensions: { length: '8"', width: '6"', height: '5.5"' },
-    stock: 15, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
   },
   {
     id: 5, _id: '5',
