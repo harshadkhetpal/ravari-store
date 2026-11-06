@@ -213,7 +213,7 @@ const PRODUCTS = [
     ],
     description: 'Compact leather travel folio with dedicated card slots and passport organizer. Keep your cards, cash, boarding pass and passport organized in one sleek leather wallet. Perfect travel companion.',
     material: ['Genuine Leather', 'Card Slots', 'Passport Sleeve'],
-    stock: 30, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
   },
   {
     id: 9, _id: '9',
@@ -269,7 +269,7 @@ const PRODUCTS = [
         ],
       },
     ],
-    stock: 02, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
   {
     id: 10, _id: '10',
@@ -286,7 +286,7 @@ const PRODUCTS = [
     ],
     description: 'Compact leather key holder with zippered pouch and sturdy metal keychain. Keeps car and home keys organized, scratch-free and always within reach. Premium leather finish with reinforced stitching.',
     material: ['Genuine Leather', 'Metal Keychain', 'YKK Zipper'],
-    stock: 50, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
   },
   {
     id: 11, _id: '11',
@@ -303,7 +303,7 @@ const PRODUCTS = [
     ],
     description: 'Premium leather desk organizer with dedicated pen stand, card holder and utility tray. Keeps your workspace clean, organized and elegant. Crafted from genuine leather with reinforced base.',
     material: ['Genuine Leather', 'Reinforced Base', 'Metal Accents'],
-    stock: 30, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
   },
   {
     id: 12, _id: '12',
