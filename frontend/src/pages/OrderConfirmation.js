@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { track } from '../utils/tracker';
 import { useParams, Link } from 'react-router-dom';
 import { FiCheckCircle, FiPackage, FiTruck, FiMapPin, FiPhone, FiMail, FiRotateCcw, FiPrinter } from 'react-icons/fi';
 
@@ -18,6 +19,8 @@ export default function OrderConfirmation() {
   const { orderId } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => { track('order_success_view', { element: 'confirmation-page' }); }, []); // a page view only; purchases are recorded server-side after verified payment
 
   useEffect(() => {
     const id = String(orderId || '').replace(/^RAV/i, '');

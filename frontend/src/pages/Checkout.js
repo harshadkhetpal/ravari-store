@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { FiArrowLeft, FiCheckCircle, FiTruck, FiCreditCard, FiSmartphone } from 'react-icons/fi';
 import api from '../api/axiosConfig';
 import { trackPageView } from '../utils/ga4Tracking';
+import { track, getIds } from '../utils/tracker';
 
 const GOLD = '#C9A84C';
 const inp = {
@@ -26,6 +27,7 @@ export default function Checkout() {
 
   const navigate = useNavigate();
   const [step,    setStep]    = useState(1); // 1=address, 2=payment
+  const beganRef = React.useRef(false);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
   const [form, setForm] = useState({
@@ -44,6 +46,12 @@ export default function Checkout() {
       document.body.appendChild(s);
     }
   }, []);
+
+  useEffect(() => {
+    if (beganRef.current || !cartItems.length) return;
+    beganRef.current = true;
+    cartItems.forEach(i => track('begin_checkout', { productId: i.productId, name: i.name, value: i.price * i.quantity, qty: i.quantity }));
+  }, [cartItems]);
 
   const coupon   = useSelector(s => s.cart?.coupon || null);
   const subtotal = cartItems.reduce((a, i) => a + i.price * i.quantity, 0);
@@ -71,6 +79,7 @@ export default function Checkout() {
       return;
     }
     try {
+      track('payment_initiated', { element: 'razorpay', value: total });
       const { data } = await api.post('/payment/razorpay/create', { amount: total, receipt: `rcpt_${Date.now()}` });
       if (!data.order) throw new Error(data.error || 'Could not create payment order');
 
@@ -91,11 +100,13 @@ export default function Checkout() {
             })
             .catch(() => { setError('Verification error. Please contact support.'); setLoading(false); });
         },
-        modal: { ondismiss: () => setLoading(false) },
+        modal: { ondismiss: () => { track('payment_dismissed', { element: 'razorpay' }); setLoading(false); } },
       };
       const rzp = new window.Razorpay(options);
+      rzp.on && rzp.on('payment.failed', () => track('payment_failed', { element: 'razorpay', value: total }));
       rzp.open();
     } catch (e) {
+      track('payment_failed', { element: 'razorpay', label: 'could not start payment' });
       setError(e.response?.data?.error || e.message || 'Payment failed. Please try again.');
       setLoading(false);
     }
@@ -104,6 +115,7 @@ export default function Checkout() {
   /* ── COD ── */
   async function payWithCOD() {
     setLoading(true); setError('');
+    track('payment_initiated', { element: 'cod', value: total });
     try {
       const payload = buildPayload('cod');
       const { data } = await api.post('/orders/cod', payload);
@@ -123,9 +135,10 @@ export default function Checkout() {
       customerEmail: form.email,
       customerPhone: form.phone,
       address:       `${form.street}, ${form.city}, ${form.state} - ${form.postalCode}, ${form.country}`,
-      items:         cartItems.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, image: i.image })),
+      items:         cartItems.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, image: i.image })),
       subtotal, discount, shipping, total,
       paymentMethod: method,
+      analytics:     getIds(), // pseudonymous ids only when the visitor consented; lets the server attribute a verified order to its journey
     };
   }
 
@@ -224,7 +237,7 @@ export default function Checkout() {
                       onBlur={e => e.target.style.borderColor = '#E0DBD4'} />
                   </div>
 
-                  <button onClick={() => addrValid && setStep(2)} disabled={!addrValid}
+                  <button onClick={() => { if (addrValid) { track('shipping_step_complete', { element: 'delivery-details' }); setStep(2); } }} disabled={!addrValid}
                     style={{ marginTop: '1.5rem', width: '100%', padding: '0.9rem', backgroundColor: addrValid ? '#0D0D0D' : '#D4CFC8', color: '#FFF', fontFamily: 'Jost, sans-serif', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', border: 'none', cursor: addrValid ? 'pointer' : 'not-allowed', transition: 'background 0.2s' }}>
                     Continue to Payment
                   </button>
@@ -251,7 +264,7 @@ export default function Checkout() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
                     {PAYMENT_OPTIONS.map(opt => (
                       <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', border: `1.5px solid ${form.paymentMethod === opt.id ? GOLD : '#E0DBD4'}`, cursor: 'pointer', transition: 'border-color 0.2s', backgroundColor: form.paymentMethod === opt.id ? '#FDFBF6' : '#FFF' }}>
-                        <input type="radio" name="paymentMethod" value={opt.id} checked={form.paymentMethod === opt.id} onChange={set} style={{ accentColor: GOLD }} />
+                        <input type="radio" name="paymentMethod" value={opt.id} checked={form.paymentMethod === opt.id} onChange={e => { track('payment_method_select', { element: opt.id }); set(e); }} style={{ accentColor: GOLD }} />
                         <span style={{ color: GOLD }}>{opt.icon}</span>
                         <div>
                           <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.78rem', fontWeight: 600, color: '#0D0D0D' }}>{opt.label}</p>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { track } from '../utils/tracker';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { FiSearch, FiHeart, FiShoppingBag, FiMenu, FiX, FiHome, FiUser } from 'react-icons/fi';
@@ -31,7 +32,7 @@ export default function Header() {
 
   const doSearch = () => {
     const q = searchQuery.trim();
-    if (q) { navigate(`/products?search=${encodeURIComponent(q)}`); setSearchOpen(false); setSearchQuery(''); }
+    if (q) { track('search', { label: q, element: 'header-search' }); window.__rvLastSearch = q; navigate(`/products?search=${encodeURIComponent(q)}`); setSearchOpen(false); setSearchQuery(''); }
   };
 
   const iconStyle = { color: 'rgba(255,255,255,0.88)', display: 'flex', transition: 'color 0.2s', cursor: 'pointer', background: 'none', border: 'none' };
@@ -95,7 +96,7 @@ export default function Header() {
           </div>
 
           {/* Center — Logo + RAVARI + tagline */}
-          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          <Link to="/" data-track="logo_click" data-track-id="logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}>
 
             {/* Logo icon — vertically centered with RAVARI text only */}
@@ -213,7 +214,7 @@ export default function Header() {
           <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 600, letterSpacing: '0.5em', color: GOLD, paddingLeft: '0.5em' }}>RAVARI</span>
           <div style={{ height: '1px', width: '40px', background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
           {NAV.map(item => (
-            <Link key={item.label} to={item.to}
+            <Link key={item.label} to={item.to} data-track="nav_click" data-track-id={'nav:' + item.label}
               onClick={() => item.to === '/' && window.scrollTo({ top: 0, behavior: 'smooth' })}
               style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.9rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: location.pathname === item.to ? GOLD : 'rgba(255,255,255,0.88)', textDecoration: 'none' }}>
               {item.label}

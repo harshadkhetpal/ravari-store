@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import SEO from '../components/SEO';
 import { SEO_CONFIG } from '../utils/seoConstants';
 import { trackPageView } from '../utils/ga4Tracking';
+import { track } from '../utils/tracker';
 import { FiChevronDown } from 'react-icons/fi';
 
 const GOLD = '#C9A84C';
@@ -34,13 +35,20 @@ function Products() {
       api.get('/products/categories/list'),
     ]).then(([pRes, cRes]) => {
       setProducts(pRes.data.products || pRes.data || []);
+      if (filters.search) { window.__rvLastSearch = filters.search; track('search', { label: filters.search, element: 'results', meta: { results: (pRes.data.products || pRes.data || []).length } }); }
       setCategories(cRes.data.categories || []);
     }).catch(() => {
       setProducts([]); setCategories([]);
     }).finally(() => setLoading(false));
   }, [filters]);
 
-  const set = (key, val) => setFilters(f => ({ ...f, [key]: val }));
+  const set = (key, val) => {
+    if (key === 'category') track('category_click', { element: 'category:' + (val || 'All'), label: val || 'All' });
+    else if (key === 'sort') track('sort_change', { element: 'sort:' + val });
+    else track('filter_change', { element: key + ':' + (val || '(cleared)') });
+    if (key === 'search' && !val) window.__rvLastSearch = '';
+    setFilters(f => ({ ...f, [key]: val }));
+  };
 
   const addToCart = p => dispatch({
     type: 'ADD_TO_CART',
@@ -50,6 +58,8 @@ function Products() {
   const toggleWishlist = (id) => {
     setWishlist(prev => {
       const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+      const prod = products.find(p => p._id === id);
+      track(prev.includes(id) ? 'wishlist_remove' : 'wishlist_add', { productId: id, name: prod && prod.name, value: prod && (prod.salePrice || prod.price) });
       localStorage.setItem('ravari_wishlist', JSON.stringify(next));
       return next;
     });

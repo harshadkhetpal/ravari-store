@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { track } from '../utils/tracker';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import api from '../api/axiosConfig';
@@ -31,6 +32,7 @@ export default function Wishlist() {
   }, []);
 
   const remove = (id) => {
+    track('wishlist_remove', { productId: id, element: 'wishlist-page' });
     const next = ids.filter(x => x !== id);
     setIds(next);
     setWishlistIds(next);

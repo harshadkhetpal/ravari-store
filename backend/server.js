@@ -574,6 +574,8 @@ async function setupSchemaAndSeed() {
   await query('TRUNCATE TABLE products');
   await seedRows();
   console.log(`[RAVARI] ✅ Synced ${PRODUCTS.length} products to MySQL`);
+  // Analytics tables (best-effort: a failure here must never take the store down)
+  try { await analytics.initSchema(); } catch (e) { console.error('[analytics] schema init failed:', e.message); }
 }
 
 function shapeRow(r) {
@@ -630,6 +632,24 @@ async function initDatabase() {
   }
   console.error('[RAVARI] ⚠️  DB unavailable, using in-code catalog');
 }
+
+// ---------------------------------------------------------------------------
+// Customer Journey Analytics (first-party tracking + admin reports)
+// ---------------------------------------------------------------------------
+const analytics = require('./analytics')({
+  fastify,
+  query: (sql, params) => query(sql, params),
+  isReady: () => dbReady && !!pool,
+  getProducts: () => getAllProducts(),
+  // Authoritative payment amount/status from Razorpay (best effort; never blocks an order)
+  fetchGatewayPayment: async (paymentId) => {
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) return null;
+    const Razorpay = require('razorpay');
+    const rzp = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET });
+    const p = await Promise.race([rzp.payments.fetch(paymentId), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000))]);
+    return p ? { amount: Number(p.amount) / 100, status: p.status } : null;
+  },
+});
 
 // ---------------------------------------------------------------------------
 // Static assets: React build, product images, and product videos
@@ -758,8 +778,9 @@ fastify.post('/api/reviews', async (request) => {
 
 // --- Admin (light auth: requires Authorization header) ---
 function isAuthed(request) {
-  const h = request.headers && request.headers.authorization;
-  return !!h; // client logs in then sends a bearer token
+  // Signed JWT with role 'admin' (analysts get read-only access to analytics only)
+  const p = analytics.auth.verify(request);
+  return !!p && p.role === 'admin';
 }
 
 fastify.post('/api/auth/login', async (request, reply) => {
@@ -767,7 +788,11 @@ fastify.post('/api/auth/login', async (request, reply) => {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@ravari.in';
   const adminPass = process.env.ADMIN_PASSWORD || 'ravari@2027';
   if (email === adminEmail && password === adminPass) {
-    return { success: true, token: 'admin-token-12345', user: { email, role: 'admin' } };
+    return { success: true, token: analytics.auth.sign(email, 'admin'), user: { email, role: 'admin' } };
+  }
+  // Optional read-only analytics login (set ANALYST_EMAIL / ANALYST_PASSWORD env vars)
+  if (process.env.ANALYST_EMAIL && process.env.ANALYST_PASSWORD && email === process.env.ANALYST_EMAIL && password === process.env.ANALYST_PASSWORD) {
+    return { success: true, token: analytics.auth.sign(email, 'analyst'), user: { email, role: 'analyst' } };
   }
   reply.code(401); return { success: false, error: 'Invalid credentials' };
 });
@@ -923,6 +948,7 @@ fastify.post('/api/orders', async (request, reply) => {
       } catch(_) {}
       // Send confirmation emails (non-blocking)
       sendOrderEmails(orderId, b, 'Online Payment').catch(e => console.error('[order email]', e.message));
+      analytics.hooks.orderPlaced({ orderId, method: 'razorpay', txnId: b.transactionId, total: b.total, items: b.items, ids: b.analytics });
       return { success: true, orderId };
     } catch (e) { reply.code(500); return { error: e.message }; }
   }
@@ -932,7 +958,7 @@ fastify.post('/api/orders', async (request, reply) => {
 fastify.put('/api/admin/orders/:id/status', async (request, reply) => {
   if (!isAuthed(request)) { reply.code(401); return { error: 'Unauthorized' }; }
   if (!dbReady || !pool) { reply.code(503); return { error: 'DB unavailable' }; }
-  try { await query('UPDATE orders SET status=? WHERE id=?', [(request.body || {}).status || 'pending', parseInt(request.params.id, 10)]); return { success: true }; }
+  try { await query('UPDATE orders SET status=? WHERE id=?', [(request.body || {}).status || 'pending', parseInt(request.params.id, 10)]); analytics.hooks.orderStatus(parseInt(request.params.id, 10), (request.body || {}).status || 'pending'); return { success: true }; }
   catch (e) { reply.code(500); return { error: e.message }; }
 });
 
@@ -955,6 +981,7 @@ fastify.post('/api/admin/orders/:id/cancel', async (request, reply) => {
   const id = parseInt(request.params.id, 10);
   try {
     await query('UPDATE orders SET status=?, cancelMessage=? WHERE id=?', ['cancelled', message || null, id]);
+    analytics.hooks.orderStatus(id, 'cancelled');
     // Create notification
     await query("INSERT INTO notifications (type,title,message,orderId) VALUES (?,?,?,?)",
       ['order_cancelled', 'Order Cancelled', `Order #${id} has been cancelled. Message: ${message || 'No message'}`, String(id)]);
@@ -1109,6 +1136,7 @@ fastify.post('/api/payment/razorpay/verify', async (request, reply) => {
     const expected = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`).digest('hex');
     if (expected !== razorpay_signature) { reply.code(400); return { success: false, error: 'Invalid signature' }; }
+    await analytics.hooks.paymentVerified({ paymentId: razorpay_payment_id, rzpOrderId: razorpay_order_id });
     return { success: true, paymentId: razorpay_payment_id };
   } catch (e) { reply.code(500); return { error: e.message }; }
 });
@@ -1128,6 +1156,7 @@ fastify.post('/api/orders/cod', async (request, reply) => {
          b.couponCode || null, 'cod', 'cod_pending']);
       const orderId = r.insertId;
       sendOrderEmails(orderId, b, 'Cash on Delivery').catch(e => console.error('[cod email]', e.message));
+      analytics.hooks.orderPlaced({ orderId, method: 'cod', total: b.total, items: b.items, ids: b.analytics });
       return { success: true, orderId: `RAV${orderId}`, method: 'cod' };
     } catch (e) { reply.code(500); return { error: e.message }; }
   }

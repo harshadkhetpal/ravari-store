@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { track } from '../utils/tracker';
+import { openConsent } from './AnalyticsProvider';
 import { Link } from 'react-router-dom';
 import { FiInstagram, FiFacebook, FiLinkedin, FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
 
@@ -14,6 +16,7 @@ function Footer() {
   const handleSubscribe = (e) => {
     e.preventDefault();
     if (!email.includes('@')) return;
+    track('newsletter_subscribe', { element: 'footer-newsletter' }); // never sends the email address
     setSubDone(true);
     setEmail('');
     setTimeout(() => setSubDone(false), 4000);
@@ -198,6 +201,7 @@ function Footer() {
               { to: '/track-order',     label: 'Track Order' },
               { to: '/shipping-policy', label: 'Shipping Policy' },
               { to: '/return-policy',   label: 'Return Policy' },
+              { to: '/privacy-policy',  label: 'Privacy Policy' },
             ].map(({ to, label }) => (
               <Link key={label} to={to}
                 style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', color: 'rgba(255,255,255,0.22)', letterSpacing: '0.06em', transition: 'color 0.2s', textDecoration: 'none' }}
@@ -206,7 +210,11 @@ function Footer() {
                 {label}
               </Link>
             ))}
-            {['Privacy Policy', 'Terms of Service'].map(label => (
+            <button type="button" onClick={openConsent}
+              style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', color: 'rgba(255,255,255,0.22)', letterSpacing: '0.06em', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+              Cookie settings
+            </button>
+            {['Terms of Service'].map(label => (
               <a key={label} href="#"
                 style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.62rem', color: 'rgba(255,255,255,0.22)', letterSpacing: '0.06em', transition: 'color 0.2s', textDecoration: 'none' }}
                 onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}

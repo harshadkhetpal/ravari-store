@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { track } from '../utils/tracker';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
@@ -20,7 +21,7 @@ export default function Cart() {
   const [couponError, setCouponError] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
 
-  useEffect(() => { trackPageView('/cart', 'Shopping Cart'); }, []);
+  useEffect(() => { trackPageView('/cart', 'Shopping Cart'); track('cart_view', { element: 'cart' }); }, []);
 
   const subtotal = useMemo(() => cartItems.reduce((s, i) => s + i.price * i.quantity, 0), [cartItems]);
   const discount = useMemo(() => {
@@ -49,7 +50,8 @@ export default function Cart() {
         const c = { code: data.code, discountType: data.type, discountValue: data.value };
         setCoupon(c);
         dispatch({ type: 'SET_COUPON', payload: c });
-      } else { setCouponError(data.error || 'Invalid coupon code.'); }
+        track('coupon_apply', { element: c.code, label: 'valid' });
+      } else { setCouponError(data.error || 'Invalid coupon code.'); track('coupon_fail', { element: couponCode.trim().toUpperCase().slice(0, 20) }); }
     } catch {
       setCouponError('Could not apply coupon. Please try again.');
     } finally {
@@ -57,7 +59,7 @@ export default function Cart() {
     }
   };
 
-  const removeCoupon = () => { setCoupon(null); setCouponCode(''); setCouponError(''); dispatch({ type: 'SET_COUPON', payload: null }); };
+  const removeCoupon = () => { track('coupon_remove', { element: 'cart' }); setCoupon(null); setCouponCode(''); setCouponError(''); dispatch({ type: 'SET_COUPON', payload: null }); };
 
   /* ── Empty cart ── */
   if (cartItems.length === 0) {

@@ -7,6 +7,7 @@ import SEO from '../components/SEO';
 import { SEO_CONFIG } from '../utils/seoConstants';
 import { getProductSchema, getBreadcrumbSchema } from '../utils/schemaMarkup';
 import { trackPageView, trackProductView } from '../utils/ga4Tracking';
+import { track } from '../utils/tracker';
 
 function ProductDetail() {
   const { slug } = useParams();
@@ -43,7 +44,7 @@ function ProductDetail() {
       setReviews(res.data.reviews || []);
       // Set default variant if product has variants
       if (p?.variants?.length) setSelectedVariant(p.variants[0]);
-      if (p) trackProductView(p);
+      if (p) { trackProductView(p); track('product_view', { productId: p._id, name: p.name, category: p.category, value: p.salePrice || p.price }); }
     } catch (error) {
       console.error('Error fetching product:', error);
     } finally {
@@ -186,6 +187,7 @@ function ProductDetail() {
                 onMouseEnter={() => setZoomActive(true)}
                 onMouseLeave={() => setZoomActive(false)}
                 onMouseMove={handleZoom}
+                onClick={() => track('product_image_click', { productId: product._id, label: 'main image ' + (selectedImage + 1) })}
               >
                 <img
                   src={images[selectedImage]?.url || product.thumbnail}
@@ -203,13 +205,13 @@ function ProductDetail() {
               {images.length > 1 && (
                 <>
                   <button
-                    onClick={() => setSelectedImage((prev) => (prev - 1 + images.length) % images.length)}
+                    onClick={() => { track('gallery_nav', { productId: product._id, label: 'previous image' }); setSelectedImage((prev) => (prev - 1 + images.length) % images.length); }}
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white hover:bg-amber-100 p-3 rounded-full shadow-lg transition"
                   >
                     <FiChevronLeft className="w-6 h-6 text-amber-700" />
                   </button>
                   <button
-                    onClick={() => setSelectedImage((prev) => (prev + 1) % images.length)}
+                    onClick={() => { track('gallery_nav', { productId: product._id, label: 'next image' }); setSelectedImage((prev) => (prev + 1) % images.length); }}
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white hover:bg-amber-100 p-3 rounded-full shadow-lg transition"
                   >
                     <FiChevronRight className="w-6 h-6 text-amber-700" />
@@ -224,7 +226,7 @@ function ProductDetail() {
                 {images.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setSelectedImage(idx)}
+                    onClick={() => { track('gallery_nav', { productId: product._id, label: 'thumbnail ' + (idx + 1) }); setSelectedImage(idx); }}
                     className={`border-3 rounded-lg overflow-hidden hover:border-amber-600 transition ${
                       idx === selectedImage ? 'border-amber-600 shadow-lg' : 'border-amber-200'
                     }`}
@@ -265,7 +267,7 @@ function ProductDetail() {
                 </p>
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                   {product.variants.map(v => (
-                    <button key={v.id} onClick={() => { setSelectedVariant(v); setSelectedImage(0); }}
+                    <button key={v.id} onClick={() => { track('variant_select', { productId: product._id, element: 'variant:' + v.label }); setSelectedVariant(v); setSelectedImage(0); }}
                       style={{
                         fontFamily: 'Jost, sans-serif', fontSize: '0.72rem', fontWeight: 600,
                         padding: '0.6rem 1.4rem', cursor: 'pointer', transition: 'all 0.2s',
@@ -321,7 +323,7 @@ function ProductDetail() {
                   {product.size.map((size) => (
                     <button
                       key={size}
-                      onClick={() => setSelectedOptions({ ...selectedOptions, size })}
+                      onClick={() => { track('variant_select', { productId: product._id, element: 'size:' + size }); setSelectedOptions({ ...selectedOptions, size }); }}
                       className={`px-6 py-3 border-2 font-bold rounded-lg transition ${
                         selectedOptions.size === size
                           ? 'bg-amber-600 text-white border-amber-700'
@@ -342,7 +344,7 @@ function ProductDetail() {
                   {product.color.map((color) => (
                     <button
                       key={color}
-                      onClick={() => setSelectedOptions({ ...selectedOptions, color })}
+                      onClick={() => { track('variant_select', { productId: product._id, element: 'color:' + color }); setSelectedOptions({ ...selectedOptions, color }); }}
                       className={`px-6 py-3 border-2 font-bold rounded-lg transition ${
                         selectedOptions.color === color
                           ? 'bg-amber-600 text-white border-amber-700'
@@ -361,14 +363,14 @@ function ProductDetail() {
               <label className="block text-lg font-bold text-gray-900 mb-3">Quantity:</label>
               <div className="flex items-center gap-4">
                 <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  onClick={() => { track('quantity_change', { productId: product._id, qty: Math.max(1, quantity - 1), element: 'pdp' }); setQuantity(Math.max(1, quantity - 1)); }}
                   className="w-12 h-12 border-2 border-amber-300 rounded-lg hover:bg-amber-50 font-bold text-xl"
                 >
                   −
                 </button>
                 <span className="text-3xl font-black text-amber-700 w-12 text-center">{quantity}</span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={() => { track('quantity_change', { productId: product._id, qty: quantity + 1, element: 'pdp' }); setQuantity(quantity + 1); }}
                   className="w-12 h-12 border-2 border-amber-300 rounded-lg hover:bg-amber-50 font-bold text-xl"
                 >
                   +

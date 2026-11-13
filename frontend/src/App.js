@@ -21,6 +21,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
 import Login from './pages/Login';
 import WhatsAppButton from './components/WhatsAppButton';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import { RouteTracker, ConsentBanner } from './components/AnalyticsProvider';
 import ChatBot from './components/ChatBot';
 import './styles/globals.css';
 
@@ -58,11 +60,13 @@ function MainLayout() {
           <Route path="/return-policy" element={<ReturnPolicy />} />
           <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Routes>
       </main>
       <Footer />
       <WhatsAppButton />
       <ChatBot />
+      <ConsentBanner />
     </div>
   );
 }
@@ -71,6 +75,7 @@ function App() {
   return (
     <Provider store={store}>
       <Router>
+        <RouteTracker />
         <Routes>
           {/* Admin — standalone, no header/footer */}
           <Route path="/admin-login" element={<AdminLogin />} />

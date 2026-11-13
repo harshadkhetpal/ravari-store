@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { track } from '../utils/tracker';
 import SEO from '../components/SEO';
 import { SEO_CONFIG } from '../utils/seoConstants';
 import { getOrganizationSchema, getLocalBusinessSchema } from '../utils/schemaMarkup';
@@ -31,6 +32,7 @@ function Contact() {
     try {
       await api.post('/contact', formData);
       trackFormSubmission('contact');
+      track('contact_submit', { element: 'contact-form' }); // never sends the form contents
       setSubmitted(true);
       setFormData({ name: '', email: '', phone: '', message: '' });
       setTimeout(() => setSubmitted(false), 5000);
