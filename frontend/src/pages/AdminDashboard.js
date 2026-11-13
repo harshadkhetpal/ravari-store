@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AnalyticsModule, { CA_NAV } from './analytics/AnalyticsModule';
 import {
   FiGrid, FiShoppingBag, FiUsers, FiPackage, FiTag,
   FiLogOut, FiChevronDown, FiChevronUp, FiRefreshCw,
@@ -43,6 +44,7 @@ const authHeaders = () => ({ 'Authorization': 'Bearer ' + (localStorage.getItem(
 
 async function apiFetch(path, opts = {}) {
   const res = await fetch('/api' + path, { headers: authHeaders(), ...opts });
+  if (res.status === 401) { localStorage.removeItem('adminToken'); localStorage.removeItem('adminUser'); window.location.href = '/admin-login'; }
   return res.json();
 }
 
@@ -104,6 +106,23 @@ function Sidebar({ active, setActive, onLogout, mobileOpen, setMobileOpen, unrea
                 {key === 'notifications' && unreadCount > 0 && (
                   <span style={{ marginLeft: 'auto', backgroundColor: '#EF4444', color: '#fff', fontSize: '0.5rem', fontWeight: 700, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{unreadCount}</span>
                 )}
+              </button>
+            );
+          })}
+
+          {/* Customer Analytics */}
+          <div style={{ padding: '1.25rem 1.5rem 0.4rem', fontFamily: 'Jost, sans-serif', fontSize: '0.55rem', letterSpacing: '0.25em', color: GOLD, textTransform: 'uppercase', borderTop: `1px solid ${BORDER}`, marginTop: '0.75rem' }}>Customer Analytics</div>
+          {CA_NAV.map(({ key, label, icon }) => {
+            const isActive = active === key;
+            return (
+              <button key={key} onClick={() => { setActive(key); setMobileOpen(false); }}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 1.5rem', border: 'none', cursor: 'pointer',
+                  fontFamily: 'Jost, sans-serif', fontSize: '0.68rem', letterSpacing: '0.08em', textAlign: 'left', fontWeight: isActive ? 600 : 400,
+                  color: isActive ? GOLD : 'rgba(255,255,255,0.55)', borderLeft: isActive ? `2px solid ${GOLD}` : '2px solid transparent',
+                  backgroundColor: isActive ? 'rgba(201,168,76,0.07)' : 'transparent',
+                }}>
+                <span style={{ width: 15, textAlign: 'center' }}>{icon}</span>{label}
               </button>
             );
           })}
@@ -345,7 +364,7 @@ export default function AdminDashboard() {
             {/* Mobile hamburger */}
             <button onClick={() => setMobileOpen(true)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', color: '#6B6560' }} className="admin-hamburger">☰</button>
             <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 500, color: '#1A0F0A', letterSpacing: '0.05em' }}>
-              {NAV_ITEMS.find(n => n.key === active)?.label}
+              {NAV_ITEMS.find(n => n.key === active)?.label || CA_NAV.find(n => n.key === active)?.label}
             </h1>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -359,6 +378,8 @@ export default function AdminDashboard() {
         </div>
 
         <div style={{ padding: '2rem', flex: 1 }}>
+
+          {active.startsWith('ca_') && <AnalyticsModule active={active} onAuthError={logout} />}
 
           {/* ══════════ DASHBOARD ══════════ */}
           {active === 'dashboard' && (
