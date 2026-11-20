@@ -85,14 +85,14 @@ function About() {
 
             {/* Right — Est. card + craft pillars */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              {/* Founder photo card — year badge in the corner */}
-              <div style={{ position: 'relative', width: '100%', height: '480px', overflow: 'hidden', backgroundColor: '#0D0B08' }}>
+              {/* Founder photo card — full image, small year badge in the corner */}
+              <div style={{ position: 'relative', width: '100%', overflow: 'hidden', backgroundColor: '#0D0B08', lineHeight: 0 }}>
                 <img src="/static/videos/model2.webp" alt="Founder of RAVARI"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 12%', display: 'block' }} />
-                <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', backgroundColor: 'rgba(13,11,8,0.72)', backdropFilter: 'blur(4px)', border: '1px solid rgba(201,168,76,0.4)', padding: '0.75rem 1.1rem', textAlign: 'center' }}>
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.35em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.2rem' }}>Est.</p>
-                  <div style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '2.2rem', fontWeight: 600, color: '#C9A84C', lineHeight: 1 }}>2023</div>
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.5rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', marginTop: '0.35rem' }}>Lucknow · India</p>
+                  style={{ width: '100%', height: 'auto', display: 'block' }} />
+                <div style={{ position: 'absolute', top: '0.6rem', right: '0.6rem', backgroundColor: 'rgba(13,11,8,0.7)', backdropFilter: 'blur(4px)', border: '1px solid rgba(201,168,76,0.4)', padding: '0.4rem 0.65rem', textAlign: 'center', lineHeight: 1.2 }}>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.42rem', fontWeight: 600, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', margin: 0 }}>Est.</p>
+                  <div style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.5rem', fontWeight: 600, color: '#C9A84C', lineHeight: 1.1 }}>2023</div>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.4rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', margin: 0 }}>Lucknow · India</p>
                 </div>
               </div>
 
