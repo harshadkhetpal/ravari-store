@@ -349,13 +349,10 @@ export default function Home() {
       <section style={{ backgroundColor: '#F5F3EE' }}>
         <div className="brand-story-grid" style={{ maxWidth: '1300px', margin: '0 auto' }}>
           <div className="brand-story-image" style={{ backgroundColor: '#E8E4DE', overflow: 'hidden', minHeight: '520px', position: 'relative' }}>
-            <video autoPlay muted loop playsInline preload="auto"
-              aria-label="RAVARI leather apron craftsmanship"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}>
-              <source src="/static/videos/ravari-apron-video-web.mp4" type="video/mp4" />
-            </video>
+            <img src="/static/videos/model2.webp" alt="RAVARI craftsmanship"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             {/* Subtle overlay label */}
-            <div style={{ position: 'absolute', top: '2rem', left: '2rem', zIndex: 2, background: 'rgba(13,11,8,0.65)', padding: '0.6rem 1.25rem', backdropFilter: 'blur(4px)' }}>
+            <div style={{ position: 'absolute', bottom: '2rem', left: '2rem', background: 'rgba(13,11,8,0.65)', padding: '0.6rem 1.25rem', backdropFilter: 'blur(4px)' }}>
               <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.55rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: '#C9A84C', fontWeight: 600 }}>Est. 2023 · Lucknow, India</span>
             </div>
           </div>
