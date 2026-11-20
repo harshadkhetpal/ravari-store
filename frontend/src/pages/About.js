@@ -85,22 +85,14 @@ function About() {
 
             {/* Right — Est. card + craft pillars */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              {/* Est. card — founder photo + establishment date */}
-              <div style={{ display: 'flex', width: '100%', minHeight: '320px', backgroundColor: '#0D0B08', overflow: 'hidden' }}>
-                <div style={{ flex: '0 0 46%', position: 'relative' }}>
-                  <img src="/static/videos/model2.webp" alt="Founder of RAVARI"
-                    onError={e => { e.currentTarget.parentElement.style.display = 'none'; }}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }} />
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 60%, #0D0B08 100%)' }} />
-                  <div style={{ position: 'absolute', left: '1rem', bottom: '1rem', background: 'rgba(13,11,8,0.65)', padding: '0.35rem 0.8rem' }}>
-                    <span style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#C9A84C' }}>The Founder</span>
-                  </div>
-                </div>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.5rem 1rem' }}>
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.52rem', fontWeight: 600, letterSpacing: '0.35em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Est.</p>
-                  <div style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '3.6rem', fontWeight: 600, color: '#C9A84C', lineHeight: 1, letterSpacing: '-0.02em' }}>2023</div>
-                  <div style={{ width: '32px', height: '1px', backgroundColor: '#C9A84C', margin: '1rem auto', opacity: 0.5 }} />
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>Lucknow · India</p>
+              {/* Founder photo card — year badge in the corner */}
+              <div style={{ position: 'relative', width: '100%', height: '480px', overflow: 'hidden', backgroundColor: '#0D0B08' }}>
+                <img src="/static/videos/model2.webp" alt="Founder of RAVARI"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 12%', display: 'block' }} />
+                <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', backgroundColor: 'rgba(13,11,8,0.72)', backdropFilter: 'blur(4px)', border: '1px solid rgba(201,168,76,0.4)', padding: '0.75rem 1.1rem', textAlign: 'center' }}>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.5rem', fontWeight: 600, letterSpacing: '0.35em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.2rem' }}>Est.</p>
+                  <div style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '2.2rem', fontWeight: 600, color: '#C9A84C', lineHeight: 1 }}>2023</div>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.5rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', marginTop: '0.35rem' }}>Lucknow · India</p>
                 </div>
               </div>
 
