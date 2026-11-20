@@ -88,7 +88,7 @@ function About() {
               {/* Est. card — founder photo + establishment date */}
               <div style={{ display: 'flex', width: '100%', minHeight: '320px', backgroundColor: '#0D0B08', overflow: 'hidden' }}>
                 <div style={{ flex: '0 0 46%', position: 'relative' }}>
-                  <img src="/static/videos/founder.jpg" alt="Founder of RAVARI"
+                  <img src="/static/videos/model2.webp" alt="Founder of RAVARI"
                     onError={e => { e.currentTarget.parentElement.style.display = 'none'; }}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 60%, #0D0B08 100%)' }} />
