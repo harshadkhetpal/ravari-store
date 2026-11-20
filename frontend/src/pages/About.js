@@ -78,26 +78,9 @@ function About() {
               <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.82rem', fontWeight: 300, color: '#5A5450', lineHeight: 2 }}>
                 Today, RAVARI stands as a commitment to those who value authenticity — who choose pieces that speak quietly of quality, rather than loudly of labels.
               </p>
-            </div>
-
-            {/* Vertical divider */}
-            <div style={{ backgroundColor: 'rgba(201,168,76,0.2)', alignSelf: 'stretch' }} />
-
-            {/* Right — Est. card + craft pillars */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              {/* Founder photo card — full image, small year badge in the corner */}
-              <div style={{ position: 'relative', width: '100%', overflow: 'hidden', backgroundColor: '#0D0B08', lineHeight: 0 }}>
-                <img src="/static/videos/model2.webp" alt="Founder of RAVARI"
-                  style={{ width: '100%', height: 'auto', display: 'block' }} />
-                <div style={{ position: 'absolute', top: '0.6rem', right: '0.6rem', backgroundColor: 'rgba(13,11,8,0.7)', backdropFilter: 'blur(4px)', border: '1px solid rgba(201,168,76,0.4)', padding: '0.4rem 0.65rem', textAlign: 'center', lineHeight: 1.2 }}>
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.42rem', fontWeight: 600, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', margin: 0 }}>Est.</p>
-                  <div style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.5rem', fontWeight: 600, color: '#C9A84C', lineHeight: 1.1 }}>2023</div>
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.4rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', margin: 0 }}>Lucknow · India</p>
-                </div>
-              </div>
 
               {/* Craft pillars */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', backgroundColor: 'rgba(201,168,76,0.15)' }}>
+              <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', backgroundColor: 'rgba(201,168,76,0.15)' }}>
                 {[
                   { label: 'Full-Grain Leather',    desc: 'Only the finest hides' },
                   { label: 'Hand-Stitched',         desc: 'Every seam, reinforced' },
@@ -109,6 +92,23 @@ function About() {
                     <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.6rem', color: '#8C8680', letterSpacing: '0.04em' }}>{desc}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Vertical divider */}
+            <div style={{ backgroundColor: 'rgba(201,168,76,0.2)', alignSelf: 'stretch' }} />
+
+            {/* Right — founder photo */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              {/* Founder photo card — full image, small year badge in the corner */}
+              <div style={{ position: 'relative', width: '100%', overflow: 'hidden', backgroundColor: '#0D0B08', lineHeight: 0 }}>
+                <img src="/static/videos/model2.webp" alt="Founder of RAVARI"
+                  style={{ width: '100%', height: 'auto', display: 'block' }} />
+                <div style={{ position: 'absolute', top: '0.6rem', right: '0.6rem', backgroundColor: 'rgba(13,11,8,0.7)', backdropFilter: 'blur(4px)', border: '1px solid rgba(201,168,76,0.4)', padding: '0.4rem 0.65rem', textAlign: 'center', lineHeight: 1.2 }}>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.42rem', fontWeight: 600, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', margin: 0 }}>Est.</p>
+                  <div style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.5rem', fontWeight: 600, color: '#C9A84C', lineHeight: 1.1 }}>2023</div>
+                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.4rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', margin: 0 }}>Lucknow · India</p>
+                </div>
               </div>
             </div>
           </div>
