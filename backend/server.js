@@ -434,19 +434,19 @@ const PRODUCTS = [
     material: ['Leather-Textured PU Exterior', 'Quilted Finish', 'Silver-Tone Metal Keychain & Clip', 'Zipper Closure'],
     dimensions: { length: '13.8 cm', width: '8.9 cm', height: '2.8 cm' },
     stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
-  }
+  },
     {
     id: 19, _id: '19',
     name: 'RAVARI Luxury Jewelry Organizer Box for Women & Girls | Premium PU Leather, Combination Lock, Mirror, Removable Trays, Travel Pouch',
     slug: 'ravari-luxury-jewelry-organizer-box-combination-lock',
     price: 4599, salePrice: 3799, category: 'Jewellery Box',
-    thumbnail: '/static/images/Jewelry Organizer Box 1.png',
+    thumbnail: '/static/images/JB1.png',
     images: [
-      img('/static/images/Jewelry Organizer Box 1.png', 'RAVARI Luxury Jewelry Organizer Box - View 1'),
-      img('/static/images/Jewelry Organizer Box 2.png', 'RAVARI Luxury Jewelry Organizer Box - View 2'),
-      img('/static/images/Jewelry Organizer Box 3.png', 'RAVARI Luxury Jewelry Organizer Box - View 3'),
-      img('/static/images/Jewelry Organizer Box 4.png', 'RAVARI Luxury Jewelry Organizer Box - View 4'),
-      img('/static/images/Jewelry Organizer Box 5.png', 'RAVARI Luxury Jewelry Organizer Box - View 5'),
+      img('/static/images/JB1.png', 'RAVARI Luxury Jewelry Organizer Box - View 1'),
+      img('/static/images/JB2.png', 'RAVARI Luxury Jewelry Organizer Box - View 2'),
+      img('/static/images/JB3.png', 'RAVARI Luxury Jewelry Organizer Box - View 3'),
+      img('/static/images/JB4.png', 'RAVARI Luxury Jewelry Organizer Box - View 4'),
+      img('/static/images/JB5.png', 'RAVARI Luxury Jewelry Organizer Box - View 5'),
     ],
     description: "Dark brown crocodile-textured jewelry organizer with a 3-digit combination lock, built-in mirror, removable trays and a travel pouch. Velvet-lined compartments for rings, earrings, bracelets, necklaces and watches. A premium gift for women and girls.",
     longDescription: "Keep your jewelry organized, protected and ready to wear with the RAVARI Luxury Jewelry Organizer Box. The crocodile-textured PU leather exterior and velvet-lined interior give it a premium look while guarding against scratches. A built-in 3-digit combination lock with a metal latch keeps valuables secure at home or on the move. Inside, removable trays, ring holders, earring compartments, bracelet holders and anti-tangle necklace hooks with a protective pocket give every piece its own place. A removable travel pouch lets you carry your favourites without disturbing the main organizer, and the built-in mirror makes it easy to try pieces on. Spacious yet compact, it holds rings, earrings, bangles, bracelets, pendants, necklaces, watches and brooches, and makes an elegant gift for birthdays, anniversaries, weddings, Diwali and Raksha Bandhan.",
