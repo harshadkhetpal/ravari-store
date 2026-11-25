@@ -732,8 +732,7 @@ fastify.get('/api/products', async (request) => {
   if (q.maxPrice) all = all.filter(p => (p.salePrice || p.price) <= Number(q.maxPrice));
   if (q.sort === 'price-low') all.sort((a, b) => (a.salePrice || a.price) - (b.salePrice || b.price));
   else if (q.sort === 'price-high') all.sort((a, b) => (b.salePrice || b.price) - (a.salePrice || a.price));
-  else if (q.sort === 'newest') all.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-
+  else if (q.sort === 'newest') all.sort((a, b) => (b.stock > 0 ? 1 : 0) - (a.stock > 0 ? 1 : 0) || b.id - a.id);
   const total = all.length;
   const limit = q.limit ? parseInt(q.limit, 10) : 12;
   const page = q.page ? parseInt(q.page, 10) : 1;
