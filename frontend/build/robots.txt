@@ -16,5 +16,3 @@ Crawl-delay: 1
 
 # Sitemap locations
 Sitemap: https://ravari.in/sitemap.xml
-Sitemap: https://ravari.in/sitemap-products.xml
-Sitemap: https://ravari.in/sitemap-blog.xml
