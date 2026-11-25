@@ -307,8 +307,8 @@ export default function Home() {
             <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 400, color: '#0D0D0D' }}>Our Bestsellers</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
-            {featured.length === 0 && !loading ? null : featured.map(p => (
-              <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} onNavigate={handleProductNavigate} />
+{featured.length === 0 && !loading ? null : featured.filter(p => p.stock > 0).sort((a, b) => b.id - a.id).slice(0, 8).map(p => (
+<ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} onNavigate={handleProductNavigate} />
             ))}
           </div>
           <div style={{ textAlign: 'center', marginTop: '3rem' }}>
@@ -320,32 +320,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* ── NEW ARRIVALS ─────────────────────────────────── */}
-      {newArr.length > 0 && (
-        <section style={{ backgroundColor: '#0D0B08', padding: '5rem 0' }}>
-          <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '0 2rem' }}>
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: '0.6rem' }}>Just Dropped</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 400, color: '#FFFFFF' }}>New Arrivals</h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
-              {newArr.map(p => (
-                <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} onNavigate={handleProductNavigate} />
-              ))}
-            </div>
-            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-              <Link to="/products?sort=newest" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', fontFamily: 'Jost, sans-serif', fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#C9A84C', border: '1px solid #C9A84C', padding: '0.9rem 2.5rem', transition: 'all 0.3s', textDecoration: 'none' }}
-                onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#C9A84C'; e.currentTarget.style.color = '#0D0B08'; }}
-                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#C9A84C'; }}>
-                See All New Arrivals <FiArrowRight size={13} />
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── BRAND STORY ──────────────────────────────────── */}
+     {/* ── BRAND STORY ──────────────────────────────────── */}
       <section style={{ backgroundColor: '#F5F3EE' }}>
         <div className="brand-story-grid" style={{ maxWidth: '1300px', margin: '0 auto' }}>
           <div className="brand-story-image" style={{ backgroundColor: '#E8E4DE', overflow: 'hidden', minHeight: '520px', position: 'relative' }}>
