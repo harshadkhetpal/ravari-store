@@ -36,6 +36,8 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist, onN
           <img
             src={product.thumbnail || product.images?.[0]?.url || '/placeholder.jpg'}
             alt={product.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full transition-transform duration-700"
             style={{ objectFit: 'contain', padding: '8px', transform: hovered ? 'scale(1.06)' : 'scale(1)', transition: 'transform 0.7s' }}
             onLoad={() => setImageLoading(false)}

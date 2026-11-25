@@ -698,14 +698,14 @@ const backendPublic = path.join(__dirname, 'public');
 if (fs.existsSync(backendPublic)) {
   fastify.register(require('@fastify/static'), { root: backendPublic, prefix: '/assets/', decorateReply: false });
   // Direct /videos and /images passthrough to backend/public
-  fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'videos'), prefix: '/videos/', decorateReply: false });
-  fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'videos'), prefix: '/static/videos/', decorateReply: false });
+  fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'videos'), prefix: '/videos/', decorateReply: false, maxAge: '7d' });
+  fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'videos'), prefix: '/static/videos/', decorateReply: false, maxAge: '7d' });
   // Product images at /static/images/ (named files)
-  fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'images'), prefix: '/static/images/', decorateReply: false });
+  fastify.register(require('@fastify/static'), { root: path.join(backendPublic, 'images'), prefix: '/static/images/', decorateReply: false, maxAge: '7d' });
   // Product images at /static/products/ (organized subdirs - user-uploaded on server)
   const productsDir = path.join(backendPublic, 'products');
   try { fs.mkdirSync(productsDir, { recursive: true }); } catch (_) {}
-  fastify.register(require('@fastify/static'), { root: productsDir, prefix: '/static/products/', decorateReply: false });
+  fastify.register(require('@fastify/static'), { root: productsDir, prefix: '/static/products/', decorateReply: false, maxAge: '7d' });
   fastify.register(require('@fastify/static'), { root: uploadsDir, prefix: '/uploads/', decorateReply: false });
   console.log(`[RAVARI] Serving videos + uploads from ${backendPublic}`);
 }
@@ -1252,10 +1252,71 @@ fastify.get('/service-worker.js', async (req, reply) => sendKillSw(req, reply));
 fastify.get('/serviceworker.js', async (req, reply) => sendKillSw(req, reply));
 
 // SPA fallback
-fastify.setNotFoundHandler((request, reply) => {
+// ---------------------------------------------------------------------------
+// SEO: sitemap.xml + per-product <title>/description/og tags in the HTML shell
+// (Google, WhatsApp and Facebook read these without running JavaScript)
+// ---------------------------------------------------------------------------
+const SITE_URL = 'https://ravari.in';
+const escAttr = (v) => String(v == null ? '' : v)
+  .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+fastify.get('/sitemap.xml', async (request, reply) => {
+  const all = await getAllProducts();
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = [
+    { loc: SITE_URL + '/', priority: '1.0' },
+    { loc: SITE_URL + '/products', priority: '0.9' },
+    { loc: SITE_URL + '/about', priority: '0.5' },
+    { loc: SITE_URL + '/contact', priority: '0.5' },
+    ...all.map(p => ({ loc: SITE_URL + '/products/' + encodeURIComponent(p.slug), priority: '0.8' })),
+  ];
+  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls.map(u => '  <url><loc>' + escAttr(u.loc) + '</loc><lastmod>' + today + '</lastmod><priority>' + u.priority + '</priority></url>').join('\n') +
+    '\n</urlset>\n';
+  reply.type('application/xml; charset=utf-8').header('Cache-Control', 'public, max-age=3600').send(xml);
+});
+
+function productHtml(html, p) {
+  let shortName = String(p.name || '').split('|')[0].trim();
+  if (shortName.length > 65) shortName = shortName.slice(0, 65).replace(/[\s,]+\S*$/, '');
+  const title = escAttr(shortName + ' | RAVARI');
+  const price = p.salePrice || p.price;
+  const desc = escAttr(('₹' + Number(price).toLocaleString('en-IN') + ' — ' + (p.description || shortName)).slice(0, 200));
+  const url = escAttr(SITE_URL + '/products/' + encodeURIComponent(p.slug));
+  const img = escAttr(SITE_URL + encodeURI(p.thumbnail || '/static/images/og-image.jpg'));
+  const setTag = (re, tag) => { html = html.replace(re, () => tag); };
+  setTag(/<title>[^<]*<\/title>/, '<title>' + title + '</title>');
+  setTag(/<meta name="description"[^>]*>/, '<meta name="description" content="' + desc + '"/>');
+  setTag(/<meta property="og:type"[^>]*>/, '<meta property="og:type" content="product"/>');
+  setTag(/<meta property="og:title"[^>]*>/, '<meta property="og:title" content="' + title + '"/>');
+  setTag(/<meta property="og:description"[^>]*>/, '<meta property="og:description" content="' + desc + '"/>');
+  setTag(/<meta property="og:image"[^>]*>/, '<meta property="og:image" content="' + img + '"/>');
+  setTag(/<meta property="og:image:type"[^>]*>/, '');
+  setTag(/<meta property="og:image:width"[^>]*>/, '');
+  setTag(/<meta property="og:image:height"[^>]*>/, '');
+  setTag(/<meta property="og:url"[^>]*>/, '<meta property="og:url" content="' + url + '"/>');
+  setTag(/<meta name="twitter:title"[^>]*>/, '<meta name="twitter:title" content="' + title + '"/>');
+  setTag(/<meta name="twitter:description"[^>]*>/, '<meta name="twitter:description" content="' + desc + '"/>');
+  setTag(/<meta name="twitter:image"[^>]*>/, '<meta name="twitter:image" content="' + img + '"/>');
+  setTag(/<link rel="canonical"[^>]*>/, '<link rel="canonical" href="' + url + '"/>');
+  return html;
+}
+
+fastify.setNotFoundHandler(async (request, reply) => {
   const indexPath = path.join(buildPath, 'index.html');
-  if (fs.existsSync(indexPath)) reply.type('text/html').header('Cache-Control', 'no-cache').send(fs.readFileSync(indexPath));
-  else reply.code(404).send({ error: 'Not found' });
+  if (!fs.existsSync(indexPath)) return reply.code(404).send({ error: 'Not found' });
+  let html = fs.readFileSync(indexPath, 'utf8');
+  try {
+    const m = /^\/products\/([^/?#]+)/.exec(request.url || '');
+    if (m) {
+      const slug = decodeURIComponent(m[1]);
+      const all = await getAllProducts();
+      const p = all.find(x => x.slug === slug);
+      if (p) html = productHtml(html, p);
+    }
+  } catch (err) { console.error('[RAVARI] product meta failed:', err.message); }
+  return reply.type('text/html; charset=utf-8').header('Cache-Control', 'no-cache').send(html);
 });
 
 // ── Order confirmation emails ─────────────────────────────────────────────────

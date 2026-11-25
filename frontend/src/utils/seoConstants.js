@@ -19,9 +19,9 @@ export const SEO_CONFIG = {
       email: 'Ravari.store@gmail.com'
     },
     sameAs: [
-      'https://instagram.com/ravari',
-      'https://facebook.com/ravari',
-      'https://twitter.com/ravari'
+      'https://www.instagram.com/ravari_store',
+      'https://www.facebook.com/profile.php?id=61585497611013',
+      'https://www.linkedin.com/in/ravari-store-854b98406'
     ]
   },
 
