@@ -16,6 +16,7 @@ function Products() {
   const [categories, setCategories] = useState([]);
   const [filters,    setFilters]    = useState({ category: '', sort: 'newest', search: '' });
   const [loading,    setLoading]    = useState(true);
+  const [page, setPage] = useState(1); const PER_PAGE = 12;
   const [wishlist,   setWishlist]   = useState(() => { try { return JSON.parse(localStorage.getItem('ravari_wishlist') || '[]'); } catch { return []; } });
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
@@ -29,9 +30,9 @@ function Products() {
   }, [searchParams]);
 
   useEffect(() => {
-    setLoading(true);
+  setLoading(true); setPage(1);
     Promise.all([
-      api.get('/products', { params: filters }),
+      api.get('/products', { params: { ...filters, limit: 100 } }),
       api.get('/products/categories/list'),
     ]).then(([pRes, cRes]) => {
       setProducts(pRes.data.products || pRes.data || []);
@@ -154,8 +155,17 @@ function Products() {
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
-            {products.map(p => (
-              <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} onToggleWishlist={toggleWishlist} isInWishlist={wishlist.includes(p._id)} />
+            {products.slice((page - 1) * PER_PAGE, page * PER_PAGE).map(p => (
+            <ProductCard key={p._id} product={p} onAddToCart={() => addToCart(p)} onToggleWishlist={toggleWishlist} isInWishlist={wishlist.includes(p._id)} />
+            ))}
+          </div>
+        )}        {!loading && products.length > PER_PAGE && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.6rem', marginTop: '3rem' }}>
+            {[...Array(Math.ceil(products.length / PER_PAGE))].map((_, i) => (
+              <button key={i} onClick={() => { setPage(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.75rem', width: '42px', height: '42px', cursor: 'pointer', border: '1px solid #C9A84C', backgroundColor: page === i + 1 ? '#C9A84C' : 'transparent', color: '#0D0D0D' }}>
+                {i + 1}
+              </button>
             ))}
           </div>
         )}
