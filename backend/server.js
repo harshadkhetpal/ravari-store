@@ -51,7 +51,7 @@ const PRODUCTS = [
     longDescription: 'A statement piece that blends artisan craft with everyday utility. Handwoven tribal canvas body with genuine leather trim. Perfect for office, travel and casual use.',
     material: ['Genuine Leather', 'Tribal Canvas', 'Braided Leather Trim'],
     dimensions: { length: '16"', width: '5"', height: '14"' },
-    stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+    stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
     id: 4, _id: '4',
@@ -70,7 +70,7 @@ const PRODUCTS = [
     longDescription: 'Engineered for secure elegance. The RAVARI Jewellery Box features 3 pull-out tiers with a built-in mirror in the lid, a lockable clasp, and soft velvet-lined compartments. Premium crocodile-embossed leather with sturdy metallic handle and silver hardware accents.',
     material: ['Crocodile-Pattern Leather', 'Velvet Lining', 'Silver Hardware'],
     dimensions: { length: '8"', width: '6"', height: '5.5"' },
-    stock: 0, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
     id: 5, _id: '5',
@@ -130,7 +130,7 @@ const PRODUCTS = [
         ],
       },
     ],
-    stock: 15, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
+    stock: 15, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
     id: 6, _id: '6',
@@ -148,7 +148,7 @@ const PRODUCTS = [
     ],
     description: 'Heavy-duty genuine leather work apron with multiple deep pockets for tools, accessories, and essentials. Adjustable shoulder strap fits all body types. Ideal for electricians, carpenters, barbers, chefs, and craftsmen. Durable reinforced stitching built to last.',
     material: ['Genuine Leather', 'Reinforced Stitching', 'Adjustable Straps'],
-    stock: 25, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+    stock: 25, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
     id: 7, _id: '7',
@@ -196,7 +196,7 @@ const PRODUCTS = [
         ],
       },
     ],
-    stock: 18, isNew: true, isFeatured: true, rating: 4.9, reviewCount: 0
+    stock: 18, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
     id: 8, _id: '8',
@@ -213,7 +213,7 @@ const PRODUCTS = [
     ],
     description: 'Compact leather travel folio with dedicated card slots and passport organizer. Keep your cards, cash, boarding pass and passport organized in one sleek leather wallet. Perfect travel companion.',
     material: ['Genuine Leather', 'Card Slots', 'Passport Sleeve'],
-    stock: 0, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
     id: 9, _id: '9',
@@ -269,7 +269,7 @@ const PRODUCTS = [
         ],
       },
     ],
-    stock: 0, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
     id: 10, _id: '10',
@@ -286,7 +286,7 @@ const PRODUCTS = [
     ],
     description: 'Compact leather key holder with zippered pouch and sturdy metal keychain. Keeps car and home keys organized, scratch-free and always within reach. Premium leather finish with reinforced stitching.',
     material: ['Genuine Leather', 'Metal Keychain', 'YKK Zipper'],
-    stock: 0, isNew: true, isFeatured: true, rating: 4.7, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
     id: 11, _id: '11',
@@ -303,7 +303,7 @@ const PRODUCTS = [
     ],
     description: 'Premium leather desk organizer with dedicated pen stand, card holder and utility tray. Keeps your workspace clean, organized and elegant. Crafted from genuine leather with reinforced base.',
     material: ['Genuine Leather', 'Reinforced Base', 'Metal Accents'],
-    stock: 0, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+    stock: 0, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
     id: 12, _id: '12',
@@ -319,7 +319,7 @@ const PRODUCTS = [
     ],
     description: 'Structured satchel with premium textured leather, top handle and flap closure. Multi-compartment interior with zipper pocket keeps everything organized. Perfect for work, travel and daily use.',
     material: ['Premium Textured Leather', 'Top Handle', 'Flap Closure', 'Zipper Pocket'],
-    stock: 20, isNew: true, isFeatured: true, rating: 4.8, reviewCount: 0
+    stock: 20, isNew: true, isFeatured: true, rating: 0, reviewCount: 0
   },
   {
   id: 13, _id: '13',
